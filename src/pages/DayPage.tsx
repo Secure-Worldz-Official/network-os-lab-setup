@@ -49,11 +49,11 @@ export function DayPage() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.2 }}
-        className="pb-16"
+        className="pb-20"
       >
         {/* Breadcrumb Navigation Bar */}
         <div className="border-b border-zinc-800/80 bg-[#0c0c0e]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
             <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-zinc-400">
               <Link to="/" className="hover:text-white transition-colors">
                 Home
@@ -63,7 +63,7 @@ export function DayPage() {
                 Roadmap
               </Link>
               <ChevronRight size={12} className="text-zinc-600" />
-              <span className="text-zinc-400">Module {module.number}</span>
+              <span className="text-zinc-400">Module 1</span>
               <ChevronRight size={12} className="text-zinc-600" />
               <span className="text-white font-semibold">Day 0{day.id}</span>
             </nav>
@@ -81,54 +81,54 @@ export function DayPage() {
 
         {/* Prev / Next Bottom Navigation */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="h-[1px] bg-zinc-800 mb-6" />
-          <div className="flex items-center justify-between gap-4">
+          <div className="h-[1px] bg-zinc-800 mb-8" />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
             {prevDay ? (
               <Link
                 to={`/roadmap/${module.id}/${prevDay.slug}`}
                 id={`nav-prev-day-${prevDay.id}`}
-                className="group flex items-center gap-3 p-3 sm:px-4 sm:py-3 rounded-lg border border-zinc-800 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all max-w-[48%]"
+                className="group flex items-center gap-3.5 p-4 sm:p-5 rounded-xl border border-zinc-800 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1"
               >
-                <ChevronLeft size={16} className="text-zinc-400 group-hover:text-white transition-colors flex-shrink-0" />
+                <ChevronLeft size={18} className="text-zinc-400 group-hover:text-white transition-colors flex-shrink-0" />
                 <div className="min-w-0 text-left">
                   <span className="block text-[10px] font-mono uppercase text-zinc-500">
                     Previous Day
                   </span>
                   <span className="block text-xs sm:text-sm font-semibold text-zinc-200 group-hover:text-white truncate">
-                    Day {prevDay.id}: {prevDay.title}
+                    Day 0{prevDay.id}: {prevDay.title}
                   </span>
                 </div>
               </Link>
             ) : (
-              <div />
+              <div className="hidden sm:block flex-1" />
             )}
 
             {nextDay ? (
               <Link
                 to={`/roadmap/${module.id}/${nextDay.slug}`}
                 id={`nav-next-day-${nextDay.id}`}
-                className="group flex items-center justify-end gap-3 p-3 sm:px-4 sm:py-3 rounded-lg border border-zinc-800 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all max-w-[48%] ml-auto text-right"
+                className="group flex items-center justify-end gap-3.5 p-4 sm:p-5 rounded-xl border border-zinc-800 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1 text-right"
               >
                 <div className="min-w-0 text-right">
                   <span className="block text-[10px] font-mono uppercase text-zinc-500">
                     Next Day
                   </span>
                   <span className="block text-xs sm:text-sm font-semibold text-zinc-200 group-hover:text-white truncate">
-                    Day {nextDay.id}: {nextDay.title}
+                    Day 0{nextDay.id}: {nextDay.title}
                   </span>
                 </div>
-                <ChevronRight size={16} className="text-zinc-400 group-hover:text-white transition-colors flex-shrink-0" />
+                <ChevronRight size={18} className="text-zinc-400 group-hover:text-white transition-colors flex-shrink-0" />
               </Link>
             ) : (
               <Button
                 variant="outline"
-                size="md"
+                size="lg"
                 onClick={() => navigate('/roadmap')}
                 id="nav-module-complete-btn"
-                className="ml-auto"
+                className="flex-1 justify-center sm:justify-end"
               >
                 <span>Curriculum Overview</span>
-                <ChevronRight size={15} />
+                <ChevronRight size={16} />
               </Button>
             )}
           </div>
