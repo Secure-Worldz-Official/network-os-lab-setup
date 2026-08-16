@@ -1,27 +1,28 @@
 import { cn } from '@/lib/utils';
 
-type BadgeVariant = 'default' | 'accent' | 'success' | 'locked' | 'muted' | 'outline';
+export type BadgeVariant = 'default' | 'solid' | 'outline' | 'locked' | 'success';
 
 interface BadgeProps {
   children: React.ReactNode;
   variant?: BadgeVariant;
   className?: string;
+  size?: 'sm' | 'md';
 }
 
 const variants: Record<BadgeVariant, string> = {
-  default: 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-muted)]',
-  accent: 'bg-[var(--accent-pale)] border-[var(--accent-dim)] text-red-400',
-  success: 'bg-emerald-950/50 border-emerald-800 text-emerald-400',
-  locked: 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-muted)] opacity-50',
-  muted: 'bg-transparent border-[var(--border-subtle)] text-[var(--text-muted)]',
-  outline: 'bg-transparent border-[var(--border)] text-[var(--text-secondary)]',
+  default: 'bg-zinc-900 border-zinc-800 text-zinc-300',
+  solid: 'bg-white border-white text-black font-semibold',
+  outline: 'bg-transparent border-zinc-700 text-zinc-300',
+  locked: 'bg-zinc-950/80 border-zinc-800 text-zinc-500',
+  success: 'bg-zinc-900 border-zinc-700 text-zinc-100 font-medium',
 };
 
-export function Badge({ children, variant = 'default', className }: BadgeProps) {
+export function Badge({ children, variant = 'default', size = 'sm', className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border leading-none',
+        'inline-flex items-center gap-1.5 rounded-full border tracking-wide uppercase font-mono font-medium',
+        size === 'sm' ? 'px-2.5 py-0.5 text-[10px]' : 'px-3 py-1 text-xs',
         variants[variant],
         className
       )}

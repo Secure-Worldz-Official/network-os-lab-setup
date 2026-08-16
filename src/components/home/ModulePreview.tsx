@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Lock } from 'lucide-react';
+import { ArrowRight, Lock, Terminal } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Badge } from '@/components/ui/Badge';
 import { roadmap } from '@/data/roadmap';
@@ -14,16 +14,27 @@ interface ModulePreviewProps {
 
 export function ModulePreview({ progress }: ModulePreviewProps) {
   return (
-    <section className="px-6 sm:px-8 py-12" aria-label="Module overview">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <span className="section-label block mb-2">The Curriculum</span>
-          <h2 className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
-            What you'll cover
-          </h2>
+    <section className="py-14 sm:py-20 bg-[#09090b]">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">
+              Curriculum Overview
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white font-heading tracking-tight mt-1">
+              Roadmap Structure
+            </h2>
+          </div>
+          <Link
+            to="/roadmap"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 hover:text-white transition-colors"
+          >
+            <span>Explore All 3 Modules</span>
+            <ArrowRight size={13} />
+          </Link>
         </div>
 
-        <div className="space-y-3">
+        <div className="grid gap-4">
           {roadmap.map((module, i) => {
             const mp = progress.moduleProgress(module.id);
             const pct = mp.total > 0 ? (mp.done / mp.total) * 100 : 0;
@@ -31,57 +42,78 @@ export function ModulePreview({ progress }: ModulePreviewProps) {
             return (
               <motion.div
                 key={module.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.08 }}
-                className={module.comingSoon ? 'card-locked' : 'card'}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                className={`rounded-xl border p-5 sm:p-6 transition-all ${
+                  module.comingSoon
+                    ? 'bg-[#0f0f12]/40 border-zinc-850 opacity-60'
+                    : 'bg-[#111113] border-zinc-800 hover:border-zinc-700'
+                }`}
               >
-                <div className="p-5 flex items-start gap-4">
-                  {/* Number */}
-                  <div
-                    className="flex-shrink-0 w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-sm font-bold"
-                    style={{
-                      background: module.comingSoon ? 'var(--bg-elevated)' : 'var(--accent-pale)',
-                      border: `1px solid ${module.comingSoon ? 'var(--border)' : 'var(--accent-dim)'}`,
-                      color: module.comingSoon ? 'var(--text-muted)' : 'var(--accent)',
-                      fontFamily: 'var(--font-heading)',
-                    }}
-                  >
-                    {module.comingSoon ? <Lock size={14} /> : module.number}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-10 h-10 rounded-lg border flex items-center justify-center font-mono font-bold text-sm flex-shrink-0 ${
+                        module.comingSoon
+                          ? 'bg-zinc-900 border-zinc-800 text-zinc-600'
+                          : 'bg-zinc-900 border-zinc-700 text-white'
+                      }`}
+                    >
+                      {module.comingSoon ? <Lock size={15} /> : `0${module.number}`}
+                    </div>
+
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <h3 className="text-base font-bold text-white font-heading tracking-tight">
+                          Module {module.number}: {module.title}
+                        </h3>
+                        {module.comingSoon ? (
+                          <Badge variant="locked">Coming Soon</Badge>
+                        ) : pct === 100 ? (
+                          <Badge variant="solid">Complete</Badge>
+                        ) : pct > 0 ? (
+                          <Badge variant="outline">{Math.round(pct)}% Done</Badge>
+                        ) : (
+                          <Badge variant="default">Active</Badge>
+                        )}
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-zinc-400">
+                        {module.subtitle}
+                      </p>
+
+                      <div className="flex items-center gap-3 text-xs text-zinc-500 font-mono pt-1">
+                        <span className="flex items-center gap-1">
+                          <Terminal size={12} />
+                          {module.dayRange}
+                        </span>
+                        {!module.comingSoon && (
+                          <span>· {mp.done}/{mp.total} days completed</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <h3 className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
-                        Module {module.number}: {module.title}
-                      </h3>
-                      {module.comingSoon ? (
-                        <Badge variant="locked">Coming Soon</Badge>
-                      ) : pct > 0 ? (
-                        <Badge variant="accent">{Math.round(pct)}% done</Badge>
-                      ) : null}
-                    </div>
-                    <p className="text-xs text-[var(--text-muted)] mb-1">{module.subtitle}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{module.dayRange}</p>
-
-                    {!module.comingSoon && (
-                      <ProgressBar value={pct} size="sm" className="mt-3 max-w-[200px]" />
+                  <div className="flex sm:flex-col sm:items-end justify-between items-center gap-3 sm:min-w-[180px]">
+                    {!module.comingSoon ? (
+                      <>
+                        <ProgressBar value={pct} size="sm" className="max-w-[160px]" />
+                        <Link
+                          to="/roadmap"
+                          className="inline-flex items-center gap-1 text-xs font-mono font-medium text-white hover:text-zinc-300 transition-colors"
+                        >
+                          <span>Open Module</span>
+                          <ArrowRight size={13} />
+                        </Link>
+                      </>
+                    ) : (
+                      <span className="text-xs font-mono text-zinc-500">
+                        In Development
+                      </span>
                     )}
                   </div>
-
-                  {/* CTA */}
-                  {!module.comingSoon && (
-                    <Link
-                      to="/roadmap"
-                      className="flex-shrink-0 flex items-center gap-1 text-xs font-medium text-[var(--accent)] hover:text-red-400 transition-colors"
-                      id={`module-preview-cta-${module.id}`}
-                    >
-                      View
-                      <ArrowRight size={12} />
-                    </Link>
-                  )}
                 </div>
               </motion.div>
             );

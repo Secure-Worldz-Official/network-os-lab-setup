@@ -1,6 +1,7 @@
-import { motion } from 'framer-motion';
-import { Flame, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CheckCircle2, Circle, ArrowRight } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { roadmap } from '@/data/roadmap';
 import type { useProgress } from '@/hooks/useProgress';
 
 type ProgressAPI = ReturnType<typeof useProgress>;
@@ -12,78 +13,88 @@ interface OverallProgressProps {
 export function OverallProgress({ progress }: OverallProgressProps) {
   const overall = progress.overallProgress();
   const pct = overall.total > 0 ? (overall.done / overall.total) * 100 : 0;
+  const mod1 = roadmap[0];
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="px-6 sm:px-8 py-10 border-t border-b border-[var(--border)]"
-      aria-label="Overall course progress"
-    >
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Flame
-                size={16}
-                className={overall.done > 0 ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'}
-              />
-              <span className="section-label">Your Progress</span>
-            </div>
-            <h2 className="text-xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
-              {overall.done === 0
-                ? 'Ready to begin?'
-                : overall.done === overall.total
-                ? 'Module 1 complete!'
-                : `${overall.done} of ${overall.total} days done`}
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-2 text-right">
-            <div>
-              <p className="text-3xl font-bold text-[var(--accent)]" style={{ fontFamily: 'var(--font-heading)' }}>
-                {Math.round(pct)}%
+    <section className="border-b border-zinc-800 bg-[#0c0c0e] py-12 sm:py-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-zinc-800 bg-[#111113] p-6 sm:p-8 space-y-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">
+                Persistent Local Tracker
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
+                Roadmap Completion Status
+              </h2>
+              <p className="text-xs sm:text-sm text-zinc-400">
+                {overall.done === 0
+                  ? 'No days checked off yet. Work through Day 01 to begin tracking.'
+                  : `${overall.done} of ${overall.total} days completed in Module 1.`}
               </p>
-              <p className="text-xs text-[var(--text-muted)]">Module 1</p>
+            </div>
+
+            <div className="flex items-baseline gap-2 self-start sm:self-auto bg-zinc-950 px-4 py-2 rounded-xl border border-zinc-800 font-mono">
+              <span className="text-3xl font-extrabold text-white">
+                {Math.round(pct)}%
+              </span>
+              <span className="text-xs text-zinc-500 uppercase">Complete</span>
             </div>
           </div>
+
+          {/* Progress Bar */}
+          <ProgressBar value={pct} size="md" />
+
+          {/* Interactive Day Check Matrix */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between text-xs font-mono text-zinc-400">
+              <span>Module 1 Days (1 - 9)</span>
+              <span className="text-zinc-500">Click a day to study</span>
+            </div>
+
+            <div className="grid grid-cols-3 sm:grid-cols-9 gap-2">
+              {mod1.days.map((day) => {
+                const done = progress.isComplete(mod1.id, day.id);
+                return (
+                  <Link
+                    key={day.id}
+                    to={`/roadmap/${mod1.id}/${day.slug}`}
+                    className={`group relative flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
+                      done
+                        ? 'bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.2)]'
+                        : 'bg-zinc-950/60 border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center mb-1">
+                      {done ? (
+                        <CheckCircle2 size={14} className="text-black" />
+                      ) : (
+                        <Circle size={14} className="text-zinc-600 group-hover:text-zinc-400" />
+                      )}
+                    </div>
+                    <span className="font-mono text-xs font-bold">
+                      D{day.id < 10 ? `0${day.id}` : day.id}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Action Row */}
+          <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-xs font-mono text-zinc-500">
+            <span>Progress automatically syncs with localStorage</span>
+            <Link
+              to="/roadmap"
+              className="inline-flex items-center gap-1 text-zinc-300 hover:text-white transition-colors"
+            >
+              <span>Full Curriculum View</span>
+              <ArrowRight size={12} />
+            </Link>
+          </div>
         </div>
-
-        <ProgressBar value={pct} size="lg" animated />
-
-        {/* Day dots */}
-        <div className="flex gap-1.5 mt-4 flex-wrap">
-          {Array.from({ length: overall.total }, (_, i) => {
-            const dayId = i + 1;
-            const done = progress.isComplete('module-1', dayId);
-            return (
-              <motion.div
-                key={dayId}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: i * 0.04 }}
-                title={`Day ${dayId}`}
-                className={`w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center text-xs font-bold transition-all ${
-                  done
-                    ? 'bg-[var(--accent)] text-white'
-                    : 'bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-muted)]'
-                }`}
-                style={{ fontFamily: 'var(--font-heading)' }}
-              >
-                {done ? <CheckCircle2 size={14} /> : dayId}
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {overall.done === 0 && (
-          <p className="text-sm text-[var(--text-muted)] mt-3">
-            Complete each day and mark it done — your progress saves automatically.
-          </p>
-        )}
       </div>
-    </motion.section>
+    </section>
   );
 }

@@ -1,29 +1,31 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Shield, Target, Layers } from 'lucide-react';
+import { motion, type Variants } from 'framer-motion';
+import { ArrowRight, Shield, Terminal, BookOpen, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0 },
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
 };
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
 };
 
 const pills = [
   { icon: Shield, label: 'CIA Triad' },
-  { icon: Layers, label: 'OSI / TCP/IP' },
-  { icon: Target, label: 'Threat Modelling' },
+  { icon: Layers, label: 'OSI 7-Layer Model' },
+  { icon: Terminal, label: 'Subnetting & CIDR' },
+  { icon: BookOpen, label: 'Wireshark Analysis' },
 ];
 
 export function HeroSection() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Particle grid background
+  // Subtle monochrome starfield / particles
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -38,29 +40,34 @@ export function HeroSection() {
     resize();
     window.addEventListener('resize', resize);
 
-    const dots: { x: number; y: number; opacity: number; speed: number }[] = [];
-    for (let i = 0; i < 60; i++) {
-      dots.push({
+    const particles: { x: number; y: number; opacity: number; speed: number; radius: number }[] = [];
+    for (let i = 0; i < 50; i++) {
+      particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        opacity: Math.random() * 0.4 + 0.05,
-        speed: Math.random() * 0.3 + 0.1,
+        opacity: Math.random() * 0.3 + 0.05,
+        speed: Math.random() * 0.25 + 0.05,
+        radius: Math.random() * 1.2 + 0.5,
       });
     }
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      dots.forEach((d) => {
-        d.y -= d.speed;
-        if (d.y < 0) { d.y = canvas.height; d.x = Math.random() * canvas.width; }
+      particles.forEach((p) => {
+        p.y -= p.speed;
+        if (p.y < 0) {
+          p.y = canvas.height;
+          p.x = Math.random() * canvas.width;
+        }
         ctx.beginPath();
-        ctx.arc(d.x, d.y, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(220, 38, 38, ${d.opacity})`;
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
         ctx.fill();
       });
       animId = requestAnimationFrame(draw);
     };
     draw();
+
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
@@ -68,88 +75,88 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden px-6 sm:px-8 py-20 sm:py-28 min-h-[70vh] flex items-center">
-      {/* Animated canvas background */}
+    <section className="relative overflow-hidden border-b border-zinc-800 bg-[#09090b]">
+      {/* Background Canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-40"
         aria-hidden="true"
       />
 
-      {/* Grid overlay */}
-      <div className="absolute inset-0 grid-bg opacity-30 pointer-events-none" aria-hidden="true" />
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 grid-pattern pointer-events-none opacity-40" aria-hidden="true" />
 
-      {/* Radial vignette */}
+      {/* Subtle radial lighting */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 0%, rgba(220,38,38,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(circle at 50% 20%, rgba(255,255,255,0.03) 0%, transparent 60%)',
         }}
         aria-hidden="true"
       />
 
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 max-w-3xl mx-auto text-center"
-      >
-        {/* Eyebrow */}
-        <motion.div variants={fadeUp} className="flex items-center justify-center gap-2 mb-6">
-          <span className="section-label">Self-paced · Module 1 now live</span>
-          <span className="chip chip-accent">Free</span>
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
+          {/* Eyebrow badge */}
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2">
+            <Badge variant="outline" size="md">
+              Self-Paced Roadmap · v1.0 Live
+            </Badge>
+          </motion.div>
+
+          {/* Heading */}
+          <motion.h1
+            variants={fadeUp}
+            className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-3xl mx-auto"
+          >
+            Cybersecurity Foundations <br />
+            <span className="text-zinc-400 font-normal">From Theory to Virtual Labs</span>
+          </motion.h1>
+
+          {/* Subheading */}
+          <motion.p
+            variants={fadeUp}
+            className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed"
+          >
+            A high-craft curriculum covering networking principles, TCP/IP, subnetting math,
+            packet analysis with Wireshark, and isolated virtual lab environments.
+          </motion.p>
+
+          {/* Topic Pills */}
+          <motion.div
+            variants={fadeUp}
+            className="flex flex-wrap justify-center gap-2 pt-2"
+          >
+            {pills.map(({ icon: Icon, label }) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-zinc-300"
+              >
+                <Icon size={13} className="text-zinc-400" />
+                {label}
+              </span>
+            ))}
+          </motion.div>
+
+          {/* Call to Actions */}
+          <motion.div
+            variants={fadeUp}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4"
+          >
+            <Link to="/roadmap" className="w-full sm:w-auto">
+              <Button variant="primary" size="lg" className="w-full sm:w-auto">
+                <span>Start Learning</span>
+                <ArrowRight size={16} />
+              </Button>
+            </Link>
+            <Link to="/roadmap/module-1/day-1" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                <span>Jump into Day 01</span>
+              </Button>
+            </Link>
+          </motion.div>
         </motion.div>
-
-        {/* Headline */}
-        <motion.h1 variants={fadeUp} className="mb-6">
-          <span className="gradient-text">From Zero to</span>
-          <br />
-          <span className="accent-gradient-text">Security-Ready</span>
-        </motion.h1>
-
-        {/* Sub */}
-        <motion.p
-          variants={fadeUp}
-          className="text-base sm:text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-8 leading-relaxed"
-        >
-          A structured, hands-on cybersecurity learning roadmap — starting with networking
-          fundamentals and progressing to real attack and defence skills. No fluff, no paywalls.
-        </motion.p>
-
-        {/* Pills */}
-        <motion.div
-          variants={fadeUp}
-          className="flex flex-wrap justify-center gap-2 mb-10"
-        >
-          {pills.map(({ icon: Icon, label }) => (
-            <span key={label} className="chip">
-              <Icon size={11} />
-              {label}
-            </span>
-          ))}
-          <span className="chip">Wireshark</span>
-          <span className="chip">Subnetting</span>
-          <span className="chip">Lab Setup</span>
-        </motion.div>
-
-        {/* CTAs */}
-        <motion.div
-          variants={fadeUp}
-          className="flex flex-wrap items-center justify-center gap-3"
-        >
-          <Link to="/roadmap">
-            <Button variant="primary" size="lg" id="hero-start-learning-cta">
-              Start Learning
-              <ArrowRight size={16} />
-            </Button>
-          </Link>
-          <Link to="/roadmap/module-1/day-1">
-            <Button variant="secondary" size="lg" id="hero-day-1-cta">
-              Jump to Day 1
-            </Button>
-          </Link>
-        </motion.div>
-      </motion.div>
+      </div>
     </section>
   );
 }

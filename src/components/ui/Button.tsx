@@ -1,31 +1,30 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  asChild?: boolean;
   children: React.ReactNode;
 }
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-[var(--accent)] hover:bg-red-500 text-white border border-[var(--accent)] shadow-[0_0_16px_var(--accent-glow)]',
+    'bg-white text-black border border-white hover:bg-zinc-200 hover:border-zinc-200 font-semibold shadow-[0_0_20px_rgba(255,255,255,0.15)]',
   secondary:
-    'bg-[var(--bg-elevated)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] border border-[var(--border)] hover:border-[var(--accent-dim)]',
+    'bg-zinc-900 text-zinc-100 border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 font-medium',
+  outline:
+    'bg-transparent text-zinc-200 border border-zinc-700 hover:bg-zinc-900 hover:border-zinc-500 font-medium',
   ghost:
-    'bg-transparent hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent',
-  danger:
-    'bg-red-950/40 hover:bg-red-950/70 text-red-400 border border-red-900 hover:border-red-700',
+    'bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-900 hover:text-zinc-100 font-medium',
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+  sm: 'px-3 py-1.5 text-xs gap-1.5 rounded-md',
+  md: 'px-4 py-2 text-sm gap-2 rounded-md',
+  lg: 'px-6 py-2.5 text-sm sm:text-base gap-2.5 rounded-lg',
 };
 
 export function Button({
@@ -37,14 +36,12 @@ export function Button({
 }: ButtonProps) {
   return (
     <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.015 }}
+      whileTap={{ scale: 0.985 }}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] font-medium',
-        'transition-all duration-150 cursor-pointer',
-        'focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2',
-        'disabled:opacity-40 disabled:pointer-events-none',
-        'font-[family-name:var(--font-heading)]',
+        'inline-flex items-center justify-center cursor-pointer transition-colors duration-150',
+        'focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2',
+        'disabled:opacity-40 disabled:pointer-events-none select-none',
         variants[variant],
         sizes[size],
         className

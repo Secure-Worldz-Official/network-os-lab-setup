@@ -10,7 +10,11 @@ interface ProgressBarProps {
   animated?: boolean;
 }
 
-const heights = { sm: 'h-1', md: 'h-1.5', lg: 'h-2.5' };
+const heights = {
+  sm: 'h-1',
+  md: 'h-1.5',
+  lg: 'h-2.5',
+};
 
 export function ProgressBar({
   value,
@@ -25,32 +29,32 @@ export function ProgressBar({
   return (
     <div className={cn('w-full', className)}>
       {(showLabel || label) && (
-        <div className="flex justify-between items-center mb-1.5">
+        <div className="flex justify-between items-center mb-2">
           {label && (
-            <span className="text-xs font-medium text-[var(--text-muted)]">{label}</span>
+            <span className="text-xs font-mono text-zinc-400 tracking-tight">{label}</span>
           )}
           {showLabel && (
-            <span className="text-xs font-semibold text-[var(--accent)] ml-auto">
+            <span className="text-xs font-mono font-medium text-white ml-auto">
               {Math.round(clamped)}%
             </span>
           )}
         </div>
       )}
       <div
-        className={cn('progress-track w-full', heights[size])}
+        className={cn(
+          'w-full bg-zinc-900 border border-zinc-800/80 rounded-full overflow-hidden p-[1px]',
+          heights[size]
+        )}
         role="progressbar"
         aria-valuenow={clamped}
         aria-valuemin={0}
         aria-valuemax={100}
       >
         <motion.div
-          className={cn('h-full rounded-full bg-[var(--accent)] relative', {
-            'after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:w-2 after:h-2 after:rounded-full after:bg-red-400 after:shadow-[0_0_8px_2px_rgba(239,68,68,0.6)]':
-              clamped > 0 && size !== 'sm',
-          })}
+          className="h-full rounded-full bg-white relative"
           initial={animated ? { width: 0 } : { width: `${clamped}%` }}
           animate={{ width: `${clamped}%` }}
-          transition={{ duration: 1, ease: [0.4, 0, 0.2, 1], delay: 0.2 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         />
       </div>
     </div>

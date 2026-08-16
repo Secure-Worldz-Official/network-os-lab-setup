@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Lock, Layers } from 'lucide-react';
+import { ChevronDown, Lock, Terminal } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Badge } from '@/components/ui/Badge';
 import { DayCard } from './DayCard';
@@ -24,109 +24,117 @@ export function ModuleCard({
   const pct = moduleProgress.total > 0 ? (moduleProgress.done / moduleProgress.total) * 100 : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+    <div
       className={cn(
-        'rounded-[var(--radius-lg)] border overflow-hidden',
+        'rounded-xl border transition-all duration-200 overflow-hidden',
         module.comingSoon
-          ? 'border-[var(--border-subtle)] opacity-50 pointer-events-none'
-          : 'border-[var(--border)]'
+          ? 'bg-[#0f0f12]/50 border-zinc-800/50 opacity-60'
+          : 'bg-[#111113] border-zinc-800 hover:border-zinc-700'
       )}
     >
-      {/* Module header */}
+      {/* Module Header Bar */}
       <button
+        type="button"
         onClick={() => !module.comingSoon && setOpen((o) => !o)}
         className={cn(
-          'w-full flex items-start gap-4 p-5 text-left',
-          'bg-[var(--bg-surface)] transition-colors',
-          !module.comingSoon && 'hover:bg-[var(--bg-elevated)] cursor-pointer',
-          open && !module.comingSoon && 'bg-[var(--bg-elevated)]'
+          'w-full flex items-start gap-4 p-5 sm:p-6 text-left transition-colors',
+          !module.comingSoon && 'cursor-pointer hover:bg-zinc-900/40',
+          open && !module.comingSoon && 'bg-zinc-900/30'
         )}
         aria-expanded={open}
-        aria-controls={`module-${module.id}-content`}
+        aria-controls={`module-${module.id}-days`}
         id={`module-${module.id}-header`}
         disabled={module.comingSoon}
       >
-        {/* Number badge */}
+        {/* Module Number / Status Icon */}
         <div
           className={cn(
-            'flex-shrink-0 w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center font-bold text-sm',
+            'flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center font-mono font-bold text-sm border',
             module.comingSoon
-              ? 'bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border)]'
-              : 'bg-[var(--accent-pale)] text-[var(--accent)] border border-[var(--accent-dim)]'
+              ? 'bg-zinc-900 text-zinc-600 border-zinc-800'
+              : 'bg-zinc-900 text-white border-zinc-700'
           )}
-          style={{ fontFamily: 'var(--font-heading)' }}
         >
-          {module.comingSoon ? <Lock size={14} /> : module.number}
+          {module.comingSoon ? (
+            <Lock size={16} />
+          ) : (
+            <span>M{module.number}</span>
+          )}
         </div>
 
-        {/* Info */}
+        {/* Module Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h2 className="text-base font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
+          <div className="flex items-center gap-2.5 flex-wrap mb-1">
+            <h2 className="text-base sm:text-lg font-bold text-white font-heading tracking-tight">
               Module {module.number}: {module.title}
             </h2>
             {module.comingSoon ? (
               <Badge variant="locked">Coming Soon</Badge>
             ) : pct === 100 ? (
-              <Badge variant="success">Complete</Badge>
+              <Badge variant="solid">Completed</Badge>
             ) : pct > 0 ? (
-              <Badge variant="accent">In Progress</Badge>
-            ) : null}
+              <Badge variant="outline">In Progress</Badge>
+            ) : (
+              <Badge variant="default">Not Started</Badge>
+            )}
           </div>
-          <p className="text-sm text-[var(--text-muted)] mb-1">{module.subtitle}</p>
-          <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
+
+          <p className="text-xs sm:text-sm text-zinc-400 font-medium mb-1.5">
+            {module.subtitle}
+          </p>
+
+          <div className="flex items-center gap-3 text-xs text-zinc-500 font-mono">
             <span className="flex items-center gap-1">
-              <Layers size={11} />
+              <Terminal size={12} />
               {module.dayRange}
             </span>
             {!module.comingSoon && (
-              <span>{moduleProgress.done}/{moduleProgress.total} days complete</span>
+              <span>· {moduleProgress.done} of {moduleProgress.total} days checked</span>
             )}
           </div>
 
           {!module.comingSoon && (
-            <div className="mt-3 max-w-xs">
+            <div className="mt-3.5 max-w-sm">
               <ProgressBar value={pct} size="sm" />
             </div>
           )}
         </div>
 
-        {/* Chevron */}
+        {/* Expand/Collapse Toggle */}
         {!module.comingSoon && (
           <motion.div
             animate={{ rotate: open ? 180 : 0 }}
             transition={{ duration: 0.2 }}
-            className="flex-shrink-0 mt-1"
+            className="flex-shrink-0 mt-1 text-zinc-400"
           >
-            <ChevronDown size={18} className="text-[var(--text-muted)]" />
+            <ChevronDown size={18} />
           </motion.div>
         )}
       </button>
 
-      {/* Description bar */}
+      {/* Module Overview Description */}
       {!module.comingSoon && (
-        <div className="px-5 py-3 bg-[var(--bg-base)] border-t border-[var(--border-subtle)]">
-          <p className="text-xs text-[var(--text-muted)] leading-relaxed">{module.description}</p>
+        <div className="px-5 sm:px-6 py-3 bg-[#0a0a0c] border-t border-zinc-800/80">
+          <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+            {module.description}
+          </p>
         </div>
       )}
 
-      {/* Day list */}
+      {/* Days Accordion List */}
       <AnimatePresence>
         {open && !module.comingSoon && (
           <motion.div
-            id={`module-${module.id}-content`}
+            id={`module-${module.id}-days`}
             role="region"
             aria-labelledby={`module-${module.id}-header`}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="overflow-hidden border-t border-[var(--border)]"
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-t border-zinc-800"
           >
-            <div className="p-4 space-y-2 bg-[var(--bg-base)]">
+            <div className="p-4 sm:p-5 space-y-2.5 bg-[#09090b]">
               {module.days.map((day, i) => (
                 <DayCard
                   key={day.id}
@@ -140,6 +148,6 @@ export function ModuleCard({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

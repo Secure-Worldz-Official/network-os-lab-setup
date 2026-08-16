@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion';
 import {
   BookOpen,
-  FlaskConical,
-  Lightbulb,
+  Terminal,
+  FileCode,
   ExternalLink,
   CheckCircle2,
   Circle,
-  Terminal,
+  Sparkles,
+  Layers,
 } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import type { Day } from '@/data/roadmap';
 
 interface DayDetailProps {
@@ -21,12 +23,8 @@ interface DayDetailProps {
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0 },
-};
-
-const stagger = {
-  show: { transition: { staggerChildren: 0.07 } },
 };
 
 export function DayDetail({
@@ -39,147 +37,149 @@ export function DayDetail({
   const pct = moduleProgress.total > 0 ? (moduleProgress.done / moduleProgress.total) * 100 : 0;
 
   return (
-    <motion.article
-      variants={stagger}
-      initial="hidden"
-      animate="show"
-      className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10"
-    >
-      {/* Day header */}
-      <motion.div variants={fadeUp} className="space-y-4">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="section-label">Day {day.id}</span>
-          <Badge variant={isComplete ? 'success' : 'muted'}>
-            {isComplete ? (
-              <>
-                <CheckCircle2 size={10} />
-                Complete
-              </>
-            ) : (
-              <>
-                <Circle size={10} />
-                In Progress
-              </>
-            )}
-          </Badge>
+    <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-10">
+      {/* Day Header */}
+      <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono font-semibold uppercase tracking-widest text-zinc-400">
+              Module 1 · Foundations
+            </span>
+            <Badge variant={isComplete ? 'solid' : 'outline'}>
+              {isComplete ? 'Day Complete' : 'In Progress'}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+            <Layers size={13} />
+            <span>Day {day.id} of 9</span>
+          </div>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
-          {day.title}
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-heading tracking-tight">
+          Day {day.id}: {day.title}
         </h1>
 
-        <ProgressBar
-          value={pct}
-          size="sm"
-          label="Module 1 progress"
-          showLabel
-          className="max-w-xs"
-        />
+        <div className="max-w-md pt-1">
+          <ProgressBar
+            value={pct}
+            size="sm"
+            label={`Module 1 Progress (${moduleProgress.done}/${moduleProgress.total} completed)`}
+            showLabel
+          />
+        </div>
       </motion.div>
 
-      <div className="divider" />
+      <div className="h-[1px] bg-zinc-800" />
 
-      {/* What You'll Learn */}
-      <motion.section variants={fadeUp} aria-labelledby={`learn-${day.id}`}>
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-blue-950/40 border border-blue-900/50 flex items-center justify-center">
-            <BookOpen size={15} className="text-blue-400" />
+      {/* Concept Breakdown: What You'll Learn */}
+      <motion.section
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        className="space-y-4"
+        aria-labelledby={`learn-heading-${day.id}`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white">
+            <BookOpen size={16} />
           </div>
-          <h2 id={`learn-${day.id}`} className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
+          <h2
+            id={`learn-heading-${day.id}`}
+            className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight"
+          >
             What You'll Learn
           </h2>
         </div>
-        <ul className="space-y-3">
-          {day.learn.map((item, i) => (
-            <motion.li
-              key={i}
-              variants={fadeUp}
-              className="flex gap-3 text-[var(--text-secondary)] leading-relaxed"
+
+        <div className="grid gap-3 pt-1">
+          {day.learn.map((concept, idx) => (
+            <div
+              key={idx}
+              className="flex items-start gap-3.5 p-4 rounded-lg bg-[#111113] border border-zinc-800 text-sm text-zinc-300 leading-relaxed"
             >
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
-              <span>{item}</span>
-            </motion.li>
+              <div className="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-mono text-zinc-300 flex-shrink-0 mt-0.5">
+                {idx + 1}
+              </div>
+              <p className="flex-1">{concept}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       </motion.section>
 
-      {/* What You'll Do */}
-      <motion.section variants={fadeUp} aria-labelledby={`do-${day.id}`}>
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-amber-950/40 border border-amber-900/50 flex items-center justify-center">
-            <FlaskConical size={15} className="text-amber-400" />
+      {/* Lab Tasks: What You'll Do */}
+      <motion.section
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        className="space-y-4"
+        aria-labelledby={`do-heading-${day.id}`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white">
+            <Terminal size={16} />
           </div>
-          <h2 id={`do-${day.id}`} className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
-            What You'll Do
+          <h2
+            id={`do-heading-${day.id}`}
+            className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight"
+          >
+            What You'll Do (Hands-on Lab)
           </h2>
         </div>
-        <ol className="space-y-3">
-          {day.doLab.map((item, i) => (
-            <motion.li
-              key={i}
-              variants={fadeUp}
-              className="flex gap-3 text-[var(--text-secondary)] leading-relaxed"
+
+        <div className="space-y-3 pt-1">
+          {day.doLab.map((task, idx) => (
+            <div
+              key={idx}
+              className="flex items-start gap-4 p-4 rounded-lg bg-[#111113] border border-zinc-800 text-sm text-zinc-200 leading-relaxed"
             >
-              <span
-                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                style={{
-                  background: 'var(--accent-pale)',
-                  color: 'var(--accent)',
-                  border: '1px solid var(--accent-dim)',
-                  fontFamily: 'var(--font-heading)',
-                }}
-              >
-                {i + 1}
+              <span className="flex-shrink-0 px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 font-mono text-xs font-bold text-white">
+                STEP {idx + 1}
               </span>
-              <span className="mt-0.5">{item}</span>
-            </motion.li>
+              <p className="flex-1 text-zinc-300">{task}</p>
+            </div>
           ))}
-        </ol>
+        </div>
       </motion.section>
 
       {/* Worked Example */}
       <motion.section
         variants={fadeUp}
-        className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] overflow-hidden"
-        aria-labelledby={`example-${day.id}`}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        className="rounded-xl border border-zinc-800 bg-[#111113] overflow-hidden"
+        aria-labelledby={`example-heading-${day.id}`}
       >
-        <div className="flex items-center gap-2.5 px-5 py-4 border-b border-[var(--border)] bg-[var(--bg-elevated)]">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-pale)] border border-[var(--accent-dim)] flex items-center justify-center">
-            <Lightbulb size={15} className="text-[var(--accent)]" />
-          </div>
-          <div>
-            <p className="section-label">Worked Example</p>
-            <h2
-              id={`example-${day.id}`}
-              className="text-base font-semibold text-[var(--text-primary)] mt-0.5"
-              style={{ fontFamily: 'var(--font-heading)' }}
-            >
-              {day.example.title}
-            </h2>
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800 bg-zinc-950/60">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white">
+              <Sparkles size={16} />
+            </div>
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                Technical Reference
+              </span>
+              <h2
+                id={`example-heading-${day.id}`}
+                className="text-base font-bold text-white font-heading"
+              >
+                {day.example.title}
+              </h2>
+            </div>
           </div>
         </div>
 
-        <div className="px-5 py-5 space-y-4">
-          <div className="prose-content text-[var(--text-secondary)] leading-relaxed text-sm space-y-3">
+        <div className="p-5 sm:p-6 space-y-5">
+          <div className="text-sm text-zinc-300 leading-relaxed space-y-3.5 font-normal">
             {day.example.prose.split('\n\n').map((para, i) => {
-              if (para.startsWith('**') && para.includes('|')) {
-                // Table-like content — render as prose for now
-                return (
-                  <p key={i} className="whitespace-pre-wrap font-mono text-xs text-[var(--text-secondary)]">
-                    {para}
-                  </p>
-                );
-              }
-              // Bold text replacement
               const parts = para.split(/(\*\*[^*]+\*\*)/g);
               return (
                 <p key={i} className="whitespace-pre-wrap">
                   {parts.map((part, j) =>
                     part.startsWith('**') && part.endsWith('**') ? (
-                      <strong
-                        key={j}
-                        className="text-[var(--text-primary)] font-semibold"
-                      >
+                      <strong key={j} className="text-white font-semibold">
                         {part.slice(2, -2)}
                       </strong>
                     ) : (
@@ -192,10 +192,13 @@ export function DayDetail({
           </div>
 
           {day.example.code && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Terminal size={12} className="text-[var(--text-muted)]" />
-                <span className="text-xs text-[var(--text-muted)] font-mono">terminal</span>
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between text-xs font-mono text-zinc-400 px-1">
+                <div className="flex items-center gap-1.5">
+                  <FileCode size={13} />
+                  <span>terminal output / script execution</span>
+                </div>
+                <span>bash / cli</span>
               </div>
               <pre className="code-block text-xs">{day.example.code}</pre>
             </div>
@@ -203,89 +206,102 @@ export function DayDetail({
         </div>
       </motion.section>
 
-      {/* Resources */}
-      <motion.section variants={fadeUp} aria-labelledby={`resources-${day.id}`}>
-        <h2
-          id={`resources-${day.id}`}
-          className="text-lg font-semibold text-[var(--text-primary)] mb-4"
-          style={{ fontFamily: 'var(--font-heading)' }}
-        >
-          Resources
-        </h2>
-        <div className="grid gap-2">
+      {/* Verified External Resources */}
+      <motion.section
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+        className="space-y-4"
+        aria-labelledby={`resources-heading-${day.id}`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white">
+            <BookOpen size={16} />
+          </div>
+          <h2
+            id={`resources-heading-${day.id}`}
+            className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight"
+          >
+            Official Docs & Specifications
+          </h2>
+        </div>
+
+        <div className="grid gap-3 pt-1">
           {day.resources.map((res, i) => (
-            <motion.a
+            <a
               key={i}
-              variants={fadeUp}
               href={res.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="resource-link group"
-              id={`resource-${day.id}-${i}`}
+              className="group flex items-start sm:items-center justify-between gap-4 p-4 rounded-lg bg-[#111113] border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-900/60 transition-colors"
+              id={`resource-link-${day.id}-${i}`}
             >
-              <ExternalLink
-                size={14}
-                className="text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors flex-shrink-0"
-              />
-              <div className="min-w-0">
-                <p className="font-medium text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors truncate">
-                  {res.title}
-                </p>
+              <div className="min-w-0 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
+                    {res.title}
+                  </span>
+                </div>
                 {res.description && (
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1">{res.description}</p>
+                  <p className="text-xs text-zinc-400 line-clamp-1">
+                    {res.description}
+                  </p>
                 )}
               </div>
-            </motion.a>
+              <ExternalLink
+                size={16}
+                className="text-zinc-500 group-hover:text-white transition-colors flex-shrink-0 mt-0.5 sm:mt-0"
+              />
+            </a>
           ))}
         </div>
       </motion.section>
 
-      {/* Mark complete */}
-      <motion.div
-        variants={fadeUp}
-        className="sticky bottom-4 mt-6"
-      >
+      {/* Bottom Sticky Complete Checkbox Bar */}
+      <div className="sticky bottom-6 z-20 pt-4">
         <div
-          className={`rounded-[var(--radius-md)] border p-4 flex items-center justify-between gap-4 transition-all duration-300 ${
+          className={`p-4 sm:p-5 rounded-xl border backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 ${
             isComplete
-              ? 'bg-emerald-950/30 border-emerald-800'
-              : 'bg-[var(--bg-surface)] border-[var(--border)]'
+              ? 'bg-zinc-900/95 border-zinc-600 text-white'
+              : 'bg-[#111113]/95 border-zinc-800 text-zinc-200'
           }`}
         >
-          <div>
-            <p className="text-sm font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
-              {isComplete ? '✓ Day complete!' : 'Mark this day as complete'}
-            </p>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold font-heading text-white">
+                {isComplete ? '✓ Day 0' + day.id + ' Completed' : 'Ready to mark complete?'}
+              </span>
+            </div>
+            <p className="text-xs text-zinc-400">
               {isComplete
-                ? 'Your progress has been saved.'
-                : 'Check off when you\'ve finished the lab tasks.'}
+                ? 'Your progress is stored locally in your browser.'
+                : 'Check this off once you have completed the readings and hands-on lab steps.'}
             </p>
           </div>
-          <button
+
+          <Button
+            variant={isComplete ? 'secondary' : 'primary'}
+            size="md"
             onClick={onToggle}
-            className={`flex items-center gap-2 px-4 py-2 rounded-[var(--radius-sm)] text-sm font-semibold transition-all duration-200 cursor-pointer border ${
-              isComplete
-                ? 'bg-emerald-900/50 border-emerald-700 text-emerald-300 hover:bg-emerald-900'
-                : 'bg-[var(--accent)] border-[var(--accent)] text-white hover:bg-red-500 shadow-[0_0_16px_var(--accent-glow)]'
-            }`}
-            id={`mark-complete-day-${day.id}`}
+            id={`mark-complete-toggle-${day.id}`}
             aria-pressed={isComplete}
+            className="w-full sm:w-auto"
           >
             {isComplete ? (
               <>
-                <CheckCircle2 size={15} />
-                Completed
+                <CheckCircle2 size={16} className="text-white" />
+                Completed (Click to Reset)
               </>
             ) : (
               <>
-                <Circle size={15} />
-                Mark Complete
+                <Circle size={16} />
+                Mark Day {day.id} as Done
               </>
             )}
-          </button>
+          </Button>
         </div>
-      </motion.div>
-    </motion.article>
+      </div>
+    </article>
   );
 }

@@ -12,23 +12,24 @@ export function AppShell({ children }: AppShellProps) {
   const progress = useProgress();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--bg-base)]">
-      {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#09090b] text-[#fafafa]">
+      {/* Desktop Persistent Sidebar */}
+      <div className="hidden lg:flex lg:flex-shrink-0 h-full">
         <Sidebar progress={progress} />
       </div>
 
-      {/* Mobile sidebar overlay */}
+      {/* Mobile Drawer Backdrop + Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-50 lg:hidden flex"
+          role="dialog"
+          aria-modal="true"
         >
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
-            className="absolute left-0 top-0 h-full"
-            onClick={(e) => e.stopPropagation()}
-          >
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="relative z-10 h-full max-w-[85vw]">
             <Sidebar
               progress={progress}
               mobile
@@ -38,11 +39,11 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       )}
 
-      {/* Main content */}
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden">
         <TopBar onMenuClick={() => setSidebarOpen(true)} progress={progress} />
         <main
-          className="flex-1 overflow-y-auto"
+          className="flex-1 overflow-y-auto overflow-x-hidden"
           id="main-content"
         >
           {children}

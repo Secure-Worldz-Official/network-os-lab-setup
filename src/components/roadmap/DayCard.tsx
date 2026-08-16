@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, ChevronRight, Clock } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronRight, BookOpen } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import type { Day } from '@/data/roadmap';
 import { cn } from '@/lib/utils';
@@ -17,67 +17,60 @@ export function DayCard({ day, moduleId, isComplete, index }: DayCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -12 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, delay: index * 0.03 }}
     >
       <Link
         to={to}
         id={`day-card-${moduleId}-${day.id}`}
         className={cn(
-          'group flex items-center gap-4 p-4 rounded-[var(--radius-md)]',
-          'border transition-all duration-200',
-          'hover:border-[var(--accent-dim)] hover:bg-[var(--bg-elevated)]',
+          'group flex items-center justify-between gap-4 p-4 rounded-lg border transition-all duration-150',
           isComplete
-            ? 'bg-emerald-950/20 border-emerald-900/50'
-            : 'bg-[var(--bg-surface)] border-[var(--border)]'
+            ? 'bg-zinc-900/90 border-zinc-700 hover:border-zinc-500'
+            : 'bg-zinc-950/60 border-zinc-800/80 hover:bg-zinc-900/60 hover:border-zinc-600'
         )}
       >
-        {/* Check icon */}
-        <div className="flex-shrink-0">
-          {isComplete ? (
-            <CheckCircle2 size={20} className="text-emerald-500" />
-          ) : (
-            <Circle size={20} className="text-[var(--text-muted)] group-hover:text-[var(--accent-dim)] transition-colors" />
-          )}
-        </div>
+        <div className="flex items-center gap-3.5 min-w-0">
+          {/* Status icon */}
+          <div className="flex-shrink-0">
+            {isComplete ? (
+              <CheckCircle2 size={18} className="text-white" />
+            ) : (
+              <Circle size={18} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+            )}
+          </div>
 
-        {/* Day number pill */}
-        <div
-          className="flex-shrink-0 w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-sm font-bold"
-          style={{
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
-            color: 'var(--text-muted)',
-            fontFamily: 'var(--font-heading)',
-          }}
-        >
-          {day.id}
-        </div>
+          {/* Day number badge */}
+          <div className="flex-shrink-0 w-8 h-8 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-zinc-300 group-hover:border-zinc-600 group-hover:text-white transition-colors">
+            {day.id < 10 ? `0${day.id}` : day.id}
+          </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-semibold text-[var(--text-primary)] group-hover:text-white transition-colors truncate" style={{ fontFamily: 'var(--font-heading)' }}>
-              {day.title}
+          {/* Title and summary */}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors truncate">
+                {day.title}
+              </span>
+              {isComplete && (
+                <Badge variant="solid" size="sm">
+                  Complete
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
+              {day.learn[0]}
             </p>
-            {isComplete && <Badge variant="success">Done</Badge>}
           </div>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1">
-            {day.learn[0]}
-          </p>
         </div>
 
-        {/* Meta + arrow */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="hidden sm:flex items-center gap-1 text-xs text-[var(--text-muted)]">
-            <Clock size={11} />
-            <span>{day.resources.length} refs</span>
+        {/* Action / Meta */}
+        <div className="flex items-center gap-3 flex-shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-colors">
+          <div className="hidden sm:flex items-center gap-1.5 text-xs font-mono">
+            <BookOpen size={12} />
+            <span>{day.resources.length} sources</span>
           </div>
-          <ChevronRight
-            size={16}
-            className="text-[var(--text-muted)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all"
-          />
+          <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
         </div>
       </Link>
     </motion.div>
