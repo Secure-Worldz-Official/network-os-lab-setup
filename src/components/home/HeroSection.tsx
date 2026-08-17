@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 import { ArrowRight, Shield, Terminal, BookOpen, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
