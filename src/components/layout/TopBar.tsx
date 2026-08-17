@@ -13,11 +13,12 @@ export function TopBar({ onMenuClick, progress }: TopBarProps) {
   const overall = progress.overallProgress();
 
   return (
-    <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 py-3.5 bg-[#09090b]/90 backdrop-blur-md border-b border-zinc-800">
+    <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-[#09090b]/95 backdrop-blur-md border-b border-zinc-800/80 shrink-0">
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={onMenuClick}
-          className="p-2 -ml-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors"
+          className="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors cursor-pointer"
           aria-label="Toggle navigation drawer"
           id="mobile-menu-button"
         >
@@ -37,9 +38,7 @@ export function TopBar({ onMenuClick, progress }: TopBarProps) {
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-300">
           <CheckCircle2 size={12} className="text-white" />
-          <span>
-            {overall.done}/{overall.total}
-          </span>
+          <span>{overall.done}/{overall.total}</span>
         </div>
       </div>
     </header>

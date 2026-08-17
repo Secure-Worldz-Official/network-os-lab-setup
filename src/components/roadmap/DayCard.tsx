@@ -25,15 +25,15 @@ export function DayCard({ day, moduleId, isComplete, index }: DayCardProps) {
         to={to}
         id={`day-card-${moduleId}-${day.id}`}
         className={cn(
-          'group flex items-center justify-between gap-4 p-4 rounded-lg border transition-all duration-150',
+          'group flex items-center justify-between gap-3.5 sm:gap-4 p-3.5 sm:p-4 rounded-xl border transition-all duration-150',
           isComplete
-            ? 'bg-zinc-900/90 border-zinc-700 hover:border-zinc-500'
-            : 'bg-zinc-950/60 border-zinc-800/80 hover:bg-zinc-900/60 hover:border-zinc-600'
+            ? 'bg-zinc-900/90 border-zinc-700 hover:border-zinc-500 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]'
+            : 'bg-zinc-950/70 border-zinc-800 hover:bg-zinc-900/80 hover:border-zinc-650 shadow-[0_1px_2px_0_rgba(0,0,0,0.15)]'
         )}
       >
-        <div className="flex items-center gap-3.5 min-w-0">
+        <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
           {/* Status icon */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             {isComplete ? (
               <CheckCircle2 size={18} className="text-white" />
             ) : (
@@ -42,14 +42,14 @@ export function DayCard({ day, moduleId, isComplete, index }: DayCardProps) {
           </div>
 
           {/* Day number badge */}
-          <div className="flex-shrink-0 w-8 h-8 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-zinc-300 group-hover:border-zinc-600 group-hover:text-white transition-colors">
+          <div className="shrink-0 w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-zinc-300 group-hover:border-zinc-600 group-hover:text-white transition-colors">
             {day.id < 10 ? `0${day.id}` : day.id}
           </div>
 
           {/* Title and summary */}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors truncate">
+              <span className="text-xs sm:text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors truncate">
                 {day.title}
               </span>
               {isComplete && (
@@ -58,19 +58,19 @@ export function DayCard({ day, moduleId, isComplete, index }: DayCardProps) {
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
+            <p className="text-[11px] sm:text-xs text-zinc-400 mt-0.5 line-clamp-1">
               {day.learn[0]}
             </p>
           </div>
         </div>
 
         {/* Action / Meta */}
-        <div className="flex items-center gap-3 flex-shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-colors">
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-mono">
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-colors">
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-mono">
             <BookOpen size={12} />
             <span>{day.resources.length} sources</span>
           </div>
-          <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform text-zinc-400 group-hover:text-white" />
         </div>
       </Link>
     </motion.div>

@@ -26,10 +26,10 @@ export function ModuleCard({
   return (
     <div
       className={cn(
-        'rounded-xl border transition-all duration-200 overflow-hidden',
+        'rounded-xl border transition-all duration-200 overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.3),0_8px_24px_-8px_rgba(0,0,0,0.4)]',
         module.comingSoon
-          ? 'bg-[#0f0f12]/50 border-zinc-800/50 opacity-60'
-          : 'bg-[#111113] border-zinc-800 hover:border-zinc-700'
+          ? 'bg-[#0f0f12]/50 border-zinc-850 opacity-60'
+          : 'bg-[#111113] border-zinc-800 hover:border-zinc-700 hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_12px_40px_-12px_rgba(0,0,0,0.5)]'
       )}
     >
       {/* Module Header Bar */}
@@ -49,7 +49,7 @@ export function ModuleCard({
         {/* Module Number / Status Icon */}
         <div
           className={cn(
-            'flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center font-mono font-bold text-sm border',
+            'shrink-0 w-10 sm:w-11 h-10 sm:h-11 rounded-lg flex items-center justify-center font-mono font-bold text-sm border mt-0.5',
             module.comingSoon
               ? 'bg-zinc-900 text-zinc-600 border-zinc-800'
               : 'bg-zinc-900 text-white border-zinc-700'
@@ -105,7 +105,7 @@ export function ModuleCard({
           <motion.div
             animate={{ rotate: open ? 180 : 0 }}
             transition={{ duration: 0.2 }}
-            className="flex-shrink-0 mt-1 text-zinc-400"
+            className="shrink-0 mt-1 text-zinc-400"
           >
             <ChevronDown size={18} />
           </motion.div>
@@ -134,7 +134,7 @@ export function ModuleCard({
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden border-t border-zinc-800"
           >
-            <div className="p-4 sm:p-5 space-y-2.5 bg-[#09090b]">
+            <div className="p-3.5 sm:p-5 space-y-2 bg-[#09090b]">
               {module.days.map((day, i) => (
                 <DayCard
                   key={day.id}

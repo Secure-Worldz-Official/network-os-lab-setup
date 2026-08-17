@@ -13,23 +13,21 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#09090b] text-[#fafafa]">
-      {/* Desktop Persistent Sidebar */}
-      <div className="hidden lg:flex lg:flex-shrink-0 h-full">
+      {/* ── Desktop Persistent Sidebar ── */}
+      <aside className="hidden lg:flex w-72 xl:w-80 shrink-0 h-full flex-col glass-sidebar">
         <Sidebar progress={progress} />
-      </div>
+      </aside>
 
-      {/* Mobile Drawer Backdrop + Overlay */}
+      {/* ── Mobile Drawer ── */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-50 lg:hidden flex"
-          role="dialog"
-          aria-modal="true"
-        >
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative z-10 h-full max-w-[85vw]">
+          {/* Drawer panel */}
+          <div className="relative z-10 h-full w-80 max-w-[85vw] bg-[#0c0c0e] shadow-2xl border-r border-zinc-800 glass-sidebar">
             <Sidebar
               progress={progress}
               mobile
@@ -39,13 +37,13 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       )}
 
-      {/* Main Content Area */}
-      <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden">
+      {/* ── Main Content Column ── */}
+      <div className="flex-1 min-w-0 h-full min-h-0 flex flex-col overflow-hidden bg-gradient-to-b from-[#09090b] to-[#0a0a0c]">
+        {/* Mobile top bar — ONLY visible on mobile screens */}
         <TopBar onMenuClick={() => setSidebarOpen(true)} progress={progress} />
-        <main
-          className="flex-1 overflow-y-auto overflow-x-hidden"
-          id="main-content"
-        >
+
+        {/* Scrollable page content */}
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain" id="main-content">
           {children}
         </main>
       </div>

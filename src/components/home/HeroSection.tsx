@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 };
 
 const stagger: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
 
 const pills = [
@@ -41,12 +41,12 @@ export function HeroSection() {
     window.addEventListener('resize', resize);
 
     const particles: { x: number; y: number; opacity: number; speed: number; radius: number }[] = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 45; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         opacity: Math.random() * 0.3 + 0.05,
-        speed: Math.random() * 0.25 + 0.05,
+        speed: Math.random() * 0.2 + 0.05,
         radius: Math.random() * 1.2 + 0.5,
       });
     }
@@ -75,7 +75,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden border-b border-zinc-800 bg-[#09090b]">
+    <section className="relative overflow-hidden border-b border-zinc-800/80 bg-[#09090b]">
       {/* Background Canvas */}
       <canvas
         ref={canvasRef}
@@ -90,24 +90,27 @@ export function HeroSection() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at 50% 20%, rgba(255,255,255,0.03) 0%, transparent 60%)',
+          background: 'radial-gradient(circle at 50% 25%, rgba(255,255,255,0.04) 0%, transparent 65%)',
         }}
         aria-hidden="true"
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
-        <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
+      {/* Bottom fade */}
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#09090b] to-transparent pointer-events-none" aria-hidden="true" />
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 flex flex-col items-center text-center">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="w-full flex flex-col items-center space-y-6">
           {/* Eyebrow badge */}
-          <motion.div variants={fadeUp} className="inline-flex items-center gap-2">
-            <Badge variant="outline" size="md">
+          <motion.div variants={fadeUp} className="flex justify-center">
+            {/* <Badge variant="outline" size="md">
               Self-Paced Roadmap · v1.0 Live
-            </Badge>
+            </Badge> */}
           </motion.div>
 
           {/* Heading */}
           <motion.h1
             variants={fadeUp}
-            className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-3xl mx-auto"
+            className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.15] text-center max-w-3xl"
           >
             Cybersecurity Foundations <br />
             <span className="text-zinc-400 font-normal">From Theory to Virtual Labs</span>
@@ -116,21 +119,21 @@ export function HeroSection() {
           {/* Subheading */}
           <motion.p
             variants={fadeUp}
-            className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed"
+            className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl text-center leading-relaxed"
           >
-            A high-craft curriculum covering networking principles, TCP/IP, subnetting math,
+            A thoughtfully designed curriculum covering networking principles, TCP/IP, subnetting math,
             packet analysis with Wireshark, and isolated virtual lab environments.
           </motion.p>
 
           {/* Topic Pills */}
           <motion.div
             variants={fadeUp}
-            className="flex flex-wrap justify-center gap-2 pt-2"
+            className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto pt-2"
           >
             {pills.map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-zinc-300"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-zinc-300 shadow-sm hover:border-zinc-700 hover:text-zinc-200 transition-colors"
               >
                 <Icon size={13} className="text-zinc-400" />
                 {label}
@@ -141,19 +144,19 @@ export function HeroSection() {
           {/* Call to Actions */}
           <motion.div
             variants={fadeUp}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 w-full sm:w-auto"
           >
             <Link to="/roadmap" className="w-full sm:w-auto">
-              <Button variant="primary" size="lg" className="w-full sm:w-auto">
+              <Button variant="primary" size="lg" className="w-full sm:w-auto min-w-[160px]">
                 <span>Start Learning</span>
                 <ArrowRight size={16} />
               </Button>
             </Link>
-            <Link to="/roadmap/module-1/day-1" className="w-full sm:w-auto">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
+            {/* <Link to="/roadmap/module-1/day-1" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto min-w-[160px]">
                 <span>Jump into Day 01</span>
               </Button>
-            </Link>
+            </Link> */}
           </motion.div>
         </motion.div>
       </div>

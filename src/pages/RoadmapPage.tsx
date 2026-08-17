@@ -9,7 +9,7 @@ export function RoadmapPage() {
   const overall = progress.overallProgress();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8">
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -18,12 +18,12 @@ export function RoadmapPage() {
         className="space-y-3"
       >
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-300 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]">
             <Compass size={13} className="text-zinc-400" />
             <span>Curriculum Roadmap</span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-950 px-3 py-1 rounded-md border border-zinc-800">
+          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-950/80 px-3 py-1 rounded-md border border-zinc-800 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]">
             <CheckCircle2 size={13} className="text-white" />
             <span>Total Completed: {overall.done}/{overall.total}</span>
           </div>
@@ -40,7 +40,7 @@ export function RoadmapPage() {
       </motion.div>
 
       {/* Module List Accordions */}
-      <div className="space-y-4 pt-2">
+      <div className="space-y-4 pt-1">
         {roadmap.map((module, i) => (
           <ModuleCard
             key={module.id}

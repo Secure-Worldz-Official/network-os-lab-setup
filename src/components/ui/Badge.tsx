@@ -10,11 +10,11 @@ interface BadgeProps {
 }
 
 const variants: Record<BadgeVariant, string> = {
-  default: 'bg-zinc-900 border-zinc-800 text-zinc-300',
-  solid: 'bg-white border-white text-black font-semibold',
-  outline: 'bg-transparent border-zinc-700 text-zinc-300',
-  locked: 'bg-zinc-950/80 border-zinc-800 text-zinc-500',
-  success: 'bg-zinc-900 border-zinc-700 text-zinc-100 font-medium',
+  default: 'bg-zinc-900/80 border-zinc-800/80 text-zinc-300 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]',
+  solid: 'bg-white border-white text-black font-semibold shadow-[0_0_12px_rgba(255,255,255,0.15),0_1px_2px_0_rgba(0,0,0,0.3)]',
+  outline: 'bg-transparent border-zinc-700/80 text-zinc-300 shadow-[0_1px_2px_0_rgba(0,0,0,0.15)]',
+  locked: 'bg-zinc-950/80 border-zinc-800/80 text-zinc-500 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]',
+  success: 'bg-zinc-900 border-zinc-700 text-zinc-100 font-medium shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]',
 };
 
 export function Badge({ children, variant = 'default', size = 'sm', className }: BadgeProps) {

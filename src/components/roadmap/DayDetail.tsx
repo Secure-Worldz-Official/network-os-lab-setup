@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
@@ -8,10 +9,13 @@ import {
   Circle,
   Sparkles,
   Layers,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { TechnicalVisual } from './TechnicalVisual';
 import type { Day } from '@/data/roadmap';
 
 interface DayDetailProps {
@@ -27,6 +31,18 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
+function renderInlineMarkup(value: string) {
+  return value.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return <code key={index}>{part.slice(1, -1)}</code>;
+    }
+    return part;
+  });
+}
+
 export function DayDetail({
   day,
   moduleId: _moduleId,
@@ -34,10 +50,19 @@ export function DayDetail({
   onToggle,
   moduleProgress,
 }: DayDetailProps) {
+  const [copied, setCopied] = useState(false);
   const pct = moduleProgress.total > 0 ? (moduleProgress.done / moduleProgress.total) * 100 : 0;
 
+  const handleCopyCode = () => {
+    if (day.example.code) {
+      navigator.clipboard.writeText(day.example.code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
-    <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 sm:space-y-10">
+    <article className="w-full min-w-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 sm:space-y-10">
       {/* ─── 1. Day Header ───────────────────────────────────────────── */}
       <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-4">
         <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -55,7 +80,7 @@ export function DayDetail({
           </div>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-heading tracking-tight">
+        <h1 className="doc-page-title text-white">
           Day 0{day.id}: {day.title}
         </h1>
 
@@ -69,7 +94,7 @@ export function DayDetail({
         </div>
       </motion.div>
 
-      <div className="h-[1px] bg-zinc-800" />
+      <div className="h-[1px] bg-zinc-800/80" />
 
       {/* ─── 2. Concept Breakdown: What You'll Learn ────────────────── */}
       <motion.section
@@ -77,16 +102,16 @@ export function DayDetail({
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="space-y-4"
+        className="min-w-0 space-y-4"
         aria-labelledby={`learn-heading-${day.id}`}
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
             <BookOpen size={16} />
           </div>
           <h2
             id={`learn-heading-${day.id}`}
-            className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight"
+            className="min-w-0 doc-section-title text-white"
           >
             What You'll Learn
           </h2>
@@ -96,12 +121,12 @@ export function DayDetail({
           {day.learn.map((concept, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-4 p-5 sm:p-6 rounded-xl bg-[#111113] border border-zinc-800 text-sm text-zinc-300 leading-relaxed shadow-sm"
+              className="flex items-start gap-4 p-4 sm:p-5 rounded-xl bg-[#111113] border border-zinc-800/80 text-sm text-zinc-300 leading-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:border-zinc-700 hover:bg-[#151518] transition-colors"
             >
-              <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center text-xs font-mono font-semibold text-zinc-300 flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center text-xs font-mono font-semibold text-zinc-300 shrink-0">
                 {idx + 1}
               </div>
-              <p className="flex-1 text-zinc-300">{concept}</p>
+              <p className="min-w-0 flex-1 text-zinc-300">{concept}</p>
             </div>
           ))}
         </div>
@@ -113,16 +138,16 @@ export function DayDetail({
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="space-y-4"
+        className="min-w-0 space-y-4"
         aria-labelledby={`do-heading-${day.id}`}
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
             <Terminal size={16} />
           </div>
           <h2
             id={`do-heading-${day.id}`}
-            className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight"
+            className="min-w-0 doc-section-title text-white"
           >
             What You'll Do (Hands-on Lab)
           </h2>
@@ -132,12 +157,12 @@ export function DayDetail({
           {day.doLab.map((task, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-4 p-5 sm:p-6 rounded-xl bg-[#111113] border border-zinc-800 text-sm text-zinc-200 leading-relaxed shadow-sm"
+              className="flex items-start gap-4 p-4 sm:p-5 rounded-xl bg-[#111113] border border-zinc-800/80 text-sm text-zinc-200 leading-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:border-zinc-700 hover:bg-[#151518] transition-colors"
             >
-              <span className="flex-shrink-0 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-700 font-mono text-xs font-bold text-white">
+              <span className="shrink-0 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-700 font-mono text-xs font-bold text-white">
                 STEP {idx + 1}
               </span>
-              <p className="flex-1 text-zinc-300">{task}</p>
+              <p className="min-w-0 flex-1 text-zinc-300">{task}</p>
             </div>
           ))}
         </div>
@@ -149,21 +174,21 @@ export function DayDetail({
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="rounded-xl border border-zinc-800 bg-[#111113] overflow-hidden shadow-sm space-y-0"
+        className="min-w-0 rounded-xl border border-zinc-800/80 bg-[#111113] overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.3),0_8px_24px_-8px_rgba(0,0,0,0.4)] space-y-0"
         aria-labelledby={`example-heading-${day.id}`}
       >
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800 bg-zinc-950/70">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white flex-shrink-0">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800/80 bg-zinc-950/70">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
               <Sparkles size={16} />
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
                 Technical Reference
               </span>
               <h2
                 id={`example-heading-${day.id}`}
-                className="text-base font-bold text-white font-heading"
+                className="doc-subheading text-white"
               >
                 {day.example.title}
               </h2>
@@ -171,36 +196,36 @@ export function DayDetail({
           </div>
         </div>
 
-        <div className="p-5 sm:p-6 space-y-6">
-          <div className="text-sm text-zinc-300 leading-relaxed space-y-4 font-normal">
+        <div className="min-w-0 p-5 sm:p-6 space-y-6">
+          <div className="doc-prose min-w-0 text-zinc-300 space-y-4 font-normal">
             {day.example.prose.split('\n\n').map((para, i) => {
-              const parts = para.split(/(\*\*[^*]+\*\*)/g);
               return (
-                <p key={i} className="whitespace-pre-wrap leading-relaxed">
-                  {parts.map((part, j) =>
-                    part.startsWith('**') && part.endsWith('**') ? (
-                      <strong key={j} className="text-white font-semibold">
-                        {part.slice(2, -2)}
-                      </strong>
-                    ) : (
-                      <span key={j}>{part}</span>
-                    )
-                  )}
+                <p key={i} className="whitespace-pre-wrap">
+                  {renderInlineMarkup(para)}
                 </p>
               );
             })}
           </div>
 
+          <TechnicalVisual day={day} />
+
           {day.example.code && (
             <div className="space-y-2 pt-2">
-              <div className="flex items-center justify-between text-xs font-mono text-zinc-400 px-1">
-                <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-zinc-400 px-1">
+                <div className="flex min-w-0 items-center gap-1.5">
                   <FileCode size={13} />
                   <span>terminal output / script execution</span>
                 </div>
-                <span>cli</span>
+                <button
+                  type="button"
+                  onClick={handleCopyCode}
+                  className="flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded"
+                >
+                  {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                </button>
               </div>
-              <pre className="code-block text-xs">{day.example.code}</pre>
+              <pre className="code-block max-w-full text-xs">{day.example.code}</pre>
             </div>
           )}
         </div>
@@ -212,16 +237,16 @@ export function DayDetail({
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="space-y-4"
+        className="min-w-0 space-y-4"
         aria-labelledby={`resources-heading-${day.id}`}
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
             <BookOpen size={16} />
           </div>
           <h2
             id={`resources-heading-${day.id}`}
-            className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight"
+            className="min-w-0 doc-section-title text-white"
           >
             Official Docs & Specifications
           </h2>
@@ -234,7 +259,7 @@ export function DayDetail({
               href={res.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-start sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-xl bg-[#111113] border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-900/60 transition-colors shadow-sm"
+              className="group flex items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-[#111113] border border-zinc-800/80 hover:border-zinc-600 hover:bg-zinc-900/60 transition-colors shadow-[0_1px_2px_0_rgba(0,0,0,0.15)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)]"
               id={`resource-link-${day.id}-${i}`}
             >
               <div className="min-w-0 space-y-1">
@@ -251,7 +276,7 @@ export function DayDetail({
               </div>
               <ExternalLink
                 size={16}
-                className="text-zinc-500 group-hover:text-white transition-colors flex-shrink-0 mt-0.5 sm:mt-0"
+                className="text-zinc-500 group-hover:text-white transition-colors shrink-0 mt-0.5 sm:mt-0"
               />
             </a>
           ))}
@@ -267,10 +292,10 @@ export function DayDetail({
         className="pt-2"
       >
         <div
-          className={`p-6 sm:p-7 rounded-xl border transition-all duration-200 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5 ${
+          className={`p-5 sm:p-7 rounded-xl border transition-all duration-200 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5 ${
             isComplete
-              ? 'bg-[#151518] border-zinc-600 text-white'
-              : 'bg-[#111113] border-zinc-800 text-zinc-200'
+              ? 'bg-[#151518] border-zinc-600/80 text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_12px_40px_-12px_rgba(0,0,0,0.5)]'
+              : 'bg-[#111113] border-zinc-800/80 text-zinc-200 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]'
           }`}
         >
           <div className="space-y-1">
@@ -292,7 +317,7 @@ export function DayDetail({
             onClick={onToggle}
             id={`mark-complete-toggle-${day.id}`}
             aria-pressed={isComplete}
-            className="w-full sm:w-auto flex-shrink-0"
+            className="w-full sm:w-auto shrink-0"
           >
             {isComplete ? (
               <>

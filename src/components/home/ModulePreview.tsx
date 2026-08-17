@@ -14,9 +14,9 @@ interface ModulePreviewProps {
 
 export function ModulePreview({ progress }: ModulePreviewProps) {
   return (
-    <section className="py-14 sm:py-20 bg-[#09090b]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+    <section className="py-12 sm:py-16 bg-[#09090b]">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">
               Curriculum Overview
@@ -34,7 +34,7 @@ export function ModulePreview({ progress }: ModulePreviewProps) {
           </Link>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-3.5 sm:gap-4">
           {roadmap.map((module, i) => {
             const mp = progress.moduleProgress(module.id);
             const pct = mp.total > 0 ? (mp.done / mp.total) * 100 : 0;
@@ -46,16 +46,16 @@ export function ModulePreview({ progress }: ModulePreviewProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
-                className={`rounded-xl border p-5 sm:p-6 transition-all ${
-                  module.comingSoon
-                    ? 'bg-[#0f0f12]/40 border-zinc-850 opacity-60'
-                    : 'bg-[#111113] border-zinc-800 hover:border-zinc-700'
-                }`}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
+                 className={`rounded-xl border p-5 sm:p-6 transition-all duration-200 ${
+                   module.comingSoon
+                     ? 'bg-[#0f0f12]/40 border-zinc-850 opacity-60'
+                     : 'bg-[#111113] border-zinc-800 hover:border-zinc-700 shadow-[0_1px_2px_0_rgba(0,0,0,0.3),0_8px_24px_-8px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_12px_40px_-12px_rgba(0,0,0,0.5)]'
+                 }`}
+               >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
                     <div
-                      className={`w-10 h-10 rounded-lg border flex items-center justify-center font-mono font-bold text-sm flex-shrink-0 ${
+                      className={`w-10 h-10 rounded-lg border flex items-center justify-center font-mono font-bold text-sm shrink-0 mt-0.5 ${
                         module.comingSoon
                           ? 'bg-zinc-900 border-zinc-800 text-zinc-600'
                           : 'bg-zinc-900 border-zinc-700 text-white'
@@ -64,7 +64,7 @@ export function ModulePreview({ progress }: ModulePreviewProps) {
                       {module.comingSoon ? <Lock size={15} /> : `0${module.number}`}
                     </div>
 
-                    <div className="space-y-1 min-w-0">
+                    <div className="space-y-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2.5 flex-wrap">
                         <h3 className="text-base font-bold text-white font-heading tracking-tight">
                           Module {module.number}: {module.title}
@@ -84,7 +84,7 @@ export function ModulePreview({ progress }: ModulePreviewProps) {
                         {module.subtitle}
                       </p>
 
-                      <div className="flex items-center gap-3 text-xs text-zinc-500 font-mono pt-1">
+                      <div className="flex items-center gap-3 text-xs text-zinc-500 font-mono pt-0.5">
                         <span className="flex items-center gap-1">
                           <Terminal size={12} />
                           {module.dayRange}
@@ -96,10 +96,10 @@ export function ModulePreview({ progress }: ModulePreviewProps) {
                     </div>
                   </div>
 
-                  <div className="flex sm:flex-col sm:items-end justify-between items-center gap-3 sm:min-w-[180px]">
+                  <div className="flex md:flex-col md:items-end justify-between items-center gap-3 md:min-w-[170px] shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-zinc-850">
                     {!module.comingSoon ? (
                       <>
-                        <ProgressBar value={pct} size="sm" className="max-w-[160px]" />
+                        <ProgressBar value={pct} size="sm" className="w-28 md:w-36" />
                         <Link
                           to="/roadmap"
                           className="inline-flex items-center gap-1 text-xs font-mono font-medium text-white hover:text-zinc-300 transition-colors"

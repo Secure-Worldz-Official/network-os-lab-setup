@@ -17,7 +17,7 @@ export function DayPage() {
   if (!module || !day) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center mx-auto text-zinc-300">
+        <div className="w-12 h-12 rounded-full bg-zinc-900/80 border border-zinc-700 flex items-center justify-center mx-auto text-zinc-300 shadow-[0_0_12px_rgba(255,255,255,0.03)]">
           <AlertCircle size={24} />
         </div>
         <h1 className="text-2xl font-bold text-white font-heading">
@@ -49,22 +49,22 @@ export function DayPage() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.2 }}
-        className="pb-20"
+        className="pb-24 sm:pb-28"
       >
         {/* Breadcrumb Navigation Bar */}
-        <div className="border-b border-zinc-800/80 bg-[#0c0c0e]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+        <div className="border-b border-zinc-800/80 bg-[#0c0c0e]/80 backdrop-blur-sm sticky top-0 z-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-zinc-400 flex-wrap">
               <Link to="/" className="hover:text-white transition-colors">
                 Home
               </Link>
-              <ChevronRight size={12} className="text-zinc-600" />
+              <ChevronRight size={12} className="text-zinc-600 shrink-0" />
               <Link to="/roadmap" className="hover:text-white transition-colors">
                 Roadmap
               </Link>
-              <ChevronRight size={12} className="text-zinc-600" />
+              <ChevronRight size={12} className="text-zinc-600 shrink-0" />
               <span className="text-zinc-400">Module 1</span>
-              <ChevronRight size={12} className="text-zinc-600" />
+              <ChevronRight size={12} className="text-zinc-600 shrink-0" />
               <span className="text-white font-semibold">Day 0{day.id}</span>
             </nav>
           </div>
@@ -80,16 +80,16 @@ export function DayPage() {
         />
 
         {/* Prev / Next Bottom Navigation */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="h-[1px] bg-zinc-800 mb-8" />
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            {prevDay ? (
-              <Link
-                to={`/roadmap/${module.id}/${prevDay.slug}`}
-                id={`nav-prev-day-${prevDay.id}`}
-                className="group flex items-center gap-3.5 p-4 sm:p-5 rounded-xl border border-zinc-800 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1"
-              >
-                <ChevronLeft size={18} className="text-zinc-400 group-hover:text-white transition-colors flex-shrink-0" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="h-[1px] bg-zinc-800/80 mb-6" />
+          <div className="flex flex-col sm:flex-row items-stretch justify-between gap-3.5 sm:gap-4">
+             {prevDay ? (
+               <Link
+                 to={`/roadmap/${module.id}/${prevDay.slug}`}
+                 id={`nav-prev-day-${prevDay.id}`}
+                 className="group flex items-center gap-3.5 p-4 rounded-xl border border-zinc-800/80 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)]"
+               >
+                <ChevronLeft size={18} className="text-zinc-400 group-hover:text-white transition-colors shrink-0" />
                 <div className="min-w-0 text-left">
                   <span className="block text-[10px] font-mono uppercase text-zinc-500">
                     Previous Day
@@ -103,12 +103,12 @@ export function DayPage() {
               <div className="hidden sm:block flex-1" />
             )}
 
-            {nextDay ? (
-              <Link
-                to={`/roadmap/${module.id}/${nextDay.slug}`}
-                id={`nav-next-day-${nextDay.id}`}
-                className="group flex items-center justify-end gap-3.5 p-4 sm:p-5 rounded-xl border border-zinc-800 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1 text-right"
-              >
+             {nextDay ? (
+               <Link
+                 to={`/roadmap/${module.id}/${nextDay.slug}`}
+                 id={`nav-next-day-${nextDay.id}`}
+                 className="group flex items-center justify-end gap-3.5 p-4 rounded-xl border border-zinc-800/80 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1 text-right shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)]"
+               >
                 <div className="min-w-0 text-right">
                   <span className="block text-[10px] font-mono uppercase text-zinc-500">
                     Next Day
@@ -117,7 +117,7 @@ export function DayPage() {
                     Day 0{nextDay.id}: {nextDay.title}
                   </span>
                 </div>
-                <ChevronRight size={18} className="text-zinc-400 group-hover:text-white transition-colors flex-shrink-0" />
+                <ChevronRight size={18} className="text-zinc-400 group-hover:text-white transition-colors shrink-0" />
               </Link>
             ) : (
               <Button
