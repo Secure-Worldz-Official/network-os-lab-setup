@@ -27,6 +27,12 @@ export interface Module {
   dayRange: string;
   days: Day[];
   comingSoon: boolean;
+  tools?: {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+  }[];
 }
 
 export const roadmap: Module[] = [
@@ -632,6 +638,12 @@ Day 9 ✓  I completed all 8 checks above without looking at the guide.
           },
         ],
       },
+    ],
+    tools: [
+      { id: 'subnet', name: 'Subnet Calculator', description: 'Real CIDR math — network, broadcast, usable range, host count', icon: 'Calculator' },
+      { id: 'http', name: 'HTTP Request Tester', description: 'Live fetch with real headers, timing, and status codes', icon: 'SquareCode' },
+      { id: 'network', name: 'Network Inspector', description: 'Browser connection APIs and real interface information', icon: 'Network' },
+      { id: 'dns', name: 'DNS Resolver', description: 'Live DNS-over-HTTPS lookups via Cloudflare 1.1.1.1', icon: 'Globe2' },
     ],
   },
   {

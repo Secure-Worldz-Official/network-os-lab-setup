@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
-import { ArrowRight, Shield, Terminal, BookOpen, Layers } from 'lucide-react';
+import { ArrowRight, Shield, Terminal, BookOpen, Layers, FlaskConical } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 const fadeUp: Variants = {
@@ -145,13 +145,19 @@ export function HeroSection() {
             variants={fadeUp}
             className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 w-full sm:w-auto"
           >
-            <Link to="/roadmap" className="w-full sm:w-auto">
-              <Button variant="primary" size="lg" className="w-full sm:w-auto min-w-[160px]">
-                <span>Start Learning</span>
-                <ArrowRight size={16} />
-              </Button>
-            </Link>
-            {/* <Link to="/roadmap/module-1/day-1" className="w-full sm:w-auto">
+              <Link to="/roadmap" className="w-full sm:w-auto">
+                <Button variant="primary" size="lg" className="w-full sm:w-auto min-w-[160px]">
+                  <span>Start Learning</span>
+                  <ArrowRight size={16} />
+                </Button>
+              </Link>
+              <Link to="/labs" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto min-w-[160px]">
+                  <span>Experiment Lab</span>
+                  <FlaskConical size={16} />
+                </Button>
+              </Link>
+              {/* <Link to="/roadmap/module-1/day-1" className="w-full sm:w-auto">
               <Button variant="outline" size="lg" className="w-full sm:w-auto min-w-[160px]">
                 <span>Jump into Day 01</span>
               </Button>
