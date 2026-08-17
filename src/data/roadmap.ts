@@ -654,8 +654,13 @@ Day 9 ✓  I completed all 8 checks above without looking at the guide.
     description:
       'Understand how attackers think, what tools they use, and how defenders counter them. Covers malware taxonomy, common attack vectors, social engineering, and the MITRE ATT&CK framework.',
     dayRange: 'Days 10–18',
-    comingSoon: true,
+    comingSoon: false,
     days: [],
+    tools: [
+      { id: 'malware', name: 'Malware Classifier', description: 'Classify real malware behavior signatures against known families and MITRE ATT&CK techniques', icon: 'Bug' },
+      { id: 'attack-vector', name: 'Attack Vector Analyzer', description: 'Map real attack scenarios to kill-chain phases, CVSS scores, and mitigations', icon: 'Shield' },
+      { id: 'social-eng', name: 'Social Engineering Inspector', description: 'Analyze real phishing indicators, header spoofing, and psychological triggers', icon: 'AlertCircle' },
+    ],
   },
   {
     id: 'module-3',
@@ -663,9 +668,14 @@ Day 9 ✓  I completed all 8 checks above without looking at the guide.
     title: 'Web Security Fundamentals',
     subtitle: 'OWASP Top 10, HTTP, and Burp Suite',
     description:
-      'Dive into web application security  one of the most sought after skills in modern cybersecurity. Learn the OWASP Top 10, intercept and modify HTTP requests with Burp Suite, and understand how XSS, SQLi, and IDOR vulnerabilities work.',
+      'Dive into web application security — one of the most sought after skills in modern cybersecurity. Learn the OWASP Top 10, intercept and modify HTTP requests with Burp Suite, and understand how XSS, SQLi, and IDOR vulnerabilities work.',
     dayRange: 'Days 19–27',
-    comingSoon: true,
+    comingSoon: false,
     days: [],
+    tools: [
+      { id: 'xss', name: 'XSS Playground', description: 'Inject payloads into a real sandboxed DOM and verify sanitization fixes', icon: 'Code2' },
+      { id: 'sqli', name: 'SQL Injection Tester', description: 'Execute real SQL queries against an in-browser database and test injection payloads', icon: 'Database' },
+      { id: 'headers', name: 'HTTP Header Analyzer', description: 'Fetch real response headers and audit security configurations', icon: 'Globe' },
+    ],
   },
 ];

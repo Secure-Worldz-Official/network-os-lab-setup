@@ -1,11 +1,17 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
-import { ArrowLeft, Calculator, SquareCode, Network, Globe2 } from 'lucide-react';
+import { ArrowLeft, Calculator, SquareCode, Network, Globe2, Bug, Shield, AlertCircle, Code2, Database, Globe } from 'lucide-react';
 import { roadmap } from '@/data/roadmap';
 import { SubnetCalculatorLab } from '@/pages/labs/SubnetLab';
 import { HttpTesterLab } from '@/pages/labs/HttpTesterLab';
 import { NetworkInspectorLab } from '@/pages/labs/NetworkInspectorLab';
 import { DnsResolverLab } from '@/pages/labs/DnsResolverLab';
+import { MalwareClassifierLab } from '@/pages/labs/MalwareClassifierLab';
+import { AttackVectorLab } from '@/pages/labs/AttackVectorLab';
+import { SocialEngineeringLab } from '@/pages/labs/SocialEngineeringLab';
+import { XssPlaygroundLab } from '@/pages/labs/XssPlaygroundLab';
+import { SqliTesterLab } from '@/pages/labs/SqliTesterLab';
+import { HeaderAnalyzerLab } from '@/pages/labs/HeaderAnalyzerLab';
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -22,6 +28,12 @@ const toolIcons: Record<string, typeof Calculator> = {
   SquareCode,
   Network,
   Globe2,
+  Bug,
+  Shield,
+  AlertCircle,
+  Code2,
+  Database,
+  Globe,
 };
 
 export function ExperimentToolPage() {
@@ -52,6 +64,18 @@ export function ExperimentToolPage() {
         return <NetworkInspectorLab />;
       case 'dns':
         return <DnsResolverLab />;
+      case 'malware':
+        return <MalwareClassifierLab />;
+      case 'attack-vector':
+        return <AttackVectorLab />;
+      case 'social-eng':
+        return <SocialEngineeringLab />;
+      case 'xss':
+        return <XssPlaygroundLab />;
+      case 'sqli':
+        return <SqliTesterLab />;
+      case 'headers':
+        return <HeaderAnalyzerLab />;
       default:
         return (
           <div className="text-sm text-zinc-400">

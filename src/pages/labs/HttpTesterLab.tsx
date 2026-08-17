@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { SquareCode, Play, Loader2, AlertCircle, CheckCircle2, ExternalLink, Globe, Lock, Server, Send } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -28,6 +28,7 @@ export function HttpTesterLab() {
   const [body, setBody] = useState('');
   const [result, setResult] = useState<LabResult>({ status: 'idle', output: '' });
   const [timing, setTiming] = useState<number | null>(null);
+  const [resStatus, setResStatus] = useState<number | null>(null);
   const [journey, setJourney] = useState<JourneyStage>('idle');
   const [journeyData, setJourneyData] = useState<{
     host?: string;
@@ -39,11 +40,25 @@ export function HttpTesterLab() {
     requestHeaders?: string[];
   }>({});
 
+  const [retrieveChoice, setRetrieveChoice] = useState('');
+  const [submitChoice, setSubmitChoice] = useState('');
+  const [statusChoice, setStatusChoice] = useState('');
+  const [retrieveCorrect, setRetrieveCorrect] = useState<boolean | null>(null);
+  const [submitCorrect, setSubmitCorrect] = useState<boolean | null>(null);
+  const [statusCorrect, setStatusCorrect] = useState<boolean | null>(null);
+
   const run = useCallback(async () => {
     setResult({ status: 'running', output: '' });
     setTiming(null);
+    setResStatus(null);
     setJourney('dns');
     setJourneyData({});
+    setRetrieveChoice('');
+    setSubmitChoice('');
+    setStatusChoice('');
+    setRetrieveCorrect(null);
+    setSubmitCorrect(null);
+    setStatusCorrect(null);
 
     const start = performance.now();
     try {
@@ -78,6 +93,7 @@ export function HttpTesterLab() {
       const res = await fetch(url, opts);
       const elapsed = performance.now() - start;
       setTiming(Math.round(elapsed));
+      setResStatus(res.status);
 
       setJourney('processing');
       await new Promise((r) => setTimeout(r, 300));
@@ -136,7 +152,29 @@ export function HttpTesterLab() {
       });
       verifyAndComplete(LAB_ID, '', `Request failed after ${Math.round(elapsed)}ms\n\n${msg}`, Math.round(elapsed));
     }
-  }, [url, method, headers, body, verifyAndComplete]);
+  }, [url, method, headers, verifyAndComplete]);
+
+  const validateRetrieve = () => {
+    setRetrieveCorrect(retrieveChoice === 'GET');
+  };
+
+  const validateSubmit = () => {
+    setSubmitCorrect(submitChoice === 'POST' || submitChoice === 'PUT');
+  };
+
+  const validateStatus = () => {
+    if (resStatus === null) return;
+    const meaningMap: Record<number, string> = {
+      200: 'OK',
+      404: 'Not Found',
+      500: 'Server Error',
+      301: 'Moved Permanently',
+      403: 'Forbidden',
+      401: 'Unauthorized',
+    };
+    const correct = meaningMap[resStatus] || 'Unknown';
+    setStatusCorrect(statusChoice === correct);
+  };
 
   const stages = [
     { id: 'dns', label: 'DNS Lookup', icon: Globe, desc: `Resolving ${journeyData.host || '...'}` },
@@ -149,6 +187,18 @@ export function HttpTesterLab() {
 
   const stageOrder: JourneyStage[] = ['dns', 'tcp', 'tls', 'sending', 'processing', 'receiving', 'done'];
   const currentStageIndex = stageOrder.indexOf(journey);
+
+  const getStatusMeaning = (status: number): string => {
+    const map: Record<number, string> = {
+      200: 'OK',
+      404: 'Not Found',
+      500: 'Server Error',
+      301: 'Moved Permanently',
+      403: 'Forbidden',
+      401: 'Unauthorized',
+    };
+    return map[status] || 'Unknown';
+  };
 
   return (
     <motion.div variants={fadeUp} initial="hidden" animate="show">
@@ -198,6 +248,19 @@ export function HttpTesterLab() {
               className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors resize-y"
             />
           </div>
+
+          {(method === 'POST' || method === 'PUT' || method === 'PATCH') && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Request Body (JSON)</label>
+              <textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                rows={3}
+                placeholder='{"key": "value"}'
+                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors resize-y"
+              />
+            </div>
+          )}
 
           <div className="flex items-center gap-3">
             <Button variant="primary" size="sm" onClick={run} disabled={result.status === 'running'} className="gap-2">
@@ -269,6 +332,140 @@ export function HttpTesterLab() {
                     </div>
                   </div>
                 </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Challenge Section */}
+          {(result.status === 'success' || result.status === 'error') && (
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-5 space-y-5">
+              <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+                HTTP Method Challenge
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Retrieve a webpage */}
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
+                  <div className="text-xs font-mono text-zinc-300">Scenario 1: Retrieve a webpage</div>
+                  <p className="text-[11px] text-zinc-500">
+                    You want to fetch an HTML page from a server. Which HTTP method should you use?
+                  </p>
+                  <select
+                    value={retrieveChoice}
+                    onChange={(e) => { setRetrieveChoice(e.target.value); setRetrieveCorrect(null); }}
+                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-600 transition-colors cursor-pointer"
+                  >
+                    <option value="">Select method...</option>
+                    {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                  <Button variant="secondary" size="sm" onClick={validateRetrieve} disabled={!retrieveChoice} className="w-full">
+                    Check Answer
+                  </Button>
+                  {retrieveCorrect !== null && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`text-[11px] font-mono p-2.5 rounded border ${retrieveCorrect ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                    >
+                      {retrieveCorrect ? (
+                        <span>
+                          Correct. GET is the safe, idempotent method designed for retrieving data. It does not modify server state.
+                        </span>
+                      ) : (
+                        <span>
+                          Incorrect. GET is the standard method for retrieving resources. It is safe and idempotent — it should never modify server state.
+                        </span>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Submit form data */}
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
+                  <div className="text-xs font-mono text-zinc-300">Scenario 2: Submit form data</div>
+                  <p className="text-[11px] text-zinc-500">
+                    You need to send data to be processed by the server (e.g., a login form). Which method should you use?
+                  </p>
+                  <select
+                    value={submitChoice}
+                    onChange={(e) => { setSubmitChoice(e.target.value); setSubmitCorrect(null); }}
+                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-600 transition-colors cursor-pointer"
+                  >
+                    <option value="">Select method...</option>
+                    {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                  <Button variant="secondary" size="sm" onClick={validateSubmit} disabled={!submitChoice} className="w-full">
+                    Check Answer
+                  </Button>
+                  {submitCorrect !== null && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`text-[11px] font-mono p-2.5 rounded border ${submitCorrect ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                    >
+                      {submitCorrect ? (
+                        <span>
+                          Correct. POST and PUT are used to submit data. POST creates resources; PUT updates existing ones. Both carry a request body.
+                        </span>
+                      ) : (
+                        <span>
+                          Incorrect. POST or PUT should be used for submitting data. GET is for retrieval only and exposes data in the URL — never use it for sensitive form submissions.
+                        </span>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Code Challenge */}
+              {resStatus !== null && (
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
+                  <div className="text-xs font-mono text-zinc-300">
+                    Your request returned {resStatus}. What does this mean?
+                  </div>
+                  <p className="text-[11px] text-zinc-500">
+                    Based on the real HTTP response status code you received, select the correct semantic meaning.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {['OK', 'Not Found', 'Server Error', 'Moved Permanently', 'Forbidden', 'Unauthorized'].map((meaning) => (
+                      <button
+                        key={meaning}
+                        onClick={() => { setStatusChoice(meaning); setStatusCorrect(null); }}
+                        className={`px-3 py-2 rounded-lg border text-xs font-mono transition-colors ${
+                          statusChoice === meaning
+                            ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-300'
+                            : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'
+                        }`}
+                      >
+                        {meaning}
+                      </button>
+                    ))}
+                  </div>
+                  <Button variant="secondary" size="sm" onClick={validateStatus} disabled={!statusChoice} className="w-full">
+                    Check Answer
+                  </Button>
+                  {statusCorrect !== null && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`text-[11px] font-mono p-2.5 rounded border ${statusCorrect ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                    >
+                      {statusCorrect ? (
+                        <span>
+                          Correct. {resStatus} means {getStatusMeaning(resStatus)}. HTTP status codes are standardized by RFC 7231 and convey the result of the server's attempt to satisfy the request.
+                        </span>
+                      ) : (
+                        <span>
+                          Incorrect. The real response was {resStatus} {journeyData.statusText || ''}, which means {getStatusMeaning(resStatus)}. Review RFC 7231 for the full status code registry.
+                        </span>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
               )}
             </motion.div>
           )}
