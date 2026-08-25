@@ -34,10 +34,10 @@ const fadeUp = {
 function renderInlineMarkup(value: string) {
   return value.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, index) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={index}>{part.slice(2, -2)}</strong>;
+      return <strong key={index} className="text-white">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={index}>{part.slice(1, -1)}</code>;
+      return <code key={index} className="text-white bg-zinc-900 px-1 py-0.5 rounded border border-zinc-800 font-mono text-xs">{part.slice(1, -1)}</code>;
     }
     return part;
   });
@@ -62,58 +62,52 @@ export function DayDetail({
   };
 
   return (
-    <article className="w-full min-w-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 sm:space-y-10">
-      {/* ─── 1. Day Header ───────────────────────────────────────────── */}
+    <article className="w-full min-w-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 sm:space-y-10 font-mono">
+      {/* 1. Day Header */}
       <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-4">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-4 flex-wrap border-b border-zinc-800 pb-3">
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono font-semibold uppercase tracking-widest text-zinc-400">
-              Module 1 · Foundations
+              MODULE 1 // FOUNDATIONS
             </span>
             <Badge variant={isComplete ? 'solid' : 'outline'}>
-              {isComplete ? 'Day Complete' : 'In Progress'}
+              {isComplete ? 'DAY COMPLETE' : 'IN PROGRESS'}
             </Badge>
           </div>
           <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
             <Layers size={13} />
-            <span>Day 0{day.id} of 09</span>
+            <span>DAY 0{day.id} OF 09</span>
           </div>
         </div>
 
-        <h1 className="doc-page-title text-white">
-          Day 0{day.id}: {day.title}
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-white font-heading uppercase">
+          DAY 0{day.id}: {day.title}
         </h1>
 
         <div className="max-w-md pt-1">
           <ProgressBar
             value={pct}
             size="sm"
-            label={`Module 1 Progress (${moduleProgress.done}/${moduleProgress.total} completed)`}
+            label={`MODULE 1 PROGRESS (${moduleProgress.done}/${moduleProgress.total})`}
             showLabel
           />
         </div>
       </motion.div>
 
-      <div className="h-[1px] bg-zinc-800/80" />
-
-      {/* ─── 2. Concept Breakdown: What You'll Learn ────────────────── */}
+      {/* 2. What You'll Learn */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
         className="min-w-0 space-y-4"
-        aria-labelledby={`learn-heading-${day.id}`}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
+        <div className="flex items-center gap-3 border-b border-zinc-800 pb-2">
+          <div className="w-8 h-8 rounded bg-black border border-white flex items-center justify-center text-white shrink-0">
             <BookOpen size={16} />
           </div>
-          <h2
-            id={`learn-heading-${day.id}`}
-            className="min-w-0 doc-section-title text-white"
-          >
-            What You'll Learn
+          <h2 className="text-lg font-bold text-white uppercase font-heading">
+            WHAT YOU'LL LEARN
           </h2>
         </div>
 
@@ -121,9 +115,9 @@ export function DayDetail({
           {day.learn.map((concept, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-4 p-4 sm:p-5 rounded-xl bg-[#111113] border border-zinc-800/80 text-sm text-zinc-300 leading-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:border-zinc-700 hover:bg-[#151518] transition-colors"
+              className="flex items-start gap-4 p-4 sm:p-5 rounded border border-zinc-800 bg-[#080808] text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans"
             >
-              <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center text-xs font-mono font-semibold text-zinc-300 shrink-0">
+              <div className="w-6 h-6 rounded bg-black border border-zinc-700 flex items-center justify-center text-xs font-mono font-semibold text-white shrink-0">
                 {idx + 1}
               </div>
               <p className="min-w-0 flex-1 text-zinc-300">{concept}</p>
@@ -132,24 +126,20 @@ export function DayDetail({
         </div>
       </motion.section>
 
-      {/* ─── 3. Lab Tasks: What You'll Do ────────────────────────────── */}
+      {/* 3. Hands-on Lab Tasks */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
         className="min-w-0 space-y-4"
-        aria-labelledby={`do-heading-${day.id}`}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
+        <div className="flex items-center gap-3 border-b border-zinc-800 pb-2">
+          <div className="w-8 h-8 rounded bg-black border border-white flex items-center justify-center text-white shrink-0">
             <Terminal size={16} />
           </div>
-          <h2
-            id={`do-heading-${day.id}`}
-            className="min-w-0 doc-section-title text-white"
-          >
-            What You'll Do (Hands-on Lab)
+          <h2 className="text-lg font-bold text-white uppercase font-heading">
+            HANDS-ON LAB EXERCISES
           </h2>
         </div>
 
@@ -157,9 +147,9 @@ export function DayDetail({
           {day.doLab.map((task, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-4 p-4 sm:p-5 rounded-xl bg-[#111113] border border-zinc-800/80 text-sm text-zinc-200 leading-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:border-zinc-700 hover:bg-[#151518] transition-colors"
+              className="flex items-start gap-4 p-4 sm:p-5 rounded border border-zinc-800 bg-[#080808] text-xs sm:text-sm text-zinc-200 leading-relaxed font-sans"
             >
-              <span className="shrink-0 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-700 font-mono text-xs font-bold text-white">
+              <span className="shrink-0 px-2.5 py-1 rounded bg-black border border-zinc-700 font-mono text-xs font-bold text-white">
                 STEP {idx + 1}
               </span>
               <p className="min-w-0 flex-1 text-zinc-300">{task}</p>
@@ -168,28 +158,24 @@ export function DayDetail({
         </div>
       </motion.section>
 
-      {/* ─── 4. Technical Reference / Worked Example ─────────────────── */}
+      {/* 4. Technical Reference */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="min-w-0 rounded-xl border border-zinc-800/80 bg-[#111113] overflow-hidden shadow-[0_1px_2px_0_rgba(0,0,0,0.3),0_8px_24px_-8px_rgba(0,0,0,0.4)] space-y-0"
-        aria-labelledby={`example-heading-${day.id}`}
+        className="min-w-0 rounded border border-zinc-800 bg-[#080808] overflow-hidden space-y-0 shadow-xl corner-brackets"
       >
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800/80 bg-zinc-950/70">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800 bg-black">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
+            <div className="w-8 h-8 rounded bg-black border border-zinc-700 flex items-center justify-center text-white shrink-0">
               <Sparkles size={16} />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-                Technical Reference
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block">
+                TECHNICAL SPECIFICATION
               </span>
-              <h2
-                id={`example-heading-${day.id}`}
-                className="doc-subheading text-white"
-              >
+              <h2 className="text-sm font-bold text-white uppercase font-heading">
                 {day.example.title}
               </h2>
             </div>
@@ -197,14 +183,12 @@ export function DayDetail({
         </div>
 
         <div className="min-w-0 p-5 sm:p-6 space-y-6">
-          <div className="doc-prose min-w-0 text-zinc-300 space-y-4 font-normal">
-            {day.example.prose.split('\n\n').map((para, i) => {
-              return (
-                <p key={i} className="whitespace-pre-wrap">
-                  {renderInlineMarkup(para)}
-                </p>
-              );
-            })}
+          <div className="doc-prose min-w-0 text-zinc-300 space-y-4 font-sans text-xs sm:text-sm">
+            {day.example.prose.split('\n\n').map((para, i) => (
+              <p key={i} className="whitespace-pre-wrap">
+                {renderInlineMarkup(para)}
+              </p>
+            ))}
           </div>
 
           <TechnicalVisual day={day} />
@@ -213,16 +197,16 @@ export function DayDetail({
             <div className="space-y-2 pt-2">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-zinc-400 px-1">
                 <div className="flex min-w-0 items-center gap-1.5">
-                  <FileCode size={13} />
-                  <span>terminal output / script execution</span>
+                  <FileCode size={13} className="text-white" />
+                  <span>TERMINAL EXECUTION // OUTPUT</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleCopyCode}
-                  className="flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded"
+                  className="flex items-center gap-1 text-[11px] font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer bg-black border border-zinc-800 px-2 py-0.5 rounded"
                 >
-                  {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                  {copied ? <Check size={12} className="text-white" /> : <Copy size={12} />}
+                  <span>{copied ? 'COPIED' : 'COPY'}</span>
                 </button>
               </div>
               <pre className="code-block max-w-full text-xs">{day.example.code}</pre>
@@ -231,24 +215,20 @@ export function DayDetail({
         </div>
       </motion.section>
 
-      {/* ─── 5. Official Resources ───────────────────────────────────── */}
+      {/* 5. Official Resources */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
         className="min-w-0 space-y-4"
-        aria-labelledby={`resources-heading-${day.id}`}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
+        <div className="flex items-center gap-3 border-b border-zinc-800 pb-2">
+          <div className="w-8 h-8 rounded bg-black border border-white flex items-center justify-center text-white shrink-0">
             <BookOpen size={16} />
           </div>
-          <h2
-            id={`resources-heading-${day.id}`}
-            className="min-w-0 doc-section-title text-white"
-          >
-            Official Docs & Specifications
+          <h2 className="text-lg font-bold text-white uppercase font-heading">
+            OFFICIAL DOCUMENTATION
           </h2>
         </div>
 
@@ -259,31 +239,30 @@ export function DayDetail({
               href={res.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-[#111113] border border-zinc-800/80 hover:border-zinc-600 hover:bg-zinc-900/60 transition-colors shadow-[0_1px_2px_0_rgba(0,0,0,0.15)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)]"
-              id={`resource-link-${day.id}-${i}`}
+              className="group flex items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded border border-zinc-800 bg-[#080808] hover:border-white transition-colors"
             >
               <div className="min-w-0 space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
+                  <span className="text-xs sm:text-sm font-bold text-white uppercase font-mono">
                     {res.title}
                   </span>
                 </div>
                 {res.description && (
-                  <p className="text-xs text-zinc-400 line-clamp-1">
+                  <p className="text-xs text-zinc-400 font-sans line-clamp-1">
                     {res.description}
                   </p>
                 )}
               </div>
               <ExternalLink
                 size={16}
-                className="text-zinc-500 group-hover:text-white transition-colors shrink-0 mt-0.5 sm:mt-0"
+                className="text-zinc-500 group-hover:text-white transition-colors shrink-0"
               />
             </a>
           ))}
         </div>
       </motion.section>
 
-      {/* ─── 6. Completion Milestone Banner (Clean Normal Flow) ───────── */}
+      {/* 6. Completion Banner */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
@@ -291,20 +270,14 @@ export function DayDetail({
         viewport={{ once: true }}
         className="pt-2"
       >
-        <div
-          className={`p-5 sm:p-7 rounded-xl border transition-all duration-200 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5 ${
-            isComplete
-              ? 'bg-[#151518] border-zinc-600/80 text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_12px_40px_-12px_rgba(0,0,0,0.5)]'
-              : 'bg-[#111113] border-zinc-800/80 text-zinc-200 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]'
-          }`}
-        >
+        <div className="p-6 rounded border border-zinc-800 bg-[#080808] flex flex-col sm:flex-row sm:items-center justify-between gap-5 font-mono">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-base font-bold font-heading text-white">
-                {isComplete ? '✓ Day 0' + day.id + ' Completed' : 'Mark Day 0' + day.id + ' Complete'}
+              <span className="text-sm font-bold text-white font-heading uppercase">
+                {isComplete ? '✓ DAY 0' + day.id + ' COMPLETED' : 'MARK DAY 0' + day.id + ' COMPLETE'}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-lg">
+            <p className="text-xs text-zinc-400 font-sans max-w-lg">
               {isComplete
                 ? 'Great job! Your progress is stored locally in your browser.'
                 : 'Finished the readings and lab tasks? Check off this day to update your progress.'}
@@ -315,19 +288,17 @@ export function DayDetail({
             variant={isComplete ? 'secondary' : 'primary'}
             size="lg"
             onClick={onToggle}
-            id={`mark-complete-toggle-${day.id}`}
-            aria-pressed={isComplete}
-            className="w-full sm:w-auto shrink-0"
+            className="w-full sm:w-auto shrink-0 uppercase text-xs"
           >
             {isComplete ? (
               <>
                 <CheckCircle2 size={16} className="text-white" />
-                <span>Completed (Reset)</span>
+                <span>[ RESET COMPLETION ]</span>
               </>
             ) : (
               <>
                 <Circle size={16} />
-                <span>Mark as Done</span>
+                <span>[ MARK AS DONE ]</span>
               </>
             )}
           </Button>

@@ -31,9 +31,9 @@ const resultItem: Variants = {
 type ResolutionStage = 'idle' | 'querying' | 'processing' | 'answers' | 'authority' | 'additional' | 'done';
 
 const RESOLVER_ICONS = [
-  { id: 'browser', label: 'Browser', icon: Globe, color: 'text-cyan-300' },
-  { id: 'resolver', label: 'DoH Resolver', icon: Shield, color: 'text-emerald-300' },
-  { id: 'response', label: 'Response', icon: Server, color: 'text-amber-300' },
+  { id: 'browser', label: 'Browser', icon: Globe },
+  { id: 'resolver', label: 'DoH Resolver', icon: Shield },
+  { id: 'response', label: 'Response', icon: Server },
 ];
 
 export function DnsResolverLab() {
@@ -139,21 +139,21 @@ export function DnsResolverLab() {
       setResult({
         status: 'error',
         output: '',
-        error: `DNS-over-HTTPS query failed.\n\n${msg}\n\nPossible causes:\n- Cloudflare DoH endpoint blocked by network\n- Invalid domain format\n- Browser privacy settings blocking mixed content\n\nEndpoint used: https://cloudflare-dns.com/dns-query`,
+        error: `DNS-over-HTTPS query failed.\n\n${msg}`,
       });
       verifyAndComplete(LAB_ID, '', `DNS-over-HTTPS query failed.\n\n${msg}`);
     }
   }, [domain, type, verifyAndComplete]);
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <Globe2 size={15} className="text-zinc-400" />
-            DNS Resolution Chain Visualizer
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <Globe2 size={15} className="text-white" />
+            DNS RESOLUTION CHAIN & DOH RESOLVER
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 font-sans mt-1">
             Watch DNS resolution happen step-by-step with real Cloudflare DoH responses.
           </p>
         </div>
@@ -161,21 +161,21 @@ export function DnsResolverLab() {
         <div className="p-5 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2 space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Domain</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">DOMAIN NAME</label>
               <input
                 type="text"
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
                 placeholder="example.com"
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white transition-colors"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Record Type</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">RECORD TYPE</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as typeof type)}
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-200 font-mono focus:outline-none focus:border-zinc-600 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono focus:outline-none focus:border-white cursor-pointer"
               >
                 {(['A', 'AAAA', 'MX', 'TXT', 'ANY'] as const).map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -184,41 +184,38 @@ export function DnsResolverLab() {
             </div>
           </div>
 
-          <Button variant="primary" size="sm" onClick={run} disabled={result.status === 'running'} className="gap-2">
-            {result.status === 'running' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-            {result.status === 'running' ? 'Resolving...' : 'Resolve DNS'}
+          <Button variant="primary" size="sm" onClick={run} disabled={result.status === 'running'} className="gap-2 uppercase text-xs">
+            {result.status === 'running' ? <Loader2 size={14} className="animate-spin text-black" /> : <Play size={14} />}
+            {result.status === 'running' ? 'RESOLVING...' : '[ RESOLVE DNS ]'}
           </Button>
 
           {/* Resolution Chain Visualization */}
           {(result.status === 'running' || result.status === 'success' || stage !== 'idle') && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-4">
-              <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                <span>Resolution Chain</span>
-                <span className={stage === 'done' ? 'text-emerald-400' : 'text-zinc-500'}>
-                  {stage === 'done' ? 'Complete' : stage === 'idle' ? 'Ready' : 'Resolving...'}
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] p-4 space-y-4">
+              <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase tracking-wider border-b border-zinc-800 pb-2">
+                <span>RESOLUTION CHAIN</span>
+                <span className={stage === 'done' ? 'text-white font-bold' : 'text-zinc-500'}>
+                  {stage === 'done' ? 'COMPLETE' : stage === 'idle' ? 'READY' : 'RESOLVING...'}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-2">
                 {RESOLVER_ICONS.map((node, idx) => {
-                  const isActive = stage !== 'idle';
                   const isPassed = ['querying', 'processing', 'answers', 'authority', 'additional', 'done'].includes(stage) && idx < 2;
-                  const isCurrent = idx === 1 && ['processing', 'answers', 'authority', 'additional'].includes(stage);
+                  const Icon = node.icon;
                   return (
                     <div key={node.id} className="flex-1 flex flex-col items-center gap-2">
                       <motion.div
                         variants={chainNode}
-                        animate={isActive ? { scale: isCurrent ? [1, 1.1, 1] : 1 } : { scale: 1 }}
-                        transition={isCurrent ? { repeat: Infinity, duration: 1.5 } : {}}
-                        className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-colors duration-300 ${
+                        className={`w-10 h-10 rounded border flex items-center justify-center transition-colors ${
                           isPassed
-                            ? `${node.color.replace('text-', 'border-').replace('-300', '-500/50')} bg-zinc-900`
-                            : 'border-zinc-800 bg-zinc-950 text-zinc-600'
+                            ? 'bg-white text-black font-bold border-white'
+                            : 'bg-black border-zinc-800 text-zinc-600'
                         }`}
                       >
-                        <node.icon size={18} className={isPassed ? node.color : 'text-zinc-600'} />
+                        <Icon size={18} />
                       </motion.div>
-                      <span className={`text-[9px] font-mono text-center leading-tight ${isPassed ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                      <span className={`text-[9px] text-center leading-tight ${isPassed ? 'text-white font-bold' : 'text-zinc-600'}`}>
                         {node.label}
                       </span>
                     </div>
@@ -226,40 +223,36 @@ export function DnsResolverLab() {
                 })}
               </div>
 
-              {/* Status & Flags */}
               {dnsData.status !== undefined && (
-                <motion.div variants={stageVariants} className="space-y-2 pt-2 border-t border-zinc-800/60">
+                <motion.div variants={stageVariants} className="space-y-2 pt-2 border-t border-zinc-800">
                   <div className="flex items-center gap-4 text-[11px] font-mono">
-                    <div className={dnsData.status === 0 ? 'text-emerald-300' : 'text-red-300'}>
-                      Status: {dnsData.statusText} ({dnsData.status})
+                    <div className="text-white font-bold">
+                      STATUS: {dnsData.statusText} ({dnsData.status})
                     </div>
                     <div className="flex items-center gap-2 text-zinc-500">
-                      {dnsData.flags?.rd && <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">RD</span>}
-                      {dnsData.flags?.ra && <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">RA</span>}
-                      {dnsData.flags?.ad && <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">AD</span>}
-                      {dnsData.flags?.tc && <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">TC</span>}
+                      {dnsData.flags?.rd && <span className="px-1.5 py-0.5 rounded bg-black border border-zinc-800 text-white">RD</span>}
+                      {dnsData.flags?.ra && <span className="px-1.5 py-0.5 rounded bg-black border border-zinc-800 text-white">RA</span>}
+                      {dnsData.flags?.ad && <span className="px-1.5 py-0.5 rounded bg-black border border-zinc-800 text-white">AD</span>}
                     </div>
                   </div>
                 </motion.div>
               )}
 
-              {/* DNS Records */}
               {(dnsData.answers?.length || dnsData.authority?.length || dnsData.additional?.length) && (
-                <motion.div variants={stageVariants} className="space-y-2 pt-2 border-t border-zinc-800/60">
+                <motion.div variants={stageVariants} className="space-y-2 pt-2 border-t border-zinc-800">
                   {dnsData.answers && dnsData.answers.length > 0 && (
                     <div className="space-y-1">
-                      <span className="text-[10px] font-mono text-zinc-500 uppercase">Answers ({dnsData.answers.length})</span>
+                      <span className="text-[10px] text-zinc-400 uppercase">ANSWERS ({dnsData.answers.length})</span>
                       {dnsData.answers.map((record, i) => (
                         <motion.div
                           key={i}
                           variants={resultItem}
-                          transition={{ delay: i * 0.05 }}
-                          className="flex items-center gap-2 text-xs font-mono bg-zinc-900/50 rounded px-2 py-1.5"
+                          className="flex items-center gap-2 text-xs font-mono bg-black rounded border border-zinc-800 px-3 py-1.5"
                         >
                           <span className="text-zinc-400 truncate flex-1">{record.name}</span>
-                          <span className="text-cyan-300">{dnsTypeName(record.type)}</span>
+                          <span className="text-white font-bold">{dnsTypeName(record.type)}</span>
                           <span className="text-zinc-500">TTL={record.ttl}</span>
-                          <span className="text-emerald-300 truncate max-w-[120px]">{record.data}</span>
+                          <span className="text-white truncate max-w-[160px] font-bold">{record.data}</span>
                         </motion.div>
                       ))}
                     </div>
@@ -271,79 +264,81 @@ export function DnsResolverLab() {
 
           {/* Challenges */}
           {stage === 'done' && result.status === 'success' && dnsData.answers && dnsData.answers.length > 0 && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-4">
-              <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                Hands-on Challenges
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] p-4 space-y-4">
+              <div className="text-[10px] text-zinc-400 uppercase tracking-wider border-b border-zinc-800 pb-2">
+                DNS CHALLENGES
               </div>
 
-              {/* Challenge 1 */}
               <div className="space-y-2">
-                <p className="text-xs text-zinc-300 font-mono">1. Which record type provides an IPv4 address?</p>
+                <p className="text-xs text-white">1. Which record type maps hostnames to IPv4 addresses?</p>
                 <div className="flex flex-wrap gap-2">
                   {['A', 'AAAA', 'MX', 'TXT'].map((opt) => (
                     <button
                       key={opt}
                       onClick={() => { setC1Selected(opt); setC1Submitted(false); setC1Correct(null); }}
-                      className={`px-3 py-1.5 rounded border text-xs font-mono transition-colors ${
+                      className={`px-3 py-1.5 rounded border text-xs font-mono transition-colors cursor-pointer ${
                         c1Selected === opt
-                          ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-300'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700'
-                      } ${c1Submitted ? 'opacity-70' : ''}`}
+                          ? 'bg-white text-black font-bold border-white'
+                          : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'
+                      }`}
                     >
                       {opt}
                     </button>
                   ))}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => {
                       const isACorrect = (type === 'A' && dnsData.answers?.some((a) => a.type === 1)) ?? false;
                       setC1Correct(c1Selected === 'A' && isACorrect);
                       setC1Submitted(true);
                     }}
                     disabled={!c1Selected || c1Submitted}
-                    className="px-3 py-1.5 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-mono hover:bg-cyan-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="uppercase text-xs"
                   >
-                    Submit
-                  </button>
+                    [ SUBMIT ANSWER ]
+                  </Button>
                   {c1Submitted && c1Correct !== null && (
-                    <span className={`text-xs font-mono flex items-center gap-1 ${c1Correct ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <span className="text-xs font-bold text-white flex items-center gap-1">
                       {c1Correct ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
-                      {c1Correct ? 'Correct! A records store IPv4 addresses.' : 'Incorrect. A records provide IPv4 addresses.'}
+                      {c1Correct ? '✓ Correct! A records map hostnames to IPv4.' : 'Incorrect. A records map hostnames to IPv4.'}
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Challenge 2 */}
               <div className="space-y-2">
-                <p className="text-xs text-zinc-300 font-mono">2. What is the IP address returned for {domain}?</p>
+                <p className="text-xs text-white">2. Enter the IP data value returned for {domain}:</p>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     value={c2Input}
                     onChange={(e) => { setC2Input(e.target.value); setC2Submitted(false); setC2Correct(null); }}
                     placeholder="e.g. 93.184.216.34"
-                    className="px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded text-xs font-mono text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                    className="px-3 py-2 bg-black border border-zinc-800 rounded text-xs font-mono text-white placeholder-zinc-700 outline-none focus:border-white"
                   />
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => {
                       const expectedIP = dnsData.answers?.[0]?.data;
                       setC2Correct(expectedIP !== undefined && c2Input.trim() === expectedIP);
                       setC2Submitted(true);
                     }}
                     disabled={!c2Input || c2Submitted}
-                    className="px-3 py-1.5 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-mono hover:bg-cyan-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="uppercase text-xs"
                   >
-                    Submit
-                  </button>
+                    [ VERIFY IP ]
+                  </Button>
                 </div>
                 {c2Submitted && c2Correct !== null && (
-                  <p className={`text-xs font-mono flex items-center gap-1 ${c2Correct ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <p className="text-xs font-bold text-white flex items-center gap-1">
                     {c2Correct ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                     {c2Correct
-                      ? `Correct! ${dnsData.answers?.[0]?.data}`
-                      : `Incorrect. The IP is ${dnsData.answers?.[0]?.data}`}
+                      ? `✓ Correct! ${dnsData.answers?.[0]?.data}`
+                      : `Incorrect. Expected ${dnsData.answers?.[0]?.data}`}
                   </p>
                 )}
               </div>
@@ -351,15 +346,15 @@ export function DnsResolverLab() {
           )}
 
           {(result.status === 'success' || result.status === 'error') && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-black overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-800 bg-zinc-950">
                 {result.status === 'success' ? (
-                  <CheckCircle2 size={13} className="text-emerald-400" />
+                  <CheckCircle2 size={13} className="text-white" />
                 ) : (
-                  <AlertCircle size={13} className="text-red-400" />
+                  <AlertCircle size={13} className="text-white" />
                 )}
-                <span className="text-[11px] font-mono text-zinc-400">
-                  {result.status === 'success' ? 'DNS Response' : 'Error'}
+                <span className="text-[11px] font-mono text-white font-bold uppercase">
+                  {result.status === 'success' ? 'RAW DNS RESPONSE' : 'QUERY ERROR'}
                 </span>
               </div>
               <pre className="p-4 text-xs font-mono text-zinc-300 whitespace-pre-wrap overflow-x-auto">

@@ -4,7 +4,6 @@ import { Database, Play, Loader2, AlertCircle, CheckCircle2, Code2 } from 'lucid
 import { Button } from '@/components/ui/Button';
 import { TaskPanel } from '@/components/task/TaskPanel';
 import { useTask } from '@/components/task/TaskContext';
-import type { LabResult } from './labUtils';
 
 const LAB_ID = 'sqli';
 
@@ -115,7 +114,6 @@ export function SqliTesterLab() {
   const [bypassResult, setBypassResult] = useState<'idle' | 'correct' | 'wrong'>('idle');
   const [cweAnswer, setCweAnswer] = useState('');
   const [cweResult, setCweResult] = useState<'idle' | 'correct' | 'wrong'>('idle');
-  const [labResult, setLabResult] = useState<LabResult>({ status: 'idle', output: '' });
 
   const buildQuery = (): string => {
     if (queryMode === 'parameterized') {
@@ -128,7 +126,6 @@ export function SqliTesterLab() {
     if (!userInput && queryMode === 'vulnerable') return;
     setResult(null);
     setAnimStage('parsing');
-    setLabResult({ status: 'running', output: '' });
 
     setTimeout(() => {
       setAnimStage('executing');
@@ -150,7 +147,6 @@ export function SqliTesterLab() {
           ),
           `Bypass Success:    ${execResult.bypassSuccess ? 'YES' : 'NO'}`,
         ].filter(Boolean).join('\n');
-        setLabResult({ status: 'success', output });
         verifyAndComplete(LAB_ID, output);
       }, 600);
     }, 400);
@@ -177,14 +173,14 @@ export function SqliTesterLab() {
   const currentQuery = buildQuery();
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <Database size={15} className="text-zinc-400" />
-            SQL Injection Tester
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <Database size={15} className="text-white" />
+            SQL INJECTION AUDITOR & TESTER
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 font-sans mt-1">
             Execute real SQL queries against an in-browser database and test injection payloads.
           </p>
         </div>
@@ -192,69 +188,67 @@ export function SqliTesterLab() {
         <div className="p-5 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Query Mode</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">QUERY MODE</label>
               <div className="flex gap-2">
-                <button onClick={() => setQueryMode('vulnerable')} className={`flex-1 px-3 py-2 rounded-lg border text-xs font-mono transition-all cursor-pointer ${queryMode === 'vulnerable' ? 'bg-red-500/20 border-red-500/50 text-red-300' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'}`}>
+                <button onClick={() => setQueryMode('vulnerable')} className={`flex-1 px-3 py-2 rounded border text-xs font-mono transition-all cursor-pointer ${queryMode === 'vulnerable' ? 'bg-white text-black font-bold border-white' : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'}`}>
                   Vulnerable (Concatenation)
                 </button>
-                <button onClick={() => setQueryMode('parameterized')} className={`flex-1 px-3 py-2 rounded-lg border text-xs font-mono transition-all cursor-pointer ${queryMode === 'parameterized' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'}`}>
+                <button onClick={() => setQueryMode('parameterized')} className={`flex-1 px-3 py-2 rounded border text-xs font-mono transition-all cursor-pointer ${queryMode === 'parameterized' ? 'bg-white text-black font-bold border-white' : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'}`}>
                   Parameterized (Safe)
                 </button>
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Username Input</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">USERNAME / PAYLOAD</label>
               <input
                 type="text"
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
-                placeholder="Enter username or injection payload"
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600"
+                placeholder="Enter username or payload..."
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white"
               />
             </div>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 space-y-1">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Generated Query</span>
-            <pre className="text-xs font-mono text-zinc-300 whitespace-pre-wrap">{currentQuery}</pre>
+          <div className="rounded border border-zinc-800 bg-zinc-950 p-3 space-y-1">
+            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">GENERATED SQL QUERY</span>
+            <pre className="text-xs font-mono text-white whitespace-pre-wrap">{currentQuery}</pre>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="primary" size="sm" onClick={handleExecute} disabled={animStage === 'parsing' || animStage === 'executing'} className="gap-2">
-              {animStage === 'parsing' || animStage === 'executing' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-              {animStage === 'parsing' ? 'Parsing...' : animStage === 'executing' ? 'Executing...' : 'Execute Query'}
+            <Button variant="primary" size="sm" onClick={handleExecute} disabled={animStage === 'parsing' || animStage === 'executing'} className="gap-2 uppercase text-xs">
+              {animStage === 'parsing' || animStage === 'executing' ? <Loader2 size={14} className="animate-spin text-black" /> : <Play size={14} />}
+              {animStage === 'parsing' ? 'PARSING...' : animStage === 'executing' ? 'EXECUTING...' : '[ EXECUTE QUERY ]'}
             </Button>
             {animStage === 'done' && (
-              <button onClick={() => { setResult(null); setAnimStage('idle'); setLabResult({ status: 'idle', output: '' }); setUserInput(''); }} className="text-xs text-zinc-500 hover:text-white transition-colors cursor-pointer">Reset</button>
+              <button onClick={() => { setResult(null); setAnimStage('idle'); setUserInput(''); }} className="text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer uppercase font-mono">[ RESET ]</button>
             )}
           </div>
 
           {animStage === 'parsing' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-2 py-3">
-              <Code2 size={18} className="text-cyan-400" />
+              <Code2 size={18} className="text-white" />
               <span className="text-xs text-zinc-400">Parsing query tokens...</span>
             </motion.div>
           )}
 
           {animStage === 'executing' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-2 py-3">
-              <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                <Database size={18} className="text-emerald-400" />
-              </motion.div>
-              <span className="text-xs text-zinc-400">Executing against in-memory database...</span>
+              <Database size={18} className="text-white animate-pulse" />
+              <span className="text-xs text-zinc-400">Executing against database...</span>
             </motion.div>
           )}
 
           {result && animStage === 'done' && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-950">
                 <div className="flex items-center gap-2">
-                  {result.error ? <AlertCircle size={13} className="text-red-400" /> : <CheckCircle2 size={13} className="text-emerald-400" />}
-                  <span className="text-[11px] font-mono text-zinc-400">{result.error ? 'Query Error' : 'Query Result'}</span>
+                  {result.error ? <AlertCircle size={13} className="text-white" /> : <CheckCircle2 size={13} className="text-white" />}
+                  <span className="text-[11px] font-mono text-white font-bold">{result.error ? 'QUERY ERROR' : 'QUERY RESULT'}</span>
                 </div>
                 {result.bypassSuccess !== undefined && (
-                  <span className={`text-[10px] font-mono ${result.bypassSuccess ? 'text-red-400' : 'text-emerald-400'}`}>
-                    Bypass: {result.bypassSuccess ? 'SUCCESS' : 'BLOCKED'}
+                  <span className="text-[10px] font-mono text-white font-bold">
+                    BYPASS: {result.bypassSuccess ? 'SUCCESS' : 'BLOCKED'}
                   </span>
                 )}
               </div>
@@ -262,15 +256,15 @@ export function SqliTesterLab() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs font-mono">
                     <thead>
-                      <tr className="border-b border-zinc-800/70 bg-zinc-900/20">
+                      <tr className="border-b border-zinc-800 bg-black">
                         {result.columns.map((col) => (
-                          <th key={col} className="px-3 py-2 text-left text-zinc-500 font-medium">{col}</th>
+                          <th key={col} className="px-3 py-2 text-left text-zinc-400 font-bold uppercase">{col}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-zinc-900">
                       {result.rows.map((row, i) => (
-                        <tr key={i} className="border-b border-zinc-800/50">
+                        <tr key={i} className="hover:bg-zinc-950">
                           {result.columns.map((col) => (
                             <td key={col} className="px-3 py-2 text-zinc-300">{String(row[col])}</td>
                           ))}
@@ -280,40 +274,30 @@ export function SqliTesterLab() {
                   </table>
                 </div>
               )}
-              {result.error && <pre className="p-4 text-xs font-mono text-red-300">{result.error}</pre>}
+              {result.error && <pre className="p-4 text-xs font-mono text-zinc-300">{result.error}</pre>}
             </motion.div>
           )}
 
-          {labResult.status === 'success' && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
-                <CheckCircle2 size={13} className="text-emerald-400" />
-                <span className="text-[11px] font-mono text-zinc-400">Full Output</span>
-              </div>
-              <pre className="p-4 text-xs font-mono text-zinc-300 whitespace-pre-wrap">{labResult.output}</pre>
-            </motion.div>
-          )}
-
-          <div className="border-t border-zinc-800/80 pt-5 space-y-4">
-            <h4 className="text-sm font-semibold text-zinc-200">Challenges</h4>
+          <div className="border-t border-zinc-800 pt-5 space-y-4 font-mono">
+            <h4 className="text-xs font-bold text-white uppercase">INJECTION CHALLENGES</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
-                <p className="text-xs text-zinc-400">Switch to Vulnerable mode and bypass the login by making the WHERE clause always true.</p>
+              <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                <p className="text-xs text-zinc-400 font-sans">Bypass authentication by injecting a payload into the username field.</p>
                 <div className="flex items-center gap-2">
-                  <input type="text" value={bypassAnswer} onChange={(e) => setBypassAnswer(e.target.value)} placeholder="Enter injection payload..." className="flex-1 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600" />
-                  <Button variant="primary" size="sm" onClick={handleBypassSubmit}>Submit</Button>
+                  <input type="text" value={bypassAnswer} onChange={(e) => setBypassAnswer(e.target.value)} placeholder="Enter injection payload..." className="flex-1 px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono outline-none focus:border-white" />
+                  <Button variant="primary" size="sm" onClick={handleBypassSubmit} className="uppercase text-xs">[ SUBMIT ]</Button>
                 </div>
-                {bypassResult === 'correct' && <div className="text-xs text-emerald-400">Correct! OR 1=1 always evaluates to true.</div>}
-                {bypassResult === 'wrong' && <div className="text-xs text-red-400">Try a payload that makes the WHERE clause always true.</div>}
+                {bypassResult === 'correct' && <div className="text-xs text-white font-bold">✓ Correct! OR 1=1 evaluates to true.</div>}
+                {bypassResult === 'wrong' && <div className="text-xs text-zinc-400">Try a payload that makes the WHERE clause always true.</div>}
               </div>
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
-                <p className="text-xs text-zinc-400">What is the CWE ID for SQL injection caused by improper neutralization of special elements?</p>
+              <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                <p className="text-xs text-zinc-400 font-sans">What is the CWE ID for SQL Injection?</p>
                 <div className="flex items-center gap-2">
-                  <input type="text" value={cweAnswer} onChange={(e) => setCweAnswer(e.target.value)} placeholder="e.g. CWE-89" className="flex-1 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600" />
-                  <Button variant="primary" size="sm" onClick={handleCweSubmit}>Submit</Button>
+                  <input type="text" value={cweAnswer} onChange={(e) => setCweAnswer(e.target.value)} placeholder="e.g. CWE-89" className="flex-1 px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono outline-none focus:border-white" />
+                  <Button variant="primary" size="sm" onClick={handleCweSubmit} className="uppercase text-xs">[ SUBMIT ]</Button>
                 </div>
-                {cweResult === 'correct' && <div className="text-xs text-emerald-400">Correct! CWE-89: SQL Injection.</div>}
-                {cweResult === 'wrong' && <div className="text-xs text-red-400">Hint: It starts with CWE-89.</div>}
+                {cweResult === 'correct' && <div className="text-xs text-white font-bold">✓ Correct! CWE-89: SQL Injection.</div>}
+                {cweResult === 'wrong' && <div className="text-xs text-zinc-400">Hint: CWE-89.</div>}
               </div>
             </div>
           </div>

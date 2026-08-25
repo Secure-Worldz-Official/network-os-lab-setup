@@ -141,38 +141,38 @@ export function SocialEngineeringLab() {
   const domainDist = levenshtein(currentEmail.from.split('@')[1]?.split('.')[0] || '', 'fedex');
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <Mail size={15} className="text-zinc-400" />
-            Social Engineering Inspector
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <Mail size={15} className="text-white" />
+            SOCIAL ENGINEERING & PHISHING INSPECTOR
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
-            Analyze real phishing emails. Flag every social engineering red flag you find.
+          <p className="text-xs text-zinc-400 font-sans mt-1">
+            Analyze real phishing email samples. Flag every social engineering red flag you find.
           </p>
         </div>
 
         <div className="p-5 space-y-5">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Email Header</span>
-              <span className="text-[10px] font-mono text-zinc-500">Email {emailIndex + 1} of {EMAILS.length}</span>
+          <div className="rounded border border-zinc-800 bg-zinc-950 p-4 space-y-3">
+            <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400">EMAIL HEADER</span>
+              <span className="text-[10px] text-zinc-400">EMAIL {emailIndex + 1} OF {EMAILS.length}</span>
             </div>
             <div className="space-y-1">
-              <div className="text-xs"><span className="text-zinc-500">Subject:</span> <span className="text-zinc-300">{currentEmail.subject}</span></div>
-              <div className="text-xs"><span className="text-zinc-500">From:</span> <span className="text-red-400">{currentEmail.from}</span></div>
+              <div className="text-xs"><span className="text-zinc-500">Subject:</span> <span className="text-white font-bold">{currentEmail.subject}</span></div>
+              <div className="text-xs"><span className="text-zinc-500">From:</span> <span className="text-white">{currentEmail.from}</span></div>
               <div className="text-xs"><span className="text-zinc-500">Reply-To:</span> <span className="text-zinc-400">{currentEmail.replyTo}</span></div>
             </div>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Email Body</span>
+          <div className="rounded border border-zinc-800 bg-[#080808] p-4 space-y-2">
+            <span className="text-[10px] uppercase tracking-wider text-zinc-500 block">EMAIL BODY</span>
             <pre className="text-xs text-zinc-300 whitespace-pre-wrap font-mono leading-relaxed">{currentEmail.body}</pre>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Flag Red Flags (click to toggle)</label>
+            <label className="text-[10px] uppercase tracking-wider text-zinc-400 block">FLAG RED FLAGS (CLICK TO TOGGLE)</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {currentEmail.indicators.map((ind) => {
                 const isFlagged = flaggedIndicators.has(ind.id);
@@ -180,14 +180,14 @@ export function SocialEngineeringLab() {
                   <button
                     key={ind.id}
                     onClick={() => toggleIndicator(ind.id)}
-                    className={`text-left px-3 py-2 rounded-lg border text-xs transition-all duration-200 cursor-pointer ${
+                    className={`text-left px-3 py-2.5 rounded border text-xs transition-all duration-200 cursor-pointer ${
                       isFlagged
-                        ? 'bg-red-500/20 border-red-500/50 text-red-300'
-                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                        ? 'bg-white text-black font-bold border-white'
+                        : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'
                     }`}
                   >
-                    <div className="font-mono font-semibold">{ind.type}</div>
-                    <div className="text-[10px] text-zinc-500 mt-0.5">{ind.explanation}</div>
+                    <div className="font-mono font-bold uppercase">{ind.type}</div>
+                    <div className="text-[10px] text-zinc-400 font-sans mt-0.5">{ind.explanation}</div>
                   </button>
                 );
               })}
@@ -195,47 +195,47 @@ export function SocialEngineeringLab() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="primary" size="sm" onClick={handleSubmit} disabled={flaggedIndicators.size === 0} className="gap-2">
+            <Button variant="primary" size="sm" onClick={handleSubmit} disabled={flaggedIndicators.size === 0} className="gap-2 uppercase text-xs">
               <Shield size={14} />
-              Submit Analysis
+              [ SUBMIT ANALYSIS ]
             </Button>
             {showResult && (
-              <button onClick={() => { setEmailIndex((prev) => (prev + 1) % EMAILS.length); setFlaggedIndicators(new Set()); setShowResult(false); setResult({ status: 'idle', output: '' }); }} className="text-xs text-zinc-500 hover:text-white transition-colors cursor-pointer">Next Email →</button>
+              <button onClick={() => { setEmailIndex((prev) => (prev + 1) % EMAILS.length); setFlaggedIndicators(new Set()); setShowResult(false); setResult({ status: 'idle', output: '' }); }} className="text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer uppercase font-mono">[ NEXT EMAIL → ]</button>
             )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-3 space-y-1">
+            <div className="rounded border border-zinc-800 bg-zinc-950 p-3 space-y-1">
               <div className="flex items-center gap-2">
-                <Globe size={12} className="text-zinc-500" />
-                <span className="text-[10px] font-mono text-zinc-500 uppercase">URL Entropy</span>
+                <Globe size={12} className="text-white" />
+                <span className="text-[10px] uppercase text-zinc-500">URL ENTROPY</span>
               </div>
-              <div className={`text-sm font-mono font-semibold ${entropy > 3.5 ? 'text-red-400' : 'text-zinc-300'}`}>{entropy.toFixed(2)} bits</div>
-              <div className="text-[10px] text-zinc-500">{entropy > 3.5 ? 'High — likely randomly generated' : 'Low — resembles real domain'}</div>
+              <div className="text-sm font-mono font-bold text-white">{entropy.toFixed(2)} BITS</div>
+              <div className="text-[10px] text-zinc-500 font-sans">{entropy > 3.5 ? 'High — likely randomly generated' : 'Low — resembles real domain'}</div>
             </div>
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-3 space-y-1">
+            <div className="rounded border border-zinc-800 bg-zinc-950 p-3 space-y-1">
               <div className="flex items-center gap-2">
-                <AlertCircle size={12} className="text-zinc-500" />
-                <span className="text-[10px] font-mono text-zinc-500 uppercase">Domain Distance</span>
+                <AlertCircle size={12} className="text-white" />
+                <span className="text-[10px] uppercase text-zinc-500">DOMAIN DISTANCE</span>
               </div>
-              <div className={`text-sm font-mono font-semibold ${domainDist <= 2 ? 'text-red-400' : 'text-zinc-300'}`}>{domainDist} edits</div>
-              <div className="text-[10px] text-zinc-500">{domainDist <= 2 ? 'Very similar to brand domain' : 'Moderate similarity'}</div>
+              <div className="text-sm font-mono font-bold text-white">{domainDist} EDITS</div>
+              <div className="text-[10px] text-zinc-500 font-sans">{domainDist <= 2 ? 'Very similar to brand domain' : 'Moderate similarity'}</div>
             </div>
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-3 space-y-1">
+            <div className="rounded border border-zinc-800 bg-zinc-950 p-3 space-y-1">
               <div className="flex items-center gap-2">
-                <Shield size={12} className="text-zinc-500" />
-                <span className="text-[10px] font-mono text-zinc-500 uppercase">SPF Analysis</span>
+                <Shield size={12} className="text-white" />
+                <span className="text-[10px] uppercase text-zinc-500">SPF ANALYSIS</span>
               </div>
-              <div className="text-sm font-mono font-semibold text-red-400">Likely Fail</div>
-              <div className="text-[10px] text-zinc-500">{currentEmail.spoofing}</div>
+              <div className="text-sm font-mono font-bold text-white">FAIL</div>
+              <div className="text-[10px] text-zinc-500 font-sans">{currentEmail.spoofing}</div>
             </div>
           </div>
 
           {showResult && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
-                <CheckCircle2 size={13} className="text-emerald-400" />
-                <span className="text-[11px] font-mono text-zinc-400">Analysis Output</span>
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-800 bg-zinc-950">
+                <CheckCircle2 size={13} className="text-white" />
+                <span className="text-[11px] font-mono text-white font-bold uppercase">ANALYSIS OUTPUT</span>
               </div>
               <pre className="p-4 text-xs font-mono text-zinc-300 whitespace-pre-wrap">{result.output}</pre>
             </motion.div>

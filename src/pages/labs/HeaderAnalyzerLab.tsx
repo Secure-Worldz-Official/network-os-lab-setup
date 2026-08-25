@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, type Variants } from 'framer-motion';
-import { Globe, Loader2, AlertCircle, ShieldAlert, ShieldCheck, ShieldX, Search, FileCode, BookOpen } from 'lucide-react';
+import { Globe, Loader2, AlertCircle, ShieldAlert, ShieldCheck, ShieldX, Search, FileCode } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { TaskPanel } from '@/components/task/TaskPanel';
 import { useTask } from '@/components/task/TaskContext';
@@ -219,9 +219,7 @@ export function HeaderAnalyzerLab() {
 
     const analysis = analyzeHeaders(headerObj);
     setResults(analysis);
-    setRawHeaders(Object.entries(headerObj).map(([key, value]) => `${key}: ${value}`));
-    setResults(analysis);
-
+    
     const rawList: string[] = [];
     Object.entries(headerObj).forEach(([key, value]) => {
       rawList.push(`${key}: ${value}`);
@@ -229,7 +227,7 @@ export function HeaderAnalyzerLab() {
     setRawHeaders(rawList);
 
     if (usedFallback) {
-      setError('CORS blocked the request. Using a realistic production sample header set for analysis.');
+      setError('CORS blocked direct request. Fallback: analyzing production security headers.');
     }
 
     const output = [
@@ -273,36 +271,36 @@ export function HeaderAnalyzerLab() {
   const getStatusIcon = (status: HeaderResult['status']) => {
     switch (status) {
       case 'pass':
-        return <ShieldCheck size={14} className="text-emerald-400" />;
+        return <ShieldCheck size={14} className="text-white" />;
       case 'warning':
-        return <ShieldAlert size={14} className="text-amber-400" />;
+        return <ShieldAlert size={14} className="text-zinc-400" />;
       case 'fail':
-        return <ShieldX size={14} className="text-red-400" />;
+        return <ShieldX size={14} className="text-zinc-600" />;
     }
   };
 
   const getStatusColor = (status: HeaderResult['status']) => {
     switch (status) {
       case 'pass':
-        return 'border-emerald-800 bg-emerald-950/20 text-emerald-300';
+        return 'border-white bg-zinc-950 text-white font-bold';
       case 'warning':
-        return 'border-amber-800 bg-amber-950/20 text-amber-300';
+        return 'border-zinc-700 bg-zinc-900 text-zinc-300';
       case 'fail':
-        return 'border-red-800 bg-red-950/20 text-red-300';
+        return 'border-zinc-800 bg-black text-zinc-500';
     }
   };
 
   const missingHeaders = results.filter((r) => r.status === 'fail');
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <Globe size={15} className="text-zinc-400" />
-            HTTP Header Security Analyzer
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <Globe size={15} className="text-white" />
+            HTTP HEADER SECURITY AUDITOR
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 font-sans mt-1">
             Fetch real response headers and audit security configurations with live syntax validation.
           </p>
         </div>
@@ -310,13 +308,13 @@ export function HeaderAnalyzerLab() {
         <div className="p-5 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2 space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Target URL</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">TARGET URL</label>
               <input
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://example.com"
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white transition-colors"
               />
             </div>
             <div className="space-y-1.5 flex items-end">
@@ -325,41 +323,41 @@ export function HeaderAnalyzerLab() {
                 size="sm"
                 onClick={fetchHeaders}
                 disabled={loading || !url}
-                className="w-full gap-2"
+                className="w-full gap-2 uppercase text-xs"
               >
-                {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
-                {loading ? 'Scanning...' : 'Fetch & Analyze'}
+                {loading ? <Loader2 size={14} className="animate-spin text-black" /> : <Search size={14} />}
+                {loading ? 'SCANNING...' : '[ FETCH & ANALYZE ]'}
               </Button>
             </div>
           </div>
 
           {loading && (
-            <motion.div variants={stageVariants} className="flex items-center gap-3 p-4 rounded-lg border border-zinc-800 bg-zinc-950/60">
-              <Loader2 size={18} className="animate-spin text-cyan-400" />
-              <span className="text-xs font-mono text-zinc-400">Fetching headers and running security analysis...</span>
+            <motion.div variants={stageVariants} className="flex items-center gap-3 p-4 rounded border border-zinc-800 bg-zinc-950">
+              <Loader2 size={18} className="animate-spin text-white" />
+              <span className="text-xs font-mono text-zinc-300">FETCHING HEADERS AND RUNNING AUDIT...</span>
             </motion.div>
           )}
 
           {error && (
-            <motion.div variants={stageVariants} className="flex items-start gap-2 p-3 rounded-lg border border-amber-800 bg-amber-950/20 text-amber-300">
-              <AlertCircle size={14} className="mt-0.5 shrink-0" />
+            <motion.div variants={stageVariants} className="flex items-start gap-2 p-3 rounded border border-zinc-800 bg-zinc-950 text-zinc-300">
+              <AlertCircle size={14} className="mt-0.5 shrink-0 text-white" />
               <span className="text-xs font-mono">{error}</span>
             </motion.div>
           )}
 
           {results.length > 0 && (
             <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Security Header Results</span>
-                <div className="flex items-center gap-3 text-[10px] font-mono">
-                  <span className="flex items-center gap-1 text-emerald-400">
-                    <ShieldCheck size={11} /> {results.filter((r) => r.status === 'pass').length}
+              <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                <span className="text-[10px] text-zinc-400 uppercase tracking-wider">AUDIT RESULTS</span>
+                <div className="flex items-center gap-3 text-[10px]">
+                  <span className="flex items-center gap-1 text-white font-bold">
+                    <ShieldCheck size={11} /> PASS: {results.filter((r) => r.status === 'pass').length}
                   </span>
-                  <span className="flex items-center gap-1 text-amber-400">
-                    <ShieldAlert size={11} /> {results.filter((r) => r.status === 'warning').length}
+                  <span className="flex items-center gap-1 text-zinc-400">
+                    <ShieldAlert size={11} /> WARN: {results.filter((r) => r.status === 'warning').length}
                   </span>
-                  <span className="flex items-center gap-1 text-red-400">
-                    <ShieldX size={11} /> {results.filter((r) => r.status === 'fail').length}
+                  <span className="flex items-center gap-1 text-zinc-600">
+                    <ShieldX size={11} /> FAIL: {results.filter((r) => r.status === 'fail').length}
                   </span>
                 </div>
               </div>
@@ -369,22 +367,22 @@ export function HeaderAnalyzerLab() {
                   <motion.div
                     key={header.name}
                     variants={stageVariants}
-                    className={`rounded-lg border p-3 space-y-2 ${getStatusColor(header.status)}`}
+                    className={`rounded border p-3 space-y-2 ${getStatusColor(header.status)}`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between border-b border-current/20 pb-1">
                       <div className="flex items-center gap-1.5">
                         {getStatusIcon(header.status)}
-                        <span className="text-[11px] font-mono font-semibold truncate">{header.name}</span>
+                        <span className="text-[11px] font-mono font-bold truncate">{header.name}</span>
                       </div>
-                      <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">{header.status}</span>
+                      <span className="text-[9px] uppercase tracking-wider">{header.status}</span>
                     </div>
-                    <div className="text-[10px] font-mono break-all opacity-80 leading-relaxed">
+                    <div className="text-[10px] break-all opacity-90 leading-relaxed font-mono">
                       {header.value}
                     </div>
-                    <div className="text-[10px] opacity-70 leading-relaxed">
+                    <div className="text-[10px] opacity-80 leading-relaxed font-sans">
                       {header.recommendation}
                     </div>
-                    <div className="text-[9px] font-mono opacity-50 pt-1 border-t border-current/20">
+                    <div className="text-[9px] opacity-60 pt-1 border-t border-current/20 font-mono">
                       {header.owasp}
                     </div>
                   </motion.div>
@@ -394,16 +392,16 @@ export function HeaderAnalyzerLab() {
           )}
 
           {results.length > 0 && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-5 space-y-4">
-              <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                Header Security Challenges
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] p-5 space-y-4">
+              <div className="text-[10px] text-zinc-400 uppercase tracking-wider border-b border-zinc-800 pb-2">
+                HEADER SECURITY AUDIT CHALLENGES
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
-                  <div className="text-xs font-mono text-zinc-300">Challenge 1: Identify missing security headers</div>
-                  <p className="text-[11px] text-zinc-500">
-                    From the analysis above, which headers are missing or misconfigured? Check all that apply.
+                <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                  <div className="text-xs font-bold text-white uppercase">Challenge 1: Identify Missing Headers</div>
+                  <p className="text-[11px] text-zinc-400 font-sans">
+                    Which headers are missing or misconfigured in the audit? Select all that apply.
                   </p>
                   {missingHeaders.length > 0 ? (
                     <div className="space-y-2">
@@ -413,91 +411,91 @@ export function HeaderAnalyzerLab() {
                             type="checkbox"
                             checked={!!missingChecks[header.name]}
                             onChange={() => handleMissingToggle(header.name)}
-                            className="rounded border-zinc-700 bg-zinc-950 text-cyan-500 focus:ring-0 focus:ring-offset-0"
+                            className="rounded border-zinc-800 bg-black text-white focus:ring-0"
                           />
-                          <span className="text-[11px] font-mono text-zinc-400 group-hover:text-zinc-300 transition-colors">{header.name}</span>
+                          <span className="text-[11px] text-zinc-400 group-hover:text-white transition-colors">{header.name}</span>
                         </label>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-emerald-400 font-mono">All headers are present. Great security posture!</p>
+                    <p className="text-[11px] text-white font-bold">All headers present.</p>
                   )}
                   <Button
                     variant="secondary"
                     size="sm"
                     onClick={validateChallenge1}
                     disabled={missingHeaders.length === 0}
-                    className="w-full"
+                    className="w-full uppercase text-xs"
                   >
-                    Check Answer
+                    [ CHECK ANSWER ]
                   </Button>
                   {challenge1Done && (
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="text-[11px] font-mono p-2.5 rounded border border-emerald-800 bg-emerald-950/30 text-emerald-300"
+                      className="text-[11px] p-2.5 rounded border border-white bg-zinc-950 text-white font-bold"
                     >
-                      Correct. Missing or misconfigured headers weaken the security posture and should be addressed.
+                      ✓ Correct. Missing security headers leave target applications vulnerable.
                     </motion.div>
                   )}
                 </div>
 
-                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
-                  <div className="text-xs font-mono text-zinc-300">Challenge 2: Provide the correct CSP directive</div>
-                  <p className="text-[11px] text-zinc-500">
-                    Type a CSP value that includes at least script-src, style-src, or default-src directives.
+                <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                  <div className="text-xs font-bold text-white uppercase">Challenge 2: CSP Syntax Directive</div>
+                  <p className="text-[11px] text-zinc-400 font-sans">
+                    Type a valid CSP directive string (including script-src, style-src, or default-src).
                   </p>
                   <input
                     type="text"
                     value={cspInput}
                     onChange={(e) => { setCspInput(e.target.value); setCspValid(null); }}
                     placeholder="default-src 'self'; script-src 'self'"
-                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                    className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white transition-colors"
                   />
-                  <Button variant="secondary" size="sm" onClick={validateChallenge2} disabled={!cspInput} className="w-full">
-                    Validate CSP
+                  <Button variant="secondary" size="sm" onClick={validateChallenge2} disabled={!cspInput} className="w-full uppercase text-xs">
+                    [ VALIDATE CSP ]
                   </Button>
                   {cspValid !== null && (
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`text-[11px] font-mono p-2.5 rounded border ${cspValid ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                      className={`text-[11px] p-2.5 rounded border ${cspValid ? 'border-white bg-zinc-950 text-white font-bold' : 'border-zinc-700 bg-zinc-950 text-zinc-400'}`}
                     >
                       {cspValid ? (
-                        <span>CSP syntax validated. Ensure directives are restrictive in production.</span>
+                        <span>✓ CSP directive structure validated.</span>
                       ) : (
-                        <span>CSP must include script-src, style-src, or default-src directives.</span>
+                        <span>Must contain script-src, style-src, or default-src.</span>
                       )}
                     </motion.div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
-                <div className="text-xs font-mono text-zinc-300">Challenge 3: Identify HSTS</div>
-                <p className="text-[11px] text-zinc-500">
-                  Which header enforces HTTPS connections? Type the header name or abbreviation.
+              <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">Challenge 3: HSTS Header Identification</div>
+                <p className="text-[11px] text-zinc-400 font-sans">
+                  Which header enforces HTTPS transport? Type header name or abbreviation.
                 </p>
                 <input
                   type="text"
                   value={hstsInput}
                   onChange={(e) => { setHstsInput(e.target.value); setHstsValid(null); }}
                   placeholder="Strict-Transport-Security or HSTS"
-                  className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                  className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white transition-colors"
                 />
-                <Button variant="secondary" size="sm" onClick={validateChallenge3} disabled={!hstsInput} className="w-full">
-                  Validate Answer
+                <Button variant="secondary" size="sm" onClick={validateChallenge3} disabled={!hstsInput} className="w-full uppercase text-xs">
+                  [ VALIDATE ANSWER ]
                 </Button>
                 {hstsValid !== null && (
                   <motion.div
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`text-[11px] font-mono p-2.5 rounded border ${hstsValid ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                    className={`text-[11px] p-2.5 rounded border ${hstsValid ? 'border-white bg-zinc-950 text-white font-bold' : 'border-zinc-700 bg-zinc-950 text-zinc-400'}`}
                   >
                     {hstsValid ? (
-                      <span>Correct. Strict-Transport-Security (HSTS) tells browsers to only connect via HTTPS.</span>
+                      <span>✓ Correct. Strict-Transport-Security enforces HTTPS transport.</span>
                     ) : (
-                      <span>Incorrect. The header that enforces HTTPS is Strict-Transport-Security (HSTS).</span>
+                      <span>Incorrect. Strict-Transport-Security (HSTS) enforces HTTPS transport.</span>
                     )}
                   </motion.div>
                 )}
@@ -506,46 +504,33 @@ export function HeaderAnalyzerLab() {
           )}
 
           {rawHeaders.length > 0 && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
-                <FileCode size={13} className="text-zinc-400" />
-                <span className="text-[11px] font-mono text-zinc-400">Live Header Breakdown</span>
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-black overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-zinc-800 bg-zinc-950">
+                <FileCode size={13} className="text-white" />
+                <span className="text-[11px] font-bold text-white uppercase tracking-wider">LIVE RESPONSE HEADER BREAKDOWN</span>
               </div>
               <div className="p-4 space-y-4">
                 <div>
-                  <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Raw Response Headers</span>
-                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mb-2">RAW HEADERS</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                     {rawHeaders.map((h, i) => (
-                      <div key={i} className="text-[11px] font-mono text-zinc-300 truncate px-2 py-1 rounded bg-zinc-900/50 border border-zinc-800/50">
+                      <div key={i} className="text-[11px] text-zinc-300 truncate px-2.5 py-1.5 rounded bg-zinc-950 border border-zinc-800">
                         {h}
                       </div>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Header-by-Header Analysis</span>
-                  <div className="mt-2 space-y-2">
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mb-2">AUDIT SUMMARY</span>
+                  <div className="space-y-2">
                     {results.map((r) => (
-                      <div key={r.name} className="flex items-start gap-2 text-[11px] font-mono px-2 py-1.5 rounded bg-zinc-900/50 border border-zinc-800/50">
+                      <div key={r.name} className="flex items-start gap-2 text-[11px] px-2.5 py-1.5 rounded bg-zinc-950 border border-zinc-800">
                         {getStatusIcon(r.status)}
                         <div className="flex-1 min-w-0">
-                          <span className="text-zinc-300">{r.name}:</span>
-                          <span className="text-zinc-500 ml-1">{r.present ? r.value : 'Missing'} — {r.status.toUpperCase()}</span>
+                          <span className="text-white font-bold">{r.name}:</span>
+                          <span className="text-zinc-400 ml-1.5">{r.present ? r.value : 'Missing'} — {r.status.toUpperCase()}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <BookOpen size={11} />
-                    OWASP Top 10 Mapping
-                  </span>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {Array.from(new Set(results.map((r) => r.owasp))).map((owasp) => (
-                      <span key={owasp} className="text-[10px] font-mono px-2 py-1 rounded border border-zinc-800 bg-zinc-900/50 text-zinc-400">
-                        {owasp}
-                      </span>
                     ))}
                   </div>
                 </div>

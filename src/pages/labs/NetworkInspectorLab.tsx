@@ -13,20 +13,6 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
 };
 
-const pulseRing: Variants = {
-  hidden: { scale: 0.8, opacity: 0 },
-  show: {
-    scale: [0.8, 1.4, 0.8],
-    opacity: [0, 0.6, 0],
-    transition: { repeat: Infinity, duration: 2, ease: 'easeInOut' },
-  },
-};
-
-const panelReveal: Variants = {
-  hidden: { opacity: 0, y: 12, scale: 0.95 },
-  show: { opacity: 1, y: 0, scale: 1 },
-};
-
 type ScanPhase = 'idle' | 'browser' | 'network' | 'local' | 'connection' | 'done';
 
 interface BrowserData {
@@ -155,7 +141,7 @@ export function NetworkInspectorLab() {
         await pc.createOffer();
         await pc.setLocalDescription(await pc.createOffer());
       } catch {
-        // some browsers require transceivers for gathering
+        // expected fallback
       }
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -207,90 +193,67 @@ export function NetworkInspectorLab() {
   }, [verifyAndComplete, generateChallenge]);
 
   const panels = [
-    { phase: 'browser' as ScanPhase, label: 'Browser', icon: Monitor, data: browserData, color: 'text-blue-300' },
-    { phase: 'network' as ScanPhase, label: 'Network', icon: Wifi, data: networkData, color: 'text-emerald-300' },
-    { phase: 'local' as ScanPhase, label: 'Local IP', icon: Globe, data: localCandidates, color: 'text-amber-300' },
-    { phase: 'connection' as ScanPhase, label: 'Connection', icon: Radio, data: connectionStatus, color: 'text-violet-300' },
+    { phase: 'browser' as ScanPhase, label: 'Browser', icon: Monitor, data: browserData },
+    { phase: 'network' as ScanPhase, label: 'Network', icon: Wifi, data: networkData },
+    { phase: 'local' as ScanPhase, label: 'Local IP', icon: Globe, data: localCandidates },
+    { phase: 'connection' as ScanPhase, label: 'Connection', icon: Radio, data: connectionStatus },
   ];
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <Network size={15} className="text-zinc-400" />
-            Live Network Scanner
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <Network size={15} className="text-white" />
+            LIVE NETWORK ENVIRONMENT INSPECTOR
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 font-sans mt-1">
             Scan your browser's real network environment with animated sensor panels.
           </p>
         </div>
 
         <div className="p-5 space-y-5">
-          <Button variant="primary" size="sm" onClick={run} disabled={status === 'running'} className="gap-2">
-            {status === 'running' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-            {status === 'running' ? 'Scanning...' : 'Run Scan'}
+          <Button variant="primary" size="sm" onClick={run} disabled={status === 'running'} className="gap-2 uppercase text-xs">
+            {status === 'running' ? <Loader2 size={14} className="animate-spin text-black" /> : <Play size={14} />}
+            {status === 'running' ? 'SCANNING...' : '[ RUN NETWORK SCAN ]'}
           </Button>
 
           {(status === 'running' || status === 'success' || scanPhase !== 'idle') && (
             <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-4">
-              {status === 'running' && (
-                <div className="relative flex items-center justify-center py-6">
-                  <motion.div variants={pulseRing} initial="hidden" animate="show" className="absolute w-24 h-24 rounded-full border border-cyan-500/40" />
-                  <motion.div variants={pulseRing} initial="hidden" animate="show" className="absolute w-32 h-32 rounded-full border border-cyan-500/30" style={{ animationDelay: '0.5s' }} />
-                  <motion.div variants={pulseRing} initial="hidden" animate="show" className="absolute w-40 h-40 rounded-full border border-cyan-500/20" style={{ animationDelay: '1s' }} />
-                  <div className="relative w-16 h-16 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
-                    <Network size={20} className="text-cyan-400" />
-                  </div>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {panels.map((panel) => {
                   const isActive = scanPhase === panel.phase || scanPhase === 'done';
                   const Icon = panel.icon;
                   return (
-                    <motion.div
+                    <div
                       key={panel.phase}
-                      variants={panelReveal}
-                      initial="hidden"
-                      animate={isActive ? 'show' : 'hidden'}
-                      transition={{ delay: isActive ? 0.1 : 0 }}
-                      className={`rounded-lg border p-4 space-y-2 transition-colors ${
+                      className={`rounded border p-4 space-y-2 transition-all ${
                         isActive
-                          ? 'border-zinc-700 bg-zinc-900/50'
-                          : 'border-zinc-800 bg-zinc-950/30 opacity-50'
+                          ? 'border-white bg-[#080808] font-bold'
+                          : 'border-zinc-850 bg-black opacity-40'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <Icon size={14} className={isActive ? panel.color : 'text-zinc-600'} />
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">{panel.label}</span>
-                        {isActive && scanPhase === panel.phase && (
-                          <motion.div
-                            animate={{ opacity: [0, 1, 0] }}
-                            transition={{ repeat: Infinity, duration: 1 }}
-                            className="w-1.5 h-1.5 rounded-full bg-cyan-400 ml-auto"
-                          />
-                        )}
+                      <div className="flex items-center gap-2 border-b border-zinc-900 pb-2">
+                        <Icon size={14} className="text-white" />
+                        <span className="text-[10px] uppercase tracking-wider text-white">{panel.label}</span>
                       </div>
-                      <div className="text-xs font-mono space-y-0.5">
+                      <div className="text-xs space-y-0.5">
                         {panel.phase === 'browser' && browserData && (
                           <>
-                            <div className="text-zinc-400 truncate" title={browserData.ua}>{browserData.ua?.slice(0, 40)}...</div>
-                            <div className="text-zinc-500">{browserData.platform} · {browserData.language}</div>
+                            <div className="text-white truncate" title={browserData.ua}>{browserData.ua?.slice(0, 40)}...</div>
+                            <div className="text-zinc-400">{browserData.platform} · {browserData.language}</div>
                             <div className="text-zinc-500">Cookies: {browserData.cookies} · DNT: {browserData.dnt}</div>
                           </>
                         )}
                         {panel.phase === 'network' && networkData && (
                           <>
-                            <div className={networkData.effectiveType !== 'N/A' ? 'text-emerald-300' : 'text-zinc-500'}>
-                              Type: {networkData.effectiveType}
+                            <div className="text-white font-bold">
+                              TYPE: {networkData.effectiveType}
                             </div>
                             <div className="text-zinc-400">
                               {networkData.downlink >= 0 ? `${networkData.downlink} Mbps` : '—'}
                               {networkData.rtt >= 0 ? ` · ${networkData.rtt}ms` : ''}
                             </div>
-                            <div className="text-zinc-500">Save Data: {networkData.saveData ? 'yes' : 'no'}</div>
                           </>
                         )}
                         {panel.phase === 'local' && (
@@ -299,23 +262,23 @@ export function NetworkInspectorLab() {
                               localCandidates.slice(0, 2).map((c, i) => {
                                 const match = c.match(/ (\d+\.\d+\.\d+\.\d+) /);
                                 return (
-                                  <div key={i} className="text-amber-300">
+                                  <div key={i} className="text-white font-bold">
                                     {match ? match[1] : c.slice(0, 30)}
                                   </div>
                                 );
                               })
                             ) : (
-                              <div className="text-zinc-500">Scanning...</div>
+                              <div className="text-zinc-500">SCANNING...</div>
                             )}
                           </>
                         )}
                         {panel.phase === 'connection' && (
-                          <div className={connectionStatus === 'Online' ? 'text-emerald-300' : 'text-red-300'}>
-                            {connectionStatus || 'Scanning...'}
+                          <div className="text-white font-bold">
+                            STATUS: {connectionStatus || 'SCANNING...'}
                           </div>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -323,15 +286,15 @@ export function NetworkInspectorLab() {
           )}
 
           {(status === 'success' || status === 'error') && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-800 bg-zinc-950">
                 {status === 'success' ? (
-                  <CheckCircle2 size={13} className="text-emerald-400" />
+                  <CheckCircle2 size={13} className="text-white" />
                 ) : (
-                  <AlertCircle size={13} className="text-red-400" />
+                  <AlertCircle size={13} className="text-white" />
                 )}
-                <span className="text-[11px] font-mono text-zinc-400">
-                  {status === 'success' ? 'Live Output' : 'Error'}
+                <span className="text-[11px] font-mono text-white font-bold uppercase">
+                  {status === 'success' ? 'SCAN LOG OUTPUT' : 'ERROR LOG'}
                 </span>
               </div>
               <pre className="p-4 text-xs font-mono text-zinc-300 whitespace-pre-wrap overflow-x-auto">
@@ -341,28 +304,25 @@ export function NetworkInspectorLab() {
           )}
 
           {status === 'success' && challenge && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="px-4 py-3 border-b border-zinc-800/70 bg-zinc-900/40">
-                <h4 className="text-xs font-semibold text-zinc-200 flex items-center gap-2">
-                  <CheckCircle2 size={13} className="text-cyan-400" />
-                  Hands-On Challenge
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-black overflow-hidden">
+              <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-950">
+                <h4 className="text-xs font-bold text-white uppercase flex items-center gap-2">
+                  <CheckCircle2 size={13} className="text-white" />
+                  KNOWLEDGE VERIFICATION QUESTION
                 </h4>
-                <p className="text-[11px] text-zinc-500 mt-1">
-                  Answer the question below using the scan results above.
-                </p>
               </div>
-              <div className="p-4 space-y-3">
-                <div className="text-sm text-zinc-300">
+              <div className="p-4 space-y-3 font-mono">
+                <div className="text-xs text-white">
                   {challenge.text}
                 </div>
                 {challengeResult === 'fail' && (
-                  <div className="text-xs text-red-400 bg-red-950/30 border border-red-900/40 rounded px-3 py-2">
-                    Incorrect. The correct answer is: <span className="font-mono text-red-300">{challenge.answer}</span>
+                  <div className="text-xs text-zinc-400 bg-black border border-zinc-800 rounded p-2">
+                    Incorrect. Answer is: <span className="text-white font-bold">{challenge.answer}</span>
                   </div>
                 )}
                 {challengeResult === 'pass' && (
-                  <div className="text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 rounded px-3 py-2">
-                    Correct! Well done.
+                  <div className="text-xs text-white bg-zinc-950 border border-white rounded p-2 font-bold">
+                    ✓ Correct answer verified!
                   </div>
                 )}
                 <div className="flex gap-2">
@@ -370,13 +330,8 @@ export function NetworkInspectorLab() {
                     type="text"
                     value={challengeInput}
                     onChange={(e) => setChallengeInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSubmitChallenge();
-                      }
-                    }}
-                    placeholder="Type your answer..."
-                    className="flex-1 rounded border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/50"
+                    placeholder="Type answer..."
+                    className="flex-1 rounded border border-zinc-800 bg-black px-3 py-2 text-xs text-white outline-none focus:border-white font-mono"
                     disabled={challengeResult === 'pass'}
                   />
                   <Button
@@ -384,15 +339,17 @@ export function NetworkInspectorLab() {
                     size="sm"
                     onClick={handleSubmitChallenge}
                     disabled={!challengeInput.trim() || challengeResult === 'pass'}
+                    className="uppercase text-xs"
                   >
-                    Submit Answer
+                    [ SUBMIT ]
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleNewChallenge}
+                    className="uppercase text-xs"
                   >
-                    New Challenge
+                    [ NEW QUESTION ]
                   </Button>
                 </div>
               </div>

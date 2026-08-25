@@ -148,11 +148,11 @@ export function HttpTesterLab() {
       setResult({
         status: 'error',
         output: '',
-        error: `Request failed after ${Math.round(elapsed)}ms\n\n${msg}\n\nTip: The target may block CORS. Try a CORS-friendly endpoint or disable CORS in your browser for local testing.`,
+        error: `Request failed after ${Math.round(elapsed)}ms\n\n${msg}\n\nTip: The target may block CORS.`,
       });
       verifyAndComplete(LAB_ID, '', `Request failed after ${Math.round(elapsed)}ms\n\n${msg}`, Math.round(elapsed));
     }
-  }, [url, method, headers, verifyAndComplete]);
+  }, [url, method, headers, body, verifyAndComplete]);
 
   const validateRetrieve = () => {
     setRetrieveCorrect(retrieveChoice === 'GET');
@@ -177,12 +177,12 @@ export function HttpTesterLab() {
   };
 
   const stages = [
-    { id: 'dns', label: 'DNS Lookup', icon: Globe, desc: `Resolving ${journeyData.host || '...'}` },
-    { id: 'tcp', label: 'TCP Handshake', icon: Send, desc: 'SYN → SYN-ACK → ACK' },
-    { id: 'tls', label: 'TLS Handshake', icon: Lock, desc: 'Encryption established' },
-    { id: 'sending', label: 'Sending Request', icon: Send, desc: `${method} request transmitted` },
-    { id: 'processing', label: 'Server Processing', icon: Server, desc: 'Awaiting response...' },
-    { id: 'receiving', label: 'Receiving Response', icon: Globe, desc: 'Response incoming' },
+    { id: 'dns', label: 'DNS Lookup', icon: Globe },
+    { id: 'tcp', label: 'TCP Handshake', icon: Send },
+    { id: 'tls', label: 'TLS Handshake', icon: Lock },
+    { id: 'sending', label: 'Sending Request', icon: Send },
+    { id: 'processing', label: 'Server Processing', icon: Server },
+    { id: 'receiving', label: 'Receiving Response', icon: Globe },
   ];
 
   const stageOrder: JourneyStage[] = ['dns', 'tcp', 'tls', 'sending', 'processing', 'receiving', 'done'];
@@ -201,14 +201,14 @@ export function HttpTesterLab() {
   };
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <SquareCode size={15} className="text-zinc-400" />
-            Network Stack Journey Visualizer
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <SquareCode size={15} className="text-white" />
+            HTTP / HTTPS NETWORK STACK JOURNEY
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 font-sans mt-1">
             Watch your request travel through DNS, TCP, TLS, and back — animated step by step with real data.
           </p>
         </div>
@@ -216,21 +216,21 @@ export function HttpTesterLab() {
         <div className="p-5 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2 space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">URL</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">URL TARGET</label>
               <input
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://httpbin.org/get"
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white transition-colors"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Method</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">METHOD</label>
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value)}
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-200 font-mono focus:outline-none focus:border-zinc-600 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono focus:outline-none focus:border-white cursor-pointer"
               >
                 {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].map((m) => (
                   <option key={m} value={m}>{m}</option>
@@ -240,66 +240,64 @@ export function HttpTesterLab() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Headers (one per line: Key: Value)</label>
+            <label className="text-[10px] text-zinc-400 uppercase tracking-wider">HEADERS (ONE PER LINE: KEY: VALUE)</label>
             <textarea
               value={headers}
               onChange={(e) => setHeaders(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors resize-y"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white resize-y"
             />
           </div>
 
           {(method === 'POST' || method === 'PUT' || method === 'PATCH') && (
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Request Body (JSON)</label>
+              <label className="text-[10px] text-zinc-400 uppercase tracking-wider">REQUEST BODY (JSON)</label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 rows={3}
                 placeholder='{"key": "value"}'
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors resize-y"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white resize-y"
               />
             </div>
           )}
 
           <div className="flex items-center gap-3">
-            <Button variant="primary" size="sm" onClick={run} disabled={result.status === 'running'} className="gap-2">
-              {result.status === 'running' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-              {result.status === 'running' ? 'Running...' : 'Send Request'}
+            <Button variant="primary" size="sm" onClick={run} disabled={result.status === 'running'} className="gap-2 uppercase text-xs">
+              {result.status === 'running' ? <Loader2 size={14} className="animate-spin text-black" /> : <Play size={14} />}
+              {result.status === 'running' ? 'RUNNING...' : '[ SEND REQUEST ]'}
             </Button>
             {timing !== null && result.status !== 'running' && (
-              <span className="text-xs font-mono text-zinc-500">{timing}ms</span>
+              <span className="text-xs font-mono text-white font-bold">{timing}MS</span>
             )}
           </div>
 
           {/* Journey Visualization */}
           {(result.status === 'running' || result.status === 'success' || journey !== 'idle') && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
-              <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                <span>Request Journey</span>
-                <span className={journey === 'done' ? 'text-emerald-400' : 'text-zinc-500'}>
-                  {journey === 'done' ? 'Complete' : 'In Progress'}
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] p-4 space-y-3">
+              <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase tracking-wider border-b border-zinc-800 pb-2">
+                <span>STACK STAGE PROGRESS</span>
+                <span className={journey === 'done' ? 'text-white font-bold' : 'text-zinc-500'}>
+                  {journey === 'done' ? 'COMPLETE' : 'IN PROGRESS'}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-1">
                 {stages.map((stage, idx) => {
                   const isActive = idx <= currentStageIndex && journey !== 'idle';
-                  const isCurrent = idx === currentStageIndex && journey !== 'done' && journey !== 'idle';
+                  const Icon = stage.icon;
                   return (
                     <div key={stage.id} className="flex-1 flex flex-col items-center gap-1.5">
-                      <motion.div
-                        animate={isActive ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-                        transition={isCurrent ? { repeat: Infinity, duration: 1.5 } : {}}
-                        className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-colors duration-300 ${
+                      <div
+                        className={`w-8 h-8 rounded border flex items-center justify-center transition-colors ${
                           isActive
-                            ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300'
-                            : 'bg-zinc-900 border-zinc-800 text-zinc-600'
+                            ? 'bg-white text-black font-bold border-white'
+                            : 'bg-black border-zinc-800 text-zinc-600'
                         }`}
                       >
-                        <stage.icon size={14} />
-                      </motion.div>
-                      <span className={`text-[9px] font-mono text-center leading-tight ${isActive ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                        <Icon size={14} />
+                      </div>
+                      <span className={`text-[9px] text-center leading-tight ${isActive ? 'text-white font-bold' : 'text-zinc-600'}`}>
                         {stage.label}
                       </span>
                     </div>
@@ -307,27 +305,20 @@ export function HttpTesterLab() {
                 })}
               </div>
 
-              {/* Live data panels */}
               {journeyData.requestHeaders && journey === 'done' && (
-                <motion.div variants={stageVariants} className="space-y-2 pt-2 border-t border-zinc-800/60">
+                <motion.div variants={stageVariants} className="space-y-2 pt-2 border-t border-zinc-800">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 space-y-1.5">
-                      <span className="text-[10px] font-mono text-zinc-500 uppercase">Request Sent</span>
+                    <div className="rounded border border-zinc-800 bg-black p-3 space-y-1.5">
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase">REQUEST TRANSMITTED</span>
                       <div className="text-[11px] font-mono text-zinc-300 space-y-0.5">
                         <div><span className="text-zinc-500">Method:</span> {method}</div>
                         <div><span className="text-zinc-500">Host:</span> {journeyData.host}</div>
-                        {journeyData.requestHeaders?.slice(0, 3).map((h, i) => (
-                          <div key={i} className="text-zinc-400 truncate">{h}</div>
-                        ))}
                       </div>
                     </div>
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 space-y-1.5">
-                      <span className="text-[10px] font-mono text-zinc-500 uppercase">Response Received</span>
+                    <div className="rounded border border-zinc-800 bg-black p-3 space-y-1.5">
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase">RESPONSE RECEIVED</span>
                       <div className="text-[11px] font-mono text-zinc-300 space-y-0.5">
-                        {journeyData.status && <div className={journeyData.status.includes('200') ? 'text-emerald-300' : 'text-amber-300'}>{journeyData.status}</div>}
-                        {journeyData.responseHeaders?.slice(0, 3).map((h, i) => (
-                          <div key={i} className="text-zinc-400 truncate">{h}</div>
-                        ))}
+                        {journeyData.status && <div className="text-white font-bold">{journeyData.status}</div>}
                       </div>
                     </div>
                   </div>
@@ -338,131 +329,101 @@ export function HttpTesterLab() {
 
           {/* Challenge Section */}
           {(result.status === 'success' || result.status === 'error') && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-5 space-y-5">
-              <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                HTTP Method Challenge
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] p-5 space-y-5">
+              <div className="text-[10px] text-zinc-400 uppercase tracking-wider border-b border-zinc-800 pb-2">
+                HTTP METHOD CHALLENGE
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Retrieve a webpage */}
-                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
-                  <div className="text-xs font-mono text-zinc-300">Scenario 1: Retrieve a webpage</div>
-                  <p className="text-[11px] text-zinc-500">
-                    You want to fetch an HTML page from a server. Which HTTP method should you use?
+                <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                  <div className="text-xs font-bold text-white uppercase">Scenario 1: Retrieve Data</div>
+                  <p className="text-[11px] text-zinc-400 font-sans">
+                    Which HTTP method retrieves resource data without side effects?
                   </p>
                   <select
                     value={retrieveChoice}
                     onChange={(e) => { setRetrieveChoice(e.target.value); setRetrieveCorrect(null); }}
-                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-600 transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono focus:outline-none focus:border-white cursor-pointer"
                   >
                     <option value="">Select method...</option>
                     {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].map((m) => (
                       <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
-                  <Button variant="secondary" size="sm" onClick={validateRetrieve} disabled={!retrieveChoice} className="w-full">
-                    Check Answer
+                  <Button variant="secondary" size="sm" onClick={validateRetrieve} disabled={!retrieveChoice} className="w-full uppercase text-xs">
+                    [ CHECK ANSWER ]
                   </Button>
                   {retrieveCorrect !== null && (
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`text-[11px] font-mono p-2.5 rounded border ${retrieveCorrect ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                      className={`text-[11px] p-2.5 rounded border ${retrieveCorrect ? 'border-white bg-zinc-950 text-white font-bold' : 'border-zinc-700 bg-zinc-950 text-zinc-400'}`}
                     >
-                      {retrieveCorrect ? (
-                        <span>
-                          Correct. GET is the safe, idempotent method designed for retrieving data. It does not modify server state.
-                        </span>
-                      ) : (
-                        <span>
-                          Incorrect. GET is the standard method for retrieving resources. It is safe and idempotent — it should never modify server state.
-                        </span>
-                      )}
+                      {retrieveCorrect ? '✓ Correct. GET is safe and idempotent.' : 'Incorrect. GET is safe and idempotent.'}
                     </motion.div>
                   )}
                 </div>
 
-                {/* Submit form data */}
-                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
-                  <div className="text-xs font-mono text-zinc-300">Scenario 2: Submit form data</div>
-                  <p className="text-[11px] text-zinc-500">
-                    You need to send data to be processed by the server (e.g., a login form). Which method should you use?
+                <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                  <div className="text-xs font-bold text-white uppercase">Scenario 2: Submit Form Data</div>
+                  <p className="text-[11px] text-zinc-400 font-sans">
+                    Which method submits body data for server processing?
                   </p>
                   <select
                     value={submitChoice}
                     onChange={(e) => { setSubmitChoice(e.target.value); setSubmitCorrect(null); }}
-                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-600 transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono focus:outline-none focus:border-white cursor-pointer"
                   >
                     <option value="">Select method...</option>
                     {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].map((m) => (
                       <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
-                  <Button variant="secondary" size="sm" onClick={validateSubmit} disabled={!submitChoice} className="w-full">
-                    Check Answer
+                  <Button variant="secondary" size="sm" onClick={validateSubmit} disabled={!submitChoice} className="w-full uppercase text-xs">
+                    [ CHECK ANSWER ]
                   </Button>
                   {submitCorrect !== null && (
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`text-[11px] font-mono p-2.5 rounded border ${submitCorrect ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                      className={`text-[11px] p-2.5 rounded border ${submitCorrect ? 'border-white bg-zinc-950 text-white font-bold' : 'border-zinc-700 bg-zinc-950 text-zinc-400'}`}
                     >
-                      {submitCorrect ? (
-                        <span>
-                          Correct. POST and PUT are used to submit data. POST creates resources; PUT updates existing ones. Both carry a request body.
-                        </span>
-                      ) : (
-                        <span>
-                          Incorrect. POST or PUT should be used for submitting data. GET is for retrieval only and exposes data in the URL — never use it for sensitive form submissions.
-                        </span>
-                      )}
+                      {submitCorrect ? '✓ Correct. POST or PUT carries a payload.' : 'Incorrect. POST or PUT carries a payload.'}
                     </motion.div>
                   )}
                 </div>
               </div>
 
-              {/* Status Code Challenge */}
               {resStatus !== null && (
-                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
-                  <div className="text-xs font-mono text-zinc-300">
-                    Your request returned {resStatus}. What does this mean?
+                <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+                  <div className="text-xs font-bold text-white uppercase">
+                    Status Code {resStatus} Meaning
                   </div>
-                  <p className="text-[11px] text-zinc-500">
-                    Based on the real HTTP response status code you received, select the correct semantic meaning.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {['OK', 'Not Found', 'Server Error', 'Moved Permanently', 'Forbidden', 'Unauthorized'].map((meaning) => (
                       <button
                         key={meaning}
                         onClick={() => { setStatusChoice(meaning); setStatusCorrect(null); }}
-                        className={`px-3 py-2 rounded-lg border text-xs font-mono transition-colors ${
+                        className={`px-3 py-2 rounded border text-xs font-mono transition-colors cursor-pointer ${
                           statusChoice === meaning
-                            ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-300'
-                            : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'
+                            ? 'bg-white text-black font-bold border-white'
+                            : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'
                         }`}
                       >
                         {meaning}
                       </button>
                     ))}
                   </div>
-                  <Button variant="secondary" size="sm" onClick={validateStatus} disabled={!statusChoice} className="w-full">
-                    Check Answer
+                  <Button variant="secondary" size="sm" onClick={validateStatus} disabled={!statusChoice} className="w-full uppercase text-xs">
+                    [ CHECK STATUS MEANING ]
                   </Button>
                   {statusCorrect !== null && (
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`text-[11px] font-mono p-2.5 rounded border ${statusCorrect ? 'border-emerald-800 bg-emerald-950/30 text-emerald-300' : 'border-red-800 bg-red-950/30 text-red-300'}`}
+                      className={`text-[11px] p-2.5 rounded border ${statusCorrect ? 'border-white bg-zinc-950 text-white font-bold' : 'border-zinc-700 bg-zinc-950 text-zinc-400'}`}
                     >
-                      {statusCorrect ? (
-                        <span>
-                          Correct. {resStatus} means {getStatusMeaning(resStatus)}. HTTP status codes are standardized by RFC 7231 and convey the result of the server's attempt to satisfy the request.
-                        </span>
-                      ) : (
-                        <span>
-                          Incorrect. The real response was {resStatus} {journeyData.statusText || ''}, which means {getStatusMeaning(resStatus)}. Review RFC 7231 for the full status code registry.
-                        </span>
-                      )}
+                      {statusCorrect ? `✓ Correct. ${resStatus} means ${getStatusMeaning(resStatus)}.` : `Incorrect. ${resStatus} means ${getStatusMeaning(resStatus)}.`}
                     </motion.div>
                   )}
                 </div>
@@ -471,18 +432,18 @@ export function HttpTesterLab() {
           )}
 
           {(result.status === 'success' || result.status === 'error') && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-black overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-800 bg-zinc-950">
                 {result.status === 'success' ? (
-                  <CheckCircle2 size={13} className="text-emerald-400" />
+                  <CheckCircle2 size={13} className="text-white" />
                 ) : (
-                  <AlertCircle size={13} className="text-red-400" />
+                  <AlertCircle size={13} className="text-white" />
                 )}
-                <span className="text-[11px] font-mono text-zinc-400">
-                  {result.status === 'success' ? 'Full Output' : 'Error'}
+                <span className="text-[11px] font-mono text-white font-bold uppercase">
+                  {result.status === 'success' ? 'FULL HTTP OUTPUT' : 'ERROR OUTPUT'}
                 </span>
                 {result.status === 'error' && (
-                  <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors ml-auto">
+                  <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-white transition-colors ml-auto">
                     <ExternalLink size={13} />
                   </a>
                 )}

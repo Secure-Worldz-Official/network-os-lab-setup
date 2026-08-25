@@ -111,49 +111,49 @@ export function AttackVectorLab() {
   };
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <Shield size={15} className="text-zinc-400" />
-            Attack Vector Analyzer
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <Shield size={15} className="text-white" />
+            ATTACK VECTOR & KILL CHAIN ANALYZER
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 font-sans mt-1">
             Map real attack scenarios to kill chain phases, CVSS scores, and mitigations.
           </p>
         </div>
 
         <div className="p-5 space-y-5">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Attack Scenario</span>
-              <span className="text-[10px] font-mono text-zinc-500">Scenario {scenarioIndex + 1} of {SCENARIOS.length}</span>
+          <div className="rounded border border-zinc-800 bg-zinc-950 p-4 space-y-3">
+            <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400">ATTACK SCENARIO</span>
+              <span className="text-[10px] text-zinc-400">SCENARIO {scenarioIndex + 1} OF {SCENARIOS.length}</span>
             </div>
-            <p className="text-xs text-zinc-300 leading-relaxed">{currentScenario.description}</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono">
-              <div className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800">
-                <span className="text-zinc-500">CVSS:</span> <span className="text-zinc-300">{currentScenario.cvss}</span>
+            <p className="text-xs text-zinc-300 font-sans leading-relaxed">{currentScenario.description}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[10px]">
+              <div className="px-2.5 py-1 rounded bg-black border border-zinc-800">
+                <span className="text-zinc-500">CVSS:</span> <span className="text-white font-bold">{currentScenario.cvss}</span>
               </div>
-              <div className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800">
+              <div className="px-2.5 py-1 rounded bg-black border border-zinc-800">
                 <span className="text-zinc-500">CWE:</span> <span className="text-zinc-300">{currentScenario.cwe.split(' ')[0]}</span>
               </div>
-              <div className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 col-span-2">
-                <span className="text-zinc-500">Vector:</span> <span className="text-cyan-300">{currentScenario.correctVector}</span>
+              <div className="px-2.5 py-1 rounded bg-black border border-zinc-800 sm:col-span-1">
+                <span className="text-zinc-500">VECTOR:</span> <span className="text-white font-bold">{currentScenario.correctVector}</span>
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Select Attack Vector</label>
+            <label className="text-[10px] uppercase tracking-wider text-zinc-400 block">SELECT ATTACK VECTOR</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {VECTOR_OPTIONS.map((vector) => (
                 <button
                   key={vector}
                   onClick={() => { setSelectedVector(vector); setShowResult(false); setAnimStage('idle'); }}
-                  className={`px-3 py-2 rounded-lg border text-xs font-mono transition-all duration-200 cursor-pointer ${
+                  className={`px-3 py-2 rounded border text-xs font-mono transition-all cursor-pointer ${
                     selectedVector === vector
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300'
-                      : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                      ? 'bg-white text-black font-bold border-white'
+                      : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'
                   }`}
                 >
                   {vector}
@@ -163,21 +163,19 @@ export function AttackVectorLab() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="primary" size="sm" onClick={handleAnalyze} disabled={!selectedVector || animStage === 'analyzing'} className="gap-2">
-              {animStage === 'analyzing' ? <Loader2 size={14} className="animate-spin" /> : <Shield size={14} />}
-              {animStage === 'analyzing' ? 'Analyzing...' : 'Analyze Vector'}
+            <Button variant="primary" size="sm" onClick={handleAnalyze} disabled={!selectedVector || animStage === 'analyzing'} className="gap-2 uppercase text-xs">
+              {animStage === 'analyzing' ? <Loader2 size={14} className="animate-spin text-black" /> : <Shield size={14} />}
+              {animStage === 'analyzing' ? 'ANALYZING...' : '[ ANALYZE VECTOR ]'}
             </Button>
             {showResult && (
-              <button onClick={() => { setScenarioIndex((prev) => (prev + 1) % SCENARIOS.length); setSelectedVector(''); setShowResult(false); setAnimStage('idle'); setResult({ status: 'idle', output: '' }); }} className="text-xs text-zinc-500 hover:text-white transition-colors cursor-pointer">Next Scenario →</button>
+              <button onClick={() => { setScenarioIndex((prev) => (prev + 1) % SCENARIOS.length); setSelectedVector(''); setShowResult(false); setAnimStage('idle'); setResult({ status: 'idle', output: '' }); }} className="text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer uppercase font-mono">[ NEXT SCENARIO → ]</button>
             )}
           </div>
 
           {animStage === 'analyzing' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
               <div className="flex items-center justify-center gap-2 py-2">
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                  <Shield size={20} className="text-cyan-400" />
-                </motion.div>
+                <Shield size={20} className="text-white animate-pulse" />
                 <span className="text-sm text-zinc-400">Mapping kill chain phases...</span>
               </div>
               <div className="flex items-center justify-between gap-1">
@@ -185,17 +183,14 @@ export function AttackVectorLab() {
                   const isActive = currentScenario.killChain.includes(phase.id);
                   return (
                     <div key={phase.id} className="flex-1 flex flex-col items-center gap-1">
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={isActive ? { scale: 1, opacity: 1 } : { scale: 0.9, opacity: 0.4 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className={`w-8 h-8 rounded-lg border flex items-center justify-center text-[10px] font-mono ${
-                          isActive ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300' : 'bg-zinc-900 border-zinc-800 text-zinc-600'
+                      <div
+                        className={`w-8 h-8 rounded border flex items-center justify-center text-[10px] font-mono ${
+                          isActive ? 'bg-white text-black font-bold border-white' : 'bg-black border-zinc-800 text-zinc-600'
                         }`}
                       >
                         {idx + 1}
-                      </motion.div>
-                      <span className={`text-[8px] font-mono text-center leading-tight ${isActive ? 'text-zinc-300' : 'text-zinc-600'}`}>{phase.label}</span>
+                      </div>
+                      <span className={`text-[8px] text-center leading-tight ${isActive ? 'text-white font-bold' : 'text-zinc-600'}`}>{phase.label}</span>
                     </div>
                   );
                 })}
@@ -205,30 +200,30 @@ export function AttackVectorLab() {
 
           {showResult && (
             <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-4 space-y-2">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-emerald-400" />
-                  <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Analysis Complete</span>
+              <div className="rounded border border-zinc-800 bg-[#080808] p-4 space-y-2">
+                <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
+                  <CheckCircle2 size={14} className="text-white" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">ANALYSIS COMPLETE</span>
                 </div>
-                <div className="text-sm text-zinc-200 font-semibold">Correct Vector: {currentScenario.correctVector}</div>
+                <div className="text-sm text-white font-bold uppercase font-heading">Vector: {currentScenario.correctVector}</div>
                 <div className="text-xs text-zinc-400">CVSS: {currentScenario.cvss} | CWE: {currentScenario.cwe}</div>
                 <div className="text-xs text-zinc-500">Affected: {currentScenario.software}</div>
               </div>
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-4 space-y-2">
-                <div className="flex items-center gap-2">
-                  <Lock size={14} className="text-amber-400" />
-                  <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Recommended Mitigations</span>
+              <div className="rounded border border-zinc-800 bg-[#080808] p-4 space-y-2">
+                <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
+                  <Lock size={14} className="text-white" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">RECOMMENDED MITIGATIONS</span>
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed">{currentScenario.mitigations}</p>
+                <p className="text-xs text-zinc-400 font-sans leading-relaxed">{currentScenario.mitigations}</p>
               </div>
             </motion.div>
           )}
 
           {result.status === 'success' && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
-                <CheckCircle2 size={13} className="text-emerald-400" />
-                <span className="text-[11px] font-mono text-zinc-400">Full Output</span>
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-800 bg-zinc-950">
+                <CheckCircle2 size={13} className="text-white" />
+                <span className="text-[11px] font-mono text-white font-bold uppercase">FULL ANALYSIS OUTPUT</span>
               </div>
               <pre className="p-4 text-xs font-mono text-zinc-300 whitespace-pre-wrap">{result.output}</pre>
             </motion.div>

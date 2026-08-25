@@ -15,16 +15,15 @@ const stagger: Variants = {
 };
 
 const pills = [
-  { icon: Shield, label: 'CIA Triad' },
-  { icon: Layers, label: 'OSI 7-Layer Model' },
-  { icon: Terminal, label: 'Subnetting & CIDR' },
-  { icon: BookOpen, label: 'Wireshark Analysis' },
+  { icon: Shield, label: 'CIA TRIAD' },
+  { icon: Layers, label: 'OSI 7-LAYER MODEL' },
+  { icon: Terminal, label: 'SUBNETTING & CIDR' },
+  { icon: BookOpen, label: 'WIRESHARK RECON' },
 ];
 
 export function HeroSection() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Subtle monochrome starfield / particles
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -74,57 +73,34 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden border-b border-zinc-800/80 bg-[#09090b]">
-      {/* Background Canvas */}
+    <section className="relative overflow-hidden border-b border-zinc-800 bg-black font-mono">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-40"
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
         aria-hidden="true"
       />
 
-      {/* Grid pattern overlay */}
       <div className="absolute inset-0 grid-pattern pointer-events-none opacity-40" aria-hidden="true" />
-
-      {/* Subtle radial lighting */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle at 50% 25%, rgba(255,255,255,0.04) 0%, transparent 65%)',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Bottom fade */}
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#09090b] to-transparent pointer-events-none" aria-hidden="true" />
+      <div className="absolute inset-0 radial-glow-top pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 flex flex-col items-center text-center">
         <motion.div variants={stagger} initial="hidden" animate="show" className="w-full flex flex-col items-center space-y-6">
-          {/* Eyebrow badge */}
-          <motion.div variants={fadeUp} className="flex justify-center">
-            {/* <Badge variant="outline" size="md">
-              Self-Paced Roadmap · v1.0 Live
-            </Badge> */}
-          </motion.div>
-
-          {/* Heading */}
           <motion.h1
             variants={fadeUp}
-            className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.15] text-center max-w-3xl"
+            className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] font-heading uppercase text-center max-w-3xl"
           >
-            Cybersecurity Foundations <br />
-            <span className="text-zinc-400 font-normal">From Theory to Virtual Labs</span>
+            CYBERSECURITY FOUNDATIONS <br />
+            <span className="text-zinc-400 font-normal">FROM THEORY TO VIRTUAL LABS</span>
           </motion.h1>
 
-          {/* Subheading */}
           <motion.p
             variants={fadeUp}
-            className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl text-center leading-relaxed"
+            className="text-xs sm:text-sm md:text-base text-zinc-400 max-w-2xl text-center leading-relaxed font-sans"
           >
-            A thoughtfully designed curriculum covering networking principles, TCP/IP, subnetting math,
-            packet analysis with Wireshark, and isolated virtual lab environments.
+            Structured cybersecurity curriculum covering networking principles, TCP/IP, subnetting math,
+            packet analysis with Wireshark, and simulated virtual lab environments.
           </motion.p>
 
-          {/* Topic Pills */}
           <motion.div
             variants={fadeUp}
             className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto pt-2"
@@ -132,36 +108,30 @@ export function HeroSection() {
             {pills.map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-zinc-300 shadow-sm hover:border-zinc-700 hover:text-zinc-200 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-zinc-800 bg-zinc-950 text-xs font-mono text-zinc-300"
               >
-                <Icon size={13} className="text-zinc-400" />
+                <Icon size={12} className="text-white" />
                 {label}
               </span>
             ))}
           </motion.div>
 
-          {/* Call to Actions */}
           <motion.div
             variants={fadeUp}
             className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 w-full sm:w-auto"
           >
-              <Link to="/roadmap" className="w-full sm:w-auto">
-                <Button variant="primary" size="lg" className="w-full sm:w-auto min-w-[160px]">
-                  <span>Start Learning</span>
-                  <ArrowRight size={16} />
-                </Button>
-              </Link>
-              <Link to="/labs" className="w-full sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto min-w-[160px]">
-                  <span>Experiment Lab</span>
-                  <FlaskConical size={16} />
-                </Button>
-              </Link>
-              {/* <Link to="/roadmap/module-1/day-1" className="w-full sm:w-auto">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto min-w-[160px]">
-                <span>Jump into Day 01</span>
+            <Link to="/roadmap" className="w-full sm:w-auto">
+              <Button variant="primary" size="lg" className="w-full sm:w-auto min-w-[170px] uppercase">
+                <span>[ START CURRICULUM ]</span>
+                <ArrowRight size={14} />
               </Button>
-            </Link> */}
+            </Link>
+            <Link to="/labs" className="w-full sm:w-auto">
+              <Button variant="secondary" size="lg" className="w-full sm:w-auto min-w-[170px] uppercase">
+                <span>[ EXPERIMENT LAB ↗ ]</span>
+                <FlaskConical size={14} />
+              </Button>
+            </Link>
           </motion.div>
         </motion.div>
       </div>

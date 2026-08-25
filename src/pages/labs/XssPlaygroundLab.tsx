@@ -53,8 +53,8 @@ export function XssPlaygroundLab() {
       return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Reflected XSS Demo</title></head>
-<body style="font-family:monospace;background:#09090b;color:#a1a1aa;padding:20px;">
-  <h2 style="color:#fafafa;">Search Results</h2>
+<body style="font-family:monospace;background:#000000;color:#ffffff;padding:20px;">
+  <h2 style="color:#ffffff;">Search Results</h2>
   <p>You searched for: <span id="output">${sanitizedPayload}</span></p>
   <script>
     window.onerror = function(msg) {
@@ -69,8 +69,8 @@ export function XssPlaygroundLab() {
       return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Stored XSS Demo</title></head>
-<body style="font-family:monospace;background:#09090b;color:#a1a1aa;padding:20px;">
-  <h2 style="color:#fafafa;">Comments</h2>
+<body style="font-family:monospace;background:#000000;color:#ffffff;padding:20px;">
+  <h2 style="color:#ffffff;">Comments</h2>
   <div class="comment">
     <p><strong>User:</strong> guest</p>
     <div id="comment-body">${sanitizedPayload}</div>
@@ -89,8 +89,8 @@ export function XssPlaygroundLab() {
       return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>DOM XSS Demo</title></head>
-<body style="font-family:monospace;background:#09090b;color:#a1a1aa;padding:20px;">
-  <h2 style="color:#fafafa;">Page Content</h2>
+<body style="font-family:monospace;background:#000000;color:#ffffff;padding:20px;">
+  <h2 style="color:#ffffff;">Page Content</h2>
   <div id="output"></div>
   <script>
     try {
@@ -144,14 +144,14 @@ export function XssPlaygroundLab() {
   };
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-800/70 bg-zinc-950/40">
-          <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-            <Code2 size={15} className="text-zinc-400" />
-            XSS Playground
+    <motion.div variants={fadeUp} initial="hidden" animate="show" className="font-mono">
+      <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2 uppercase tracking-wider font-heading">
+            <Code2 size={15} className="text-white" />
+            CROSS-SITE SCRIPTING (XSS) LAB
           </h3>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 font-sans mt-1">
             Inject payloads into a real sandboxed DOM and test sanitization fixes.
           </p>
         </div>
@@ -162,25 +162,25 @@ export function XssPlaygroundLab() {
               <button
                 key={ctx.id}
                 onClick={() => { setContext(ctx.id); setXssTriggered(false); setXssBlocked(false); setResult({ status: 'idle', output: '' }); }}
-                className={`text-left px-3 py-2 rounded-lg border text-xs transition-all duration-200 cursor-pointer ${
-                  context === ctx.id ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                className={`text-left px-3 py-2.5 rounded border text-xs transition-all cursor-pointer ${
+                  context === ctx.id ? 'bg-white text-black font-bold border-white' : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'
                 }`}
               >
-                <div className="font-semibold">{ctx.name}</div>
-                <div className="text-[10px] text-zinc-500 mt-0.5">{ctx.description}</div>
+                <div className="font-bold uppercase font-mono">{ctx.name}</div>
+                <div className="text-[10px] text-zinc-500 font-sans mt-0.5">{ctx.description}</div>
               </button>
             ))}
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Payload</label>
+            <label className="text-[10px] text-zinc-400 uppercase tracking-wider block">PRESET PAYLOADS</label>
             <div className="flex gap-2 flex-wrap">
               {PAYLOADS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => { setPayload(p.payload); setXssTriggered(false); setXssBlocked(false); setResult({ status: 'idle', output: '' }); }}
-                  className={`px-2 py-1 rounded border text-[10px] font-mono transition-all duration-200 cursor-pointer ${
-                    payload === p.payload ? 'bg-zinc-700 border-zinc-600 text-zinc-200' : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:border-zinc-700'
+                  className={`px-2.5 py-1 rounded border text-[10px] font-mono transition-all cursor-pointer ${
+                    payload === p.payload ? 'bg-zinc-800 border-white text-white font-bold' : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-500'
                   }`}
                 >
                   {p.name}
@@ -191,62 +191,62 @@ export function XssPlaygroundLab() {
               value={payload}
               onChange={(e) => { setPayload(e.target.value); setXssTriggered(false); setXssBlocked(false); setResult({ status: 'idle', output: '' }); }}
               rows={2}
-              className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600 resize-y"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white resize-y"
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!payload || result.status === 'running'} className="gap-2">
-              {result.status === 'running' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-              {result.status === 'running' ? 'Executing...' : 'Execute Payload'}
+            <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!payload || result.status === 'running'} className="gap-2 uppercase text-xs">
+              {result.status === 'running' ? <Loader2 size={14} className="animate-spin text-black" /> : <Play size={14} />}
+              {result.status === 'running' ? 'EXECUTING...' : '[ EXECUTE PAYLOAD ]'}
             </Button>
-            <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer">
+            <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer font-sans">
               <input type="checkbox" checked={sanitizerEnabled} onChange={(e) => { setSanitizerEnabled(e.target.checked); setXssTriggered(false); setXssBlocked(false); setResult({ status: 'idle', output: '' }); }} className="cursor-pointer" />
-              Enable Sanitizer (textContent)
+              Enable Sanitizer (textContent encoding)
             </label>
           </div>
 
-          <div className="rounded-lg border border-zinc-700 bg-zinc-900 overflow-hidden">
-            <div className="px-3 py-2 border-b border-zinc-800 bg-zinc-950/40 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Sandboxed Iframe</span>
-              {xssTriggered && <span className="text-[10px] font-mono text-red-400 flex items-center gap-1"><Zap size={10} /> XSS Triggered</span>}
-              {xssBlocked && <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1"><Shield size={10} /> XSS Blocked</span>}
+          <div className="rounded border border-zinc-800 bg-black overflow-hidden">
+            <div className="px-3 py-2 border-b border-zinc-800 bg-zinc-950 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">SANDBOXED DOM IFRAME</span>
+              {xssTriggered && <span className="text-[10px] font-mono text-white font-bold flex items-center gap-1"><Zap size={10} /> XSS EXECUTION DETECTED</span>}
+              {xssBlocked && <span className="text-[10px] font-mono text-white font-bold flex items-center gap-1"><Shield size={10} /> XSS NEUTRALIZED</span>}
             </div>
-            <iframe ref={iframeRef} sandbox="allow-scripts" className="w-full h-48 bg-white" title="XSS Sandbox" />
+            <iframe ref={iframeRef} sandbox="allow-scripts" className="w-full h-48 bg-black border-0 text-white" title="XSS Sandbox" />
           </div>
 
           {result.status === 'success' && (
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded-lg border border-zinc-800 bg-zinc-950/80 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/70 bg-zinc-900/40">
-                {xssBlocked ? <Shield size={13} className="text-emerald-400" /> : <AlertCircle size={13} className="text-red-400" />}
-                <span className="text-[11px] font-mono text-zinc-400">{xssBlocked ? 'Sanitizer Result' : 'Execution Result'}</span>
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="rounded border border-zinc-800 bg-[#080808] overflow-hidden">
+              <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800 bg-zinc-950">
+                {xssBlocked ? <Shield size={13} className="text-white" /> : <AlertCircle size={13} className="text-white" />}
+                <span className="text-[11px] font-mono text-white font-bold">{xssBlocked ? 'SANITIZER AUDIT' : 'EXECUTION OUTPUT'}</span>
               </div>
               <pre className="p-4 text-xs font-mono text-zinc-300 whitespace-pre-wrap">{result.output}</pre>
             </motion.div>
           )}
 
-          <div className="border-t border-zinc-800/80 pt-5 space-y-4">
-            <h4 className="text-sm font-semibold text-zinc-200">Knowledge Check</h4>
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
-              <p className="text-xs text-zinc-400">Cross-Site Scripting (XSS) falls under which OWASP Top 10 (2021) category?</p>
+          <div className="border-t border-zinc-800 pt-5 space-y-4 font-mono">
+            <h4 className="text-xs font-bold text-white uppercase">KNOWLEDGE VERIFICATION</h4>
+            <div className="rounded border border-zinc-800 bg-black p-4 space-y-3">
+              <p className="text-xs text-zinc-400 font-sans">Under which OWASP Top 10 category does XSS fall?</p>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   value={challengeAnswer}
                   onChange={(e) => setChallengeAnswer(e.target.value)}
-                  placeholder="e.g. A03:2021 – Injection"
-                  className="flex-1 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:outline-none focus:border-zinc-600"
+                  placeholder="e.g. A03 – Injection"
+                  className="flex-1 px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white font-mono placeholder-zinc-700 outline-none focus:border-white"
                 />
-                <Button variant="primary" size="sm" onClick={handleChallengeSubmit} className="gap-2">Submit</Button>
+                <Button variant="primary" size="sm" onClick={handleChallengeSubmit} className="uppercase text-xs">[ SUBMIT ]</Button>
               </div>
               {challengeResult === 'correct' && (
-                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-xs text-emerald-400">
-                  <CheckCircle2 size={14} /> Correct! XSS is A03:2021 – Injection.
+                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-xs text-white font-bold">
+                  <CheckCircle2 size={14} /> ✓ Correct! XSS belongs to OWASP A03: Injection.
                 </motion.div>
               )}
               {challengeResult === 'wrong' && (
-                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-xs text-red-400">
-                  <AlertCircle size={14} /> Incorrect. Hint: Look for the Injection category in OWASP Top 10 2021.
+                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-xs text-zinc-400">
+                  <AlertCircle size={14} /> Incorrect. Hint: A03: Injection.
                 </motion.div>
               )}
             </div>
