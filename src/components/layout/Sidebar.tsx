@@ -54,23 +54,23 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       animate={{ x: 0 }}
       exit={{ x: -320 }}
       transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-      className="w-full h-full flex flex-col bg-[#F7F7F7] text-[#111111] select-none overflow-hidden border-r border-[#E5E5E5] font-mono"
+      className="w-full h-full flex flex-col bg-[#F7F7F7] dark:bg-[#101010] text-[#111111] dark:text-white select-none overflow-hidden border-r border-[#E5E5E5] dark:border-[#2A2A2A] font-mono"
     >
       {/* Sidebar Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E5E5] shrink-0 bg-white">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E5E5] dark:border-[#2A2A2A] shrink-0 bg-white dark:bg-[#141414]">
         <Link
           to="/dashboard"
           className="flex items-center gap-3 group"
           onClick={onClose}
         >
-          <div className="w-8 h-8 rounded bg-[#111111] flex items-center justify-center text-white font-bold group-hover:bg-[#333333] transition-all">
+          <div className="w-8 h-8 rounded bg-[#111111] dark:bg-white flex items-center justify-center text-white dark:text-[#080808] font-bold group-hover:bg-[#333333] dark:group-hover:bg-[#E5E5E5] transition-all">
             <Shield size={16} strokeWidth={2.5} />
           </div>
           <div className="flex flex-col">
-            <span className="font-heading font-extrabold text-sm text-[#111111] tracking-widest leading-none">
+            <span className="font-heading font-extrabold text-sm text-[#111111] dark:text-white tracking-widest leading-none">
               CYBERPATH
             </span>
-            <span className="text-[9px] text-[#888888] tracking-widest uppercase mt-1">
+            <span className="text-[9px] text-[#888888] dark:text-[#777777] tracking-widest uppercase mt-1">
               SECURITY TRAINING PLATFORM
             </span>
           </div>
@@ -79,7 +79,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded text-[#666666] hover:text-[#111111] hover:bg-[#E5E5E5] transition-colors"
+            className="p-1.5 rounded text-[#666666] dark:text-[#999999] hover:text-[#111111] dark:hover:text-white hover:bg-[#E5E5E5] dark:hover:bg-[#202020] transition-colors"
             aria-label="Close navigation"
           >
             <X size={18} />
@@ -89,7 +89,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
 
       {/* Primary Navigation Links */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        <p className="px-3 mb-2 text-[9px] uppercase tracking-widest text-[#888888]">
+        <p className="px-3 mb-2 text-[9px] uppercase tracking-widest text-[#888888] dark:text-[#777777]">
           // PLATFORM NAVIGATION
         </p>
         <nav className="space-y-1">
@@ -106,11 +106,11 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                 className={cn(
                   'flex items-center gap-3 px-3.5 py-2.5 text-xs font-mono transition-all duration-150 rounded-[4px] border',
                   isActive
-                    ? 'bg-[#111111] text-white font-bold border-[#111111] shadow-sm'
-                    : 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] hover:bg-[#FAFAFA]'
+                    ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm'
+                    : 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] hover:bg-[#FAFAFA] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white dark:hover:bg-[#181818]'
                 )}
               >
-                <span className={cn('text-[10px] font-mono', isActive ? 'text-white/70' : 'text-[#888888]')}>
+                <span className={cn('text-[10px] font-mono', isActive ? 'text-white/70 dark:text-black/70' : 'text-[#888888] dark:text-[#777777]')}>
                   {num}
                 </span>
                 <Icon size={14} className="shrink-0" />
@@ -121,21 +121,21 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
         </nav>
 
         {activeLab && (
-          <div className="mt-4 p-3 rounded bg-white border border-[#111111] space-y-2">
-            <div className="flex items-center justify-between text-[10px] font-bold text-[#111111]">
+          <div className="mt-4 p-3 rounded bg-white dark:bg-[#141414] border border-[#111111] dark:border-white space-y-2">
+            <div className="flex items-center justify-between text-[10px] font-bold text-[#111111] dark:text-white">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 ACTIVE LAB
               </span>
-              <span className="text-[#666666]">{activeLab.targetIp}</span>
+              <span className="text-[#666666] dark:text-[#B5B5B5]">{activeLab.targetIp}</span>
             </div>
-            <p className="text-[10px] text-[#555555] truncate font-sans">
+            <p className="text-[10px] text-[#555555] dark:text-[#B5B5B5] truncate font-sans">
               {activeLab.roomTitle}
             </p>
             <Link
               to={`/rooms/${activeLab.roomId}`}
               onClick={onClose}
-              className="block w-full text-center py-1 bg-[#111111] text-white text-[10px] rounded font-bold hover:bg-[#333333]"
+              className="block w-full text-center py-1 bg-[#111111] dark:bg-white text-white dark:text-black text-[10px] rounded font-bold hover:bg-[#333333] dark:hover:bg-[#E5E5E5]"
             >
               RESUME LAB →
             </Link>
@@ -144,26 +144,26 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       </div>
 
       {/* Gamification Stats Footer */}
-      <div className="px-4 py-4 border-t border-[#E5E5E5] bg-white flex flex-col gap-3 shrink-0">
-        <div className="grid grid-cols-3 gap-1 text-center font-mono text-[10px] border-b border-[#E5E5E5] pb-3">
-          <div className="p-1 rounded bg-[#F7F7F7] border border-[#E5E5E5]">
-            <div className="text-[#888888] text-[8px] uppercase">LEVEL</div>
-            <div className="font-bold text-[#111111]">LVL {level}</div>
+      <div className="px-4 py-4 border-t border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] flex flex-col gap-3 shrink-0">
+        <div className="grid grid-cols-3 gap-1 text-center font-mono text-[10px] border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
+          <div className="p-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
+            <div className="text-[#888888] dark:text-[#777777] text-[8px] uppercase">LEVEL</div>
+            <div className="font-bold text-[#111111] dark:text-white">LVL {level}</div>
           </div>
-          <div className="p-1 rounded bg-[#F7F7F7] border border-[#E5E5E5]">
-            <div className="text-[#888888] text-[8px] uppercase">XP</div>
-            <div className="font-bold text-[#111111]">{xp}</div>
+          <div className="p-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
+            <div className="text-[#888888] dark:text-[#777777] text-[8px] uppercase">XP</div>
+            <div className="font-bold text-[#111111] dark:text-white">{xp}</div>
           </div>
-          <div className="p-1 rounded bg-[#F7F7F7] border border-[#E5E5E5]">
-            <div className="text-[#888888] text-[8px] uppercase">STREAK</div>
-            <div className="font-bold text-[#111111]">{streak}D</div>
+          <div className="p-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
+            <div className="text-[#888888] dark:text-[#777777] text-[8px] uppercase">STREAK</div>
+            <div className="font-bold text-[#111111] dark:text-white">{streak}D</div>
           </div>
         </div>
 
         <div className="space-y-1.5">
           <div className="flex justify-between items-center text-[10px]">
-            <span className="text-[#666666] uppercase text-[9px] font-bold">{levelName}</span>
-            <span className="text-[#111111] font-bold">{completedRooms.length} ROOMS</span>
+            <span className="text-[#666666] dark:text-[#B5B5B5] uppercase text-[9px] font-bold">{levelName}</span>
+            <span className="text-[#111111] dark:text-white font-bold">{completedRooms.length} ROOMS</span>
           </div>
           <ProgressBar value={(xp % 1000) / 10} size="sm" />
         </div>

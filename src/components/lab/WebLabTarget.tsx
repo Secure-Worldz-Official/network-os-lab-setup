@@ -69,38 +69,38 @@ export function WebLabTarget({ targetIp = '10.10.30.8', initialUrl = 'http://lab
   };
 
   return (
-    <div className="w-full rounded-md border border-[#E5E5E5] bg-white font-mono text-xs shadow-sm overflow-hidden flex flex-col">
+    <div className="w-full rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] font-mono text-xs shadow-sm overflow-hidden flex flex-col">
       {/* Browser Bar */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-[#F7F7F7] border-b border-[#E5E5E5] shrink-0 select-none">
+      <div className="flex items-center gap-2 px-3 py-2 bg-[#F7F7F7] dark:bg-[#101010] border-b border-[#E5E5E5] dark:border-[#2A2A2A] shrink-0 select-none">
         <div className="flex gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block" />
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block" />
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block" />
         </div>
 
-        <div className="flex-1 flex items-center gap-1.5 px-3 py-1 bg-white border border-[#E5E5E5] rounded text-[11px] text-[#111111]">
-          <Lock size={12} className="text-emerald-600 shrink-0" />
+        <div className="flex-1 flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded text-[11px] text-[#111111] dark:text-white">
+          <Lock size={12} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span className="truncate">{url} ({targetIp})</span>
         </div>
 
         <button 
           onClick={() => setMessage({ type: 'info', text: 'Refreshed simulated target DOM container.' })}
-          className="p-1 rounded text-[#666666] hover:text-[#111111] hover:bg-[#E5E5E5]"
+          className="p-1 rounded text-[#666666] dark:text-[#999999] hover:text-[#111111] dark:hover:text-white hover:bg-[#E5E5E5] dark:hover:bg-[#202020]"
         >
           <RefreshCw size={12} />
         </button>
       </div>
 
       {/* Target Application Body */}
-      <div className="p-5 space-y-5 bg-[#FAFAFA]">
-        <div className="flex items-center justify-between border-b border-[#E5E5E5] pb-3">
+      <div className="p-5 space-y-5 bg-[#FAFAFA] dark:bg-[#101010]">
+        <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
           <div className="flex items-center gap-2">
-            <Globe size={16} className="text-[#111111]" />
-            <h3 className="font-heading font-bold text-sm text-[#111111] uppercase tracking-wide">
+            <Globe size={16} className="text-[#111111] dark:text-white" />
+            <h3 className="font-heading font-bold text-sm text-[#111111] dark:text-white uppercase tracking-wide">
               TARGET WEB APPLICATION PORTAL
             </h3>
           </div>
-          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200 rounded">
+          <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 border border-emerald-500/20 rounded">
             ● ONLINE (ISOLATED LAB)
           </span>
         </div>
@@ -108,25 +108,25 @@ export function WebLabTarget({ targetIp = '10.10.30.8', initialUrl = 'http://lab
         {message && (
           <div className={`p-3 rounded border text-xs leading-relaxed font-mono ${
             message.type === 'success' 
-              ? 'border-emerald-600 bg-emerald-50 text-emerald-900 font-bold' 
+              ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold' 
               : message.type === 'error'
-              ? 'border-rose-600 bg-rose-50 text-rose-900 font-bold'
-              : 'border-[#CCCCCC] bg-white text-[#111111]'
+              ? 'border-rose-600 bg-rose-500/10 text-rose-700 dark:text-rose-400 font-bold'
+              : 'border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-[#181818] text-[#111111] dark:text-white'
           }`}>
             {message.text}
           </div>
         )}
 
         {/* Section 1: SQL Injection Demo Login Form */}
-        <div className="p-4 rounded border border-[#E5E5E5] bg-white space-y-3">
-          <h4 className="font-bold text-xs text-[#111111] uppercase flex items-center gap-1.5">
-            <ShieldAlert size={14} className="text-[#111111]" />
+        <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-3">
+          <h4 className="font-bold text-xs text-[#111111] dark:text-white uppercase flex items-center gap-1.5">
+            <ShieldAlert size={14} className="text-[#111111] dark:text-white" />
             AUTHENTICATION PORTAL AUDIT (SQL INJECTION TEST)
           </h4>
           <form onSubmit={handleSqlFormSubmit} className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] uppercase font-bold text-[#666666] mb-1">
+                <label className="block text-[10px] uppercase font-bold text-[#666666] dark:text-[#B5B5B5] mb-1">
                   USERNAME / PAYLOAD
                 </label>
                 <input
@@ -134,11 +134,11 @@ export function WebLabTarget({ targetIp = '10.10.30.8', initialUrl = 'http://lab
                   placeholder="admin' OR '1'='1"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-[#F7F7F7] border border-[#E5E5E5] rounded px-3 py-1.5 text-xs text-[#111111] focus:border-[#111111] outline-none font-mono"
+                  className="w-full bg-[#F7F7F7] dark:bg-[#101010] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded px-3 py-1.5 text-xs text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white outline-none font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[10px] uppercase font-bold text-[#666666] mb-1">
+                <label className="block text-[10px] uppercase font-bold text-[#666666] dark:text-[#B5B5B5] mb-1">
                   PASSWORD
                 </label>
                 <input
@@ -146,7 +146,7 @@ export function WebLabTarget({ targetIp = '10.10.30.8', initialUrl = 'http://lab
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#F7F7F7] border border-[#E5E5E5] rounded px-3 py-1.5 text-xs text-[#111111] focus:border-[#111111] outline-none font-mono"
+                  className="w-full bg-[#F7F7F7] dark:bg-[#101010] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded px-3 py-1.5 text-xs text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white outline-none font-mono"
                 />
               </div>
             </div>
@@ -160,14 +160,14 @@ export function WebLabTarget({ targetIp = '10.10.30.8', initialUrl = 'http://lab
         </div>
 
         {/* Section 2: XSS Test Input */}
-        <div className="p-4 rounded border border-[#E5E5E5] bg-white space-y-3">
-          <h4 className="font-bold text-xs text-[#111111] uppercase flex items-center gap-1.5">
-            <CheckCircle size={14} className="text-[#111111]" />
+        <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-3">
+          <h4 className="font-bold text-xs text-[#111111] dark:text-white uppercase flex items-center gap-1.5">
+            <CheckCircle size={14} className="text-[#111111] dark:text-white" />
             DOM INPUT COMMENT BOX (XSS PAYLOAD TEST)
           </h4>
           <form onSubmit={handleXssFormSubmit} className="space-y-3">
             <div>
-              <label className="block text-[10px] uppercase font-bold text-[#666666] mb-1">
+              <label className="block text-[10px] uppercase font-bold text-[#666666] dark:text-[#B5B5B5] mb-1">
                 COMMENT PAYLOAD
               </label>
               <input
@@ -175,7 +175,7 @@ export function WebLabTarget({ targetIp = '10.10.30.8', initialUrl = 'http://lab
                 placeholder="<script>alert(1)</script>"
                 value={xssPayload}
                 onChange={(e) => setXssPayload(e.target.value)}
-                className="w-full bg-[#F7F7F7] border border-[#E5E5E5] rounded px-3 py-1.5 text-xs text-[#111111] focus:border-[#111111] outline-none font-mono"
+                className="w-full bg-[#F7F7F7] dark:bg-[#101010] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded px-3 py-1.5 text-xs text-[#111111] dark:text-white focus:border-[#111111] dark:focus:border-white outline-none font-mono"
               />
             </div>
             <button

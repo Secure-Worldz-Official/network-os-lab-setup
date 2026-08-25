@@ -12,15 +12,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-black text-white border border-white hover:bg-white hover:text-black hover:border-white font-mono font-semibold shadow-[0_0_15px_rgba(255,255,255,0.15)] transition-all duration-200',
+    'bg-[#111111] text-white border border-[#111111] hover:bg-[#333333] dark:bg-white dark:text-[#080808] dark:border-white dark:hover:bg-[#E5E5E5] font-mono font-semibold shadow-xs transition-all duration-200',
   secondary:
-    'bg-black/60 text-zinc-300 border border-zinc-800 hover:bg-zinc-900 hover:text-white hover:border-zinc-400 font-mono font-medium transition-all duration-200',
+    'bg-white text-[#111111] border border-[#E5E5E5] hover:bg-[#F7F7F7] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:bg-[#181818] dark:hover:border-white font-mono font-medium transition-all duration-200',
   outline:
-    'bg-transparent text-zinc-300 border border-zinc-700 hover:bg-zinc-900 hover:text-white hover:border-white font-mono font-medium transition-all duration-200',
+    'bg-transparent text-[#111111] border border-[#E5E5E5] hover:bg-[#F7F7F7] hover:border-[#111111] dark:text-white dark:border-[#2A2A2A] dark:hover:bg-[#181818] dark:hover:border-white font-mono font-medium transition-all duration-200',
   ghost:
-    'bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-900/80 hover:text-white font-mono font-medium transition-all duration-200',
+    'bg-transparent text-[#555555] border border-transparent hover:bg-[#F7F7F7] hover:text-[#111111] dark:text-[#B5B5B5] dark:hover:bg-[#181818] dark:hover:text-white font-mono font-medium transition-all duration-200',
   bracket:
-    'bg-zinc-950 text-white border border-zinc-700 hover:border-white hover:bg-zinc-900 font-mono font-semibold tracking-wider transition-all duration-200 shadow-[0_0_10px_rgba(0,0,0,0.8)]',
+    'bg-[#F7F7F7] text-[#111111] border border-[#E5E5E5] hover:border-[#111111] hover:bg-white dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white font-mono font-semibold tracking-wider transition-all duration-200',
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -42,7 +42,7 @@ export function Button({
       whileTap={{ scale: 0.98, translateY: 1 }}
       className={cn(
         'inline-flex items-center justify-center cursor-pointer transition-all duration-200',
-        'focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2',
+        'focus-visible:outline-2 focus-visible:outline-[#111111] dark:focus-visible:outline-white focus-visible:outline-offset-2',
         'disabled:opacity-40 disabled:pointer-events-none select-none',
         variants[variant],
         sizes[size],

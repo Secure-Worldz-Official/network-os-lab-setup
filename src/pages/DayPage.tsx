@@ -16,14 +16,14 @@ export function DayPage() {
 
   if (!module || !day) {
     return (
-      <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-zinc-900/80 border border-zinc-700 flex items-center justify-center mx-auto text-zinc-300 shadow-[0_0_12px_rgba(255,255,255,0.03)]">
+      <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4 select-none font-mono">
+        <div className="w-12 h-12 rounded-full bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] flex items-center justify-center mx-auto text-[#111111] dark:text-white">
           <AlertCircle size={24} />
         </div>
-        <h1 className="text-2xl font-bold text-white font-heading">
+        <h1 className="text-2xl font-bold text-[#111111] dark:text-white font-heading">
           Day Not Found
         </h1>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-[#555555] dark:text-[#B5B5B5] font-sans">
           The requested day does not exist or has not yet been unlocked.
         </p>
         <div className="pt-2">
@@ -49,23 +49,23 @@ export function DayPage() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.2 }}
-        className="pb-24 sm:pb-28"
+        className="pb-24 sm:pb-28 select-none font-mono"
       >
         {/* Breadcrumb Navigation Bar */}
-        <div className="border-b border-zinc-800/80 bg-[#0c0c0e]/80 backdrop-blur-sm sticky top-0 z-20">
+        <div className="border-b border-[#E5E5E5] dark:border-[#2A2A2A] bg-white/80 dark:bg-[#080808]/80 backdrop-blur-sm sticky top-0 z-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-zinc-400 flex-wrap">
-              <Link to="/" className="hover:text-white transition-colors">
+            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-[#666666] dark:text-[#B5B5B5] flex-wrap">
+              <Link to="/" className="hover:text-[#111111] dark:hover:text-white transition-colors">
                 Home
               </Link>
-              <ChevronRight size={12} className="text-zinc-600 shrink-0" />
-              <Link to="/roadmap" className="hover:text-white transition-colors">
+              <ChevronRight size={12} className="text-[#888888] dark:text-[#666666] shrink-0" />
+              <Link to="/roadmap" className="hover:text-[#111111] dark:hover:text-white transition-colors">
                 Roadmap
               </Link>
-              <ChevronRight size={12} className="text-zinc-600 shrink-0" />
-              <span className="text-zinc-400">Module 1</span>
-              <ChevronRight size={12} className="text-zinc-600 shrink-0" />
-              <span className="text-white font-semibold">Day 0{day.id}</span>
+              <ChevronRight size={12} className="text-[#888888] dark:text-[#666666] shrink-0" />
+              <span>Module 1</span>
+              <ChevronRight size={12} className="text-[#888888] dark:text-[#666666] shrink-0" />
+              <span className="text-[#111111] dark:text-white font-semibold">Day 0{day.id}</span>
             </nav>
           </div>
         </div>
@@ -81,55 +81,42 @@ export function DayPage() {
 
         {/* Prev / Next Bottom Navigation */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          <div className="h-[1px] bg-zinc-800/80 mb-6" />
+          <div className="h-[1px] bg-[#E5E5E5] dark:bg-[#2A2A2A] mb-6" />
           <div className="flex flex-col sm:flex-row items-stretch justify-between gap-3.5 sm:gap-4">
              {prevDay ? (
                <Link
                  to={`/roadmap/${module.id}/${prevDay.slug}`}
                  id={`nav-prev-day-${prevDay.id}`}
-                 className="group flex items-center gap-3.5 p-4 rounded-xl border border-zinc-800/80 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)]"
+                 className="group flex items-center gap-3.5 p-4 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-[#111111] dark:hover:border-white hover:bg-[#FAFAFA] dark:hover:bg-[#181818] transition-all flex-1 shadow-xs"
                >
-                <ChevronLeft size={18} className="text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                <ChevronLeft size={18} className="text-[#888888] dark:text-[#777777] group-hover:text-[#111111] dark:group-hover:text-white transition-colors shrink-0" />
                 <div className="min-w-0 text-left">
-                  <span className="block text-[10px] font-mono uppercase text-zinc-500">
+                  <span className="block text-[10px] font-mono uppercase text-[#888888] dark:text-[#777777]">
                     Previous Day
                   </span>
-                  <span className="block text-xs sm:text-sm font-semibold text-zinc-200 group-hover:text-white truncate">
+                  <span className="block text-xs sm:text-sm font-semibold text-[#111111] dark:text-white truncate">
                     Day 0{prevDay.id}: {prevDay.title}
                   </span>
                 </div>
               </Link>
-            ) : (
-              <div className="hidden sm:block flex-1" />
-            )}
+            ) : <div className="flex-1" />}
 
-             {nextDay ? (
-               <Link
-                 to={`/roadmap/${module.id}/${nextDay.slug}`}
-                 id={`nav-next-day-${nextDay.id}`}
-                 className="group flex items-center justify-end gap-3.5 p-4 rounded-xl border border-zinc-800/80 bg-[#111113] hover:border-zinc-600 hover:bg-zinc-900 transition-all flex-1 text-right shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)]"
-               >
-                <div className="min-w-0 text-right">
-                  <span className="block text-[10px] font-mono uppercase text-zinc-500">
+            {nextDay && (
+              <Link
+                to={`/roadmap/${module.id}/${nextDay.slug}`}
+                id={`nav-next-day-${nextDay.id}`}
+                className="group flex items-center justify-end gap-3.5 p-4 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-[#111111] dark:hover:border-white hover:bg-[#FAFAFA] dark:hover:bg-[#181818] transition-all flex-1 shadow-xs text-right"
+              >
+                <div className="min-w-0">
+                  <span className="block text-[10px] font-mono uppercase text-[#888888] dark:text-[#777777]">
                     Next Day
                   </span>
-                  <span className="block text-xs sm:text-sm font-semibold text-zinc-200 group-hover:text-white truncate">
+                  <span className="block text-xs sm:text-sm font-semibold text-[#111111] dark:text-white truncate">
                     Day 0{nextDay.id}: {nextDay.title}
                   </span>
                 </div>
-                <ChevronRight size={18} className="text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                <ChevronRight size={18} className="text-[#888888] dark:text-[#777777] group-hover:text-[#111111] dark:group-hover:text-white transition-colors shrink-0" />
               </Link>
-            ) : (
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/roadmap')}
-                id="nav-module-complete-btn"
-                className="flex-1 justify-center sm:justify-end"
-              >
-                <span>Curriculum Overview</span>
-                <ChevronRight size={16} />
-              </Button>
             )}
           </div>
         </div>

@@ -23,34 +23,34 @@ export function VpnPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 select-none font-mono">
       {/* Header */}
-      <div className="border-b border-[#E5E5E5] pb-5">
-        <div className="flex items-center gap-2 text-xs font-bold text-[#888888] uppercase tracking-widest mb-1">
-          <Wifi size={14} className="text-[#111111]" />
+      <div className="border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-5">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#888888] dark:text-[#777777] uppercase tracking-widest mb-1">
+          <Wifi size={14} className="text-[#111111] dark:text-white" />
           <span>VIRTUAL PRIVATE NETWORK SETUP</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111111] font-heading uppercase tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white font-heading uppercase tracking-tight">
           LAB CONNECTIVITY & VPN GUIDE
         </h1>
-        <p className="text-xs sm:text-sm text-[#555555] mt-1 font-sans">
+        <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] mt-1 font-sans">
           Connect your device to the CyberPath isolated virtual laboratory network to safely interact with target machines.
         </p>
       </div>
 
       {/* VPN Connection Card */}
-      <div className="p-6 rounded-md border border-[#E5E5E5] bg-[#FAFAFA] space-y-5 shadow-sm">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E5E5E5] pb-4">
+      <div className="p-6 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] space-y-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
           <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold text-[#888888] tracking-widest block">
+            <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">
               CURRENT VPN STATUS
             </span>
             <div className="flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${vpnStatus.connected ? 'bg-emerald-600 animate-pulse' : 'bg-rose-500'}`} />
-              <span className="text-base font-extrabold text-[#111111] uppercase font-heading">
+              <span className="text-base font-extrabold text-[#111111] dark:text-white uppercase font-heading">
                 {vpnStatus.connected ? 'CONNECTED' : 'NOT CONNECTED'}
               </span>
             </div>
-            <p className="text-xs text-[#666666]">
-              Network: <strong className="text-[#111111]">{vpnStatus.network}</strong> | Assigned IP: <strong className="text-[#111111]">{vpnStatus.ip}</strong>
+            <p className="text-xs text-[#666666] dark:text-[#B5B5B5]">
+              Network: <strong className="text-[#111111] dark:text-white">{vpnStatus.network}</strong> | Assigned IP: <strong className="text-[#111111] dark:text-white">{vpnStatus.ip}</strong>
             </p>
           </div>
 
@@ -75,17 +75,17 @@ export function VpnPage() {
 
         {verifyMsg && (
           <div className={`p-3 rounded border text-xs font-mono font-bold ${
-            vpnStatus.connected ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-rose-600 bg-rose-50 text-rose-900'
+            vpnStatus.connected ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'border-rose-600 bg-rose-500/10 text-rose-700 dark:text-rose-400'
           }`}>
             {verifyMsg}
           </div>
         )}
 
         {/* Quick Toggle for Simulated Environment */}
-        <div className="p-4 rounded border border-[#E5E5E5] bg-white flex items-center justify-between text-xs">
+        <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#181818] flex items-center justify-between text-xs">
           <div>
-            <span className="font-bold text-[#111111] block">SIMULATED VPN STATUS TOGGLE</span>
-            <span className="text-[#666666] text-[11px]">
+            <span className="font-bold text-[#111111] dark:text-white block">SIMULATED VPN STATUS TOGGLE</span>
+            <span className="text-[#666666] dark:text-[#888888] text-[11px]">
               Toggle client-side simulated VPN status for offline development mode.
             </span>
           </div>
@@ -104,7 +104,7 @@ export function VpnPage() {
 
       {/* 6-Step Setup Instructions */}
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-[#111111] font-heading uppercase tracking-wide">
+        <h2 className="text-lg font-bold text-[#111111] dark:text-white font-heading uppercase tracking-wide">
           6-STEP CONNECTIVITY WORKFLOW
         </h2>
 
@@ -117,17 +117,17 @@ export function VpnPage() {
             { num: '05', title: 'Verify Gateway Connection', desc: 'Confirm your local interface receives an IP address in the 10.8.0.0/24 range.' },
             { num: '06', title: 'Start Target Machine & Attack', desc: 'Launch target instances inside any room to start performing security tasks.' }
           ].map((step) => (
-            <div key={step.num} className="p-4 rounded-md border border-[#E5E5E5] bg-[#FAFAFA] space-y-2">
+            <div key={step.num} className="p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] space-y-2">
               <div className="flex items-center justify-between">
-                <span className="w-6 h-6 rounded bg-[#111111] text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="w-6 h-6 rounded bg-[#111111] dark:bg-white text-white dark:text-[#080808] text-[10px] font-bold flex items-center justify-center">
                   {step.num}
                 </span>
-                <CheckCircle size={14} className="text-[#888888]" />
+                <CheckCircle size={14} className="text-[#888888] dark:text-[#777777]" />
               </div>
-              <h3 className="font-bold text-sm text-[#111111] font-heading uppercase">
+              <h3 className="font-bold text-sm text-[#111111] dark:text-white font-heading uppercase">
                 {step.title}
               </h3>
-              <p className="text-xs text-[#555555] font-sans leading-relaxed">
+              <p className="text-xs text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
                 {step.desc}
               </p>
             </div>
@@ -136,13 +136,13 @@ export function VpnPage() {
       </div>
 
       {/* Architecture Disclaimer Card */}
-      <div className="p-5 rounded-md border border-[#E5E5E5] bg-white space-y-2 text-xs">
-        <div className="flex items-center gap-2 font-bold text-[#111111] uppercase">
-          <Server size={14} className="text-[#111111]" />
+      <div className="p-5 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-2 text-xs">
+        <div className="flex items-center gap-2 font-bold text-[#111111] dark:text-white uppercase">
+          <Server size={14} className="text-[#111111] dark:text-white" />
           <span>ISOLATED LAB ARCHITECTURE NOTE</span>
         </div>
-        <p className="text-[#555555] font-sans text-xs leading-relaxed">
-          CyberPath virtual lab targets run inside isolated Docker and Kubernetes worker nodes. Target host IPs in the <code className="text-[#111111] bg-[#F5F5F5] px-1 py-0.5 rounded">10.10.X.X</code> range are strictly isolated from production application servers.
+        <p className="text-[#555555] dark:text-[#B5B5B5] font-sans text-xs leading-relaxed">
+          CyberPath virtual lab targets run inside isolated Docker and Kubernetes worker nodes. Target host IPs in the <code className="text-[#111111] dark:text-white bg-[#F5F5F5] dark:bg-[#202020] px-1 py-0.5 rounded">10.10.X.X</code> range are strictly isolated from production application servers.
         </p>
       </div>
     </div>

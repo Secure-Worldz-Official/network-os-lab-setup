@@ -9,31 +9,31 @@ export function RoadmapPage() {
   const overall = progress.overallProgress();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8 select-none font-mono">
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="space-y-3"
+        className="space-y-3 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-6"
       >
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-300 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]">
-            <Compass size={13} className="text-zinc-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F7F7] dark:bg-[#141414] border border-[#E5E5E5] dark:border-[#2A2A2A] text-xs font-mono text-[#111111] dark:text-white">
+            <Compass size={13} className="text-[#111111] dark:text-white" />
             <span>Curriculum Roadmap</span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-950/80 px-3 py-1 rounded-md border border-zinc-800 shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]">
-            <CheckCircle2 size={13} className="text-white" />
+          <div className="flex items-center gap-2 text-xs font-mono text-[#555555] dark:text-[#B5B5B5] bg-[#F7F7F7] dark:bg-[#141414] px-3 py-1 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A]">
+            <CheckCircle2 size={13} className="text-[#111111] dark:text-white" />
             <span>Total Completed: {overall.done}/{overall.total}</span>
           </div>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-heading tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#111111] dark:text-white font-heading tracking-tight uppercase">
           Cybersecurity Learning Path
         </h1>
 
-        <p className="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-2xl">
+        <p className="text-sm sm:text-base text-[#555555] dark:text-[#B5B5B5] leading-relaxed max-w-2xl font-sans">
           Progress sequentially through the modules. Module 1 delivers the essential networking,
           OS, and virtual lab foundation required for all subsequent offensive and defensive modules.
         </p>

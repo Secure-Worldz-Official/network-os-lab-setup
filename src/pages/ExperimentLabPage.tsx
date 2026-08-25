@@ -43,9 +43,9 @@ export function ExperimentLabPage() {
 
   if (!module) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <p className="text-zinc-400 text-sm">Module not found.</p>
-        <Link to="/labs" className="text-xs text-zinc-500 hover:text-white mt-2 inline-block">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center select-none font-mono">
+        <p className="text-[#555555] dark:text-[#B5B5B5] text-sm">Module not found.</p>
+        <Link to="/labs" className="text-xs text-[#888888] dark:text-[#777777] hover:underline mt-2 inline-block">
           ← Back to Experiment Lab hub
         </Link>
       </div>
@@ -59,18 +59,18 @@ export function ExperimentLabPage() {
   const tools = module.tools || [];
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 select-none font-mono">
       <motion.div variants={fadeUp}>
-        <Link to="/labs" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors mb-4">
-          <ArrowLeft size={14} /> Back to hub
+        <Link to="/labs" className="inline-flex items-center gap-1.5 text-xs text-[#888888] dark:text-[#777777] hover:text-[#111111] dark:hover:text-white transition-colors mb-4 font-bold">
+          <ArrowLeft size={14} /> BACK TO HUB
         </Link>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-700 flex items-center justify-center">
-            <FlaskConical size={20} className="text-white" />
+        <div className="flex items-center gap-3 mb-6 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
+          <div className="w-10 h-10 rounded-xl bg-[#111111] dark:bg-white flex items-center justify-center text-white dark:text-[#080808]">
+            <FlaskConical size={20} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">{module.title} Labs</h1>
-            <p className="text-sm text-zinc-400 mt-0.5">Select a tool to launch its interactive playground</p>
+            <h1 className="text-2xl font-bold text-[#111111] dark:text-white tracking-tight uppercase font-heading">{module.title} Labs</h1>
+            <p className="text-sm text-[#555555] dark:text-[#B5B5B5] mt-0.5 font-sans">Select a tool to launch its interactive playground</p>
           </div>
         </div>
       </motion.div>
@@ -82,27 +82,27 @@ export function ExperimentLabPage() {
             <Link
               key={tool.id}
               to={`/labs/${module.id}/${tool.id}`}
-              className="group flex flex-col p-5 rounded-xl border border-zinc-800 bg-zinc-900/30 hover:border-zinc-700 hover:bg-zinc-900/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.03)] transition-all duration-200"
+              className="group flex flex-col p-5 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-[#111111] dark:hover:border-white shadow-xs transition-all duration-200"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-[#F7F7F7] dark:bg-[#181818] text-[#111111] dark:text-white border border-[#E5E5E5] dark:border-[#2A2A2A] flex items-center justify-center shrink-0">
                     <Icon size={18} />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-zinc-200">{tool.name}</p>
-                    <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mt-0.5">
+                    <p className="text-sm font-semibold text-[#111111] dark:text-white">{tool.name}</p>
+                    <p className="text-[10px] font-mono text-[#888888] dark:text-[#777777] uppercase tracking-wider mt-0.5">
                       Interactive Tool
                     </p>
                   </div>
                 </div>
               </div>
 
-              <p className="text-xs text-zinc-400 mt-3 leading-relaxed">{tool.description}</p>
+              <p className="text-xs text-[#555555] dark:text-[#B5B5B5] mt-3 leading-relaxed font-sans">{tool.description}</p>
 
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-800/70">
-                <span className="text-[10px] font-mono text-zinc-500">Live Execution</span>
-                <span className="text-xs text-zinc-400 group-hover:text-white transition-colors flex items-center gap-1">
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#E5E5E5] dark:border-[#2A2A2A]">
+                <span className="text-[10px] font-mono text-[#888888] dark:text-[#777777]">Live Execution</span>
+                <span className="text-xs text-[#111111] dark:text-white group-hover:underline transition-colors flex items-center gap-1">
                   Launch <ArrowLeft size={13} className="rotate-180" />
                 </span>
               </div>
@@ -132,37 +132,37 @@ function ComingSoonLab({ module }: { module: typeof roadmap[0] }) {
   const items = plans[module.id] || [];
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 select-none font-mono">
       <motion.div variants={fadeUp}>
-        <Link to="/labs" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors mb-4">
-          <ArrowLeft size={14} /> Back to hub
+        <Link to="/labs" className="inline-flex items-center gap-1.5 text-xs text-[#888888] dark:text-[#777777] hover:text-[#111111] dark:hover:text-white transition-colors mb-4 font-bold">
+          <ArrowLeft size={14} /> BACK TO HUB
         </Link>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-700 flex items-center justify-center">
-            <Icon size={20} className="text-zinc-400" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0F0F0] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] flex items-center justify-center">
+            <Icon size={20} className="text-[#888888] dark:text-[#777777]" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">{module.title}</h1>
-            <p className="text-sm text-zinc-400 mt-0.5">{module.subtitle}</p>
+            <h1 className="text-2xl font-bold text-[#111111] dark:text-white tracking-tight uppercase font-heading">{module.title}</h1>
+            <p className="text-sm text-[#555555] dark:text-[#B5B5B5] mt-0.5 font-sans">{module.subtitle}</p>
           </div>
         </div>
       </motion.div>
 
-      <motion.div variants={fadeUp} className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-6 sm:p-8 space-y-4">
-        <div className="flex items-center gap-2 text-zinc-300">
+      <motion.div variants={fadeUp} className="rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] p-6 sm:p-8 space-y-4">
+        <div className="flex items-center gap-2 text-[#111111] dark:text-white font-bold">
           <Lock size={16} />
           <span className="text-sm font-medium">Coming Soon</span>
         </div>
-        <p className="text-sm text-zinc-400 leading-relaxed">
+        <p className="text-sm text-[#555555] dark:text-[#B5B5B5] leading-relaxed font-sans">
           This module is under active development. The labs below are planned and will be
           implemented with the same real-execution standards as Module 1.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
           {items.map((item) => (
-            <div key={item.title} className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-4 space-y-2">
-              <p className="text-sm font-medium text-zinc-200">{item.title}</p>
-              <p className="text-xs text-zinc-500 leading-relaxed">{item.desc}</p>
+            <div key={item.title} className="rounded-lg border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#101010] p-4 space-y-2">
+              <p className="text-sm font-medium text-[#111111] dark:text-white">{item.title}</p>
+              <p className="text-xs text-[#555555] dark:text-[#B5B5B5] leading-relaxed font-sans">{item.desc}</p>
             </div>
           ))}
         </div>

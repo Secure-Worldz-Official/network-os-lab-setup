@@ -1,23 +1,39 @@
 @import "tailwindcss";
 
-/* ─── CyberPath High-Contrast Light Design System Tokens ───────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+/* ─── CyberPath High-Contrast Light & Dark Design System Tokens ───────────────────────── */
 :root {
   --bg-base:        #FFFFFF;
   --bg-surface:     #F7F7F7;
-  --bg-card:        #FAFAFA;
+  --bg-card:        #FFFFFF;
+  --bg-card-subtle: #FAFAFA;
   --bg-elevated:    #FFFFFF;
   --bg-hover:       #F0F0F0;
   --bg-subtle:      #F5F5F5;
+  --bg-input:       #F7F7F7;
 
   --text-primary:   #111111;
-  --text-secondary: #555555;
-  --text-muted:     #888888;
-  --text-dim:       #AAAAAA;
+  --text-secondary: #666666;
+  --text-muted:     #999999;
+  --text-dim:       #CCCCCC;
 
   --border:         #E5E5E5;
   --border-subtle:  #EEEEEE;
   --border-bright:  #CCCCCC;
   --border-focus:   #111111;
+
+  --btn-primary-bg: #111111;
+  --btn-primary-text: #FFFFFF;
+  --btn-primary-hover: #333333;
+  --btn-secondary-bg: #FFFFFF;
+  --btn-secondary-text: #111111;
+  --btn-secondary-border: #E5E5E5;
+  --btn-secondary-hover: #F7F7F7;
+
+  --toggle-bg-off:  #E5E5E5;
+  --toggle-bg-on:   #111111;
+  --toggle-thumb:   #FFFFFF;
 
   --radius-xs:      2px;
   --radius-sm:      4px;
@@ -30,31 +46,91 @@
 
   --shadow-card:    0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   --shadow-elevated: 0 4px 16px -2px rgba(0, 0, 0, 0.08);
+
+  --scrollbar-track: #F7F7F7;
+  --scrollbar-thumb: #CCCCCC;
+  --scrollbar-hover: #999999;
+
+  --grid-line:      rgba(0, 0, 0, 0.04);
+  --dot-color:      rgba(0, 0, 0, 0.08);
 }
 
-/* ─── Tailwind Theme Mapping ────────────────────────────────────────── */
-@theme {
-  --color-bg-base:        #FFFFFF;
-  --color-bg-surface:     #F7F7F7;
-  --color-bg-card:        #FAFAFA;
-  --color-bg-elevated:    #FFFFFF;
-  --color-bg-hover:       #F0F0F0;
-  
-  --color-text-primary:   #111111;
-  --color-text-secondary: #555555;
-  --color-text-muted:     #888888;
-  --color-text-dim:       #AAAAAA;
+.dark, [data-theme="dark"] {
+  --bg-base:        #080808;
+  --bg-surface:     #101010;
+  --bg-card:        #141414;
+  --bg-card-subtle: #161616;
+  --bg-elevated:    #181818;
+  --bg-hover:       #202020;
+  --bg-subtle:      #121212;
+  --bg-input:       #121212;
 
-  --color-border:         #E5E5E5;
-  --color-border-subtle:  #EEEEEE;
-  --color-border-bright:  #CCCCCC;
+  --text-primary:   #FFFFFF;
+  --text-secondary: #B5B5B5;
+  --text-muted:     #777777;
+  --text-dim:       #444444;
 
-  --font-heading:         var(--font-heading);
-  --font-body:            var(--font-body);
-  --font-mono:            var(--font-mono);
+  --border:         #2A2A2A;
+  --border-subtle:  #1F1F1F;
+  --border-bright:  #3E3E3E;
+  --border-focus:   #FFFFFF;
+
+  --btn-primary-bg: #FFFFFF;
+  --btn-primary-text: #080808;
+  --btn-primary-hover: #E5E5E5;
+  --btn-secondary-bg: #141414;
+  --btn-secondary-text: #FFFFFF;
+  --btn-secondary-border: #2A2A2A;
+  --btn-secondary-hover: #1E1E1E;
+
+  --toggle-bg-off:  #2A2A2A;
+  --toggle-bg-on:   #FFFFFF;
+  --toggle-thumb:   #080808;
+
+  --shadow-card:    0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 4px 20px -2px rgba(0, 0, 0, 0.7);
+
+  --scrollbar-track: #101010;
+  --scrollbar-thumb: #2A2A2A;
+  --scrollbar-hover: #444444;
+
+  --grid-line:      rgba(255, 255, 255, 0.03);
+  --dot-color:      rgba(255, 255, 255, 0.05);
 }
 
-/* ─── Base Resets ────────────────────────────────────────────────────────── */
+/* ─── Accessibility Modifiers ────────────────────────────────────────── */
+.high-contrast, [data-high-contrast="true"] {
+  --border: #111111 !important;
+  --border-subtle: #333333 !important;
+  --border-bright: #000000 !important;
+  --text-secondary: #222222 !important;
+  --text-muted: #444444 !important;
+}
+
+.dark.high-contrast, .dark[data-high-contrast="true"], [data-theme="dark"].high-contrast {
+  --border: #555555 !important;
+  --border-subtle: #444444 !important;
+  --border-bright: #FFFFFF !important;
+  --text-secondary: #E5E5E5 !important;
+  --text-muted: #CCCCCC !important;
+}
+
+.larger-text, [data-larger-text="true"] {
+  font-size: 17.5px;
+}
+
+.enhanced-focus :focus-visible {
+  outline: 3px solid var(--border-focus) !important;
+  outline-offset: 3px !important;
+}
+
+.reduce-motion, [data-reduce-motion="true"] * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* ─── Base Resets & Transitions ────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -75,24 +151,29 @@ html {
   color-scheme: light;
 }
 
+html.dark, html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 ::selection {
-  background: #111111;
-  color: #FFFFFF;
+  background: var(--text-primary);
+  color: var(--bg-base);
 }
 
 :focus-visible {
-  outline: 2px solid #111111;
+  outline: 2px solid var(--border-focus);
   outline-offset: 2px;
 }
 
 body {
-  background-color: #FFFFFF;
-  color: #111111;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
   font-family: var(--font-body);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   line-height: 1.6;
   overflow: hidden;
   letter-spacing: -0.005em;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ─── Typography System ────────────────────────────────────────────────── */
@@ -100,9 +181,10 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.2;
-  color: #111111;
+  color: var(--text-primary);
   letter-spacing: -0.03em;
   text-wrap: balance;
+  transition: color 0.25s ease;
 }
 
 h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); line-height: 1.05; }
@@ -111,9 +193,10 @@ h3 { font-size: 1.35rem; line-height: 1.25; }
 h4 { font-size: 1.1rem; line-height: 1.35; }
 
 p {
-  color: #555555;
+  color: var(--text-secondary);
   line-height: 1.7;
   text-wrap: pretty;
+  transition: color 0.25s ease;
 }
 
 a {
@@ -121,20 +204,20 @@ a {
   text-decoration: none;
 }
 
-/* ─── Custom Light Scrollbar ────────────────────────────────────────── */
+/* ─── Custom Scrollbar (Adaptive to Theme) ────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F7F7F7;
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #CCCCCC;
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #999999;
+  background: var(--scrollbar-hover);
 }
 
 /* ─── Code & Monospace Formatting ───────────────────────────────────────── */
@@ -145,10 +228,10 @@ pre, code {
 :not(pre) > code {
   display: inline;
   padding: 0.15rem 0.4rem;
-  border: 1px solid #E5E5E5;
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background: #F5F5F5;
-  color: #111111;
+  background: var(--bg-subtle);
+  color: var(--text-primary);
   font-size: 0.85em;
   overflow-wrap: anywhere;
 }
@@ -169,85 +252,88 @@ pre, code {
 /* ─── Background Patterns ─────────────────────────────────────────── */
 .grid-pattern {
   background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
 .dot-pattern {
-  background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
 /* ─── Panels & Cards ──────────────────────────────────────────────── */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-card);
   backdrop-filter: blur(16px);
-  border: 1px solid #E5E5E5;
+  border: 1px solid var(--border);
 }
 
 .glass-sidebar {
-  background: #F7F7F7;
-  border-right: 1px solid #E5E5E5;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
 }
 
 /* ─── CyberPath Buttons ────────────────────────────────────────── */
 .btn-cyber-primary {
-  background-color: #111111;
-  color: #FFFFFF;
-  border: 1px solid #111111;
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: 1px solid var(--btn-primary-bg);
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   padding: 0.625rem 1.25rem;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
+  user-select: none;
 }
 
 .btn-cyber-primary:hover {
-  background-color: #FFFFFF;
-  color: #111111;
-  border-color: #111111;
+  background-color: var(--btn-primary-hover);
+  border-color: var(--btn-primary-hover);
+  transform: translateY(-1px);
 }
 
 .btn-cyber-secondary {
-  background-color: #FFFFFF;
-  color: #111111;
-  border: 1px solid #E5E5E5;
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   font-weight: 500;
   padding: 0.625rem 1.25rem;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
+  user-select: none;
 }
 
 .btn-cyber-secondary:hover {
-  border-color: #111111;
-  background-color: #F7F7F7;
+  border-color: var(--border-focus);
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-1px);
 }
 
 .btn-cyber-bracket {
-  background-color: #F7F7F7;
-  color: #111111;
-  border: 1px solid #E5E5E5;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   font-weight: 600;
   padding: 0.5rem 1rem;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -255,53 +341,54 @@ pre, code {
 }
 
 .btn-cyber-bracket:hover {
-  border-color: #111111;
-  background-color: #FFFFFF;
+  border-color: var(--border-focus);
+  background-color: var(--bg-card);
 }
 
 /* ─── CyberPath Cards ────────────────────────────────────────── */
 .cyber-card {
-  background: #FAFAFA;
-  border: 1px solid #E5E5E5;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 6px;
   position: relative;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-card);
+  color: var(--text-primary);
 }
 
 .cyber-card:hover {
-  border-color: #111111;
-  background: #FFFFFF;
+  border-color: var(--border-focus);
+  background: var(--bg-elevated);
   box-shadow: var(--shadow-elevated);
 }
 
 .cyber-card-active {
-  border-color: #111111 !important;
-  background: #FFFFFF !important;
+  border-color: var(--border-focus) !important;
+  background: var(--bg-elevated) !important;
 }
 
 /* ─── Progress Bar ──────────────────────────────────────────── */
 .mono-progress-track {
-  background: #EEEEEE;
-  border: 1px solid #E5E5E5;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
   border-radius: 3px;
   overflow: hidden;
 }
 
 .mono-progress-fill {
-  background: #111111;
+  background: var(--text-primary);
   border-radius: 3px;
   transition: width 0.4s ease;
 }
 
-/* ─── Dark Technical Terminal Area ───────────────────────────────────────── */
+/* ─── Technical Terminal (Preserved Technical Dark Identity) ───────────────────────── */
 .cyber-terminal {
   background-color: #050505;
   color: #00FF66;
   border: 1px solid #222222;
   border-radius: 6px;
   font-family: var(--font-mono);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .terminal-cursor {
@@ -318,3 +405,23 @@ pre, code {
   from, to { background-color: transparent; }
   50% { background-color: #00FF66; }
 }
+
+/* ─── Semantic Helper Utility Classes ────────────────────────────────────────── */
+.bg-cyber-base { background-color: var(--bg-base); }
+.bg-cyber-surface { background-color: var(--bg-surface); }
+.bg-cyber-card { background-color: var(--bg-card); }
+.bg-cyber-card-subtle { background-color: var(--bg-card-subtle); }
+.bg-cyber-elevated { background-color: var(--bg-elevated); }
+.bg-cyber-hover { background-color: var(--bg-hover); }
+.bg-cyber-subtle { background-color: var(--bg-subtle); }
+.bg-cyber-input { background-color: var(--bg-input); }
+
+.text-cyber-primary { color: var(--text-primary); }
+.text-cyber-secondary { color: var(--text-secondary); }
+.text-cyber-muted { color: var(--text-muted); }
+.text-cyber-dim { color: var(--text-dim); }
+
+.border-cyber { border-color: var(--border); }
+.border-cyber-subtle { border-color: var(--border-subtle); }
+.border-cyber-bright { border-color: var(--border-bright); }
+.border-cyber-focus { border-color: var(--border-focus); }

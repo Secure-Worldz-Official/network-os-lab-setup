@@ -42,9 +42,9 @@ export function ExperimentToolPage() {
 
   if (!module || module.comingSoon || !toolId) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <p className="text-zinc-400 text-sm">Tool not found or module is not yet available.</p>
-        <Link to="/labs" className="text-xs text-zinc-500 hover:text-white mt-2 inline-block">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center select-none font-mono">
+        <p className="text-[#555555] dark:text-[#B5B5B5] text-sm">Tool not found or module is not yet available.</p>
+        <Link to="/labs" className="text-xs text-[#888888] dark:text-[#777777] hover:underline mt-2 inline-block">
           ← Back to Experiment Lab hub
         </Link>
       </div>
@@ -78,7 +78,7 @@ export function ExperimentToolPage() {
         return <HeaderAnalyzerLab />;
       default:
         return (
-          <div className="text-sm text-zinc-400">
+          <div className="text-sm text-[#555555] dark:text-[#B5B5B5] font-mono">
             Tool "{toolId}" is not implemented yet.
           </div>
         );
@@ -86,21 +86,21 @@ export function ExperimentToolPage() {
   };
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 select-none font-mono">
       <motion.div variants={fadeUp}>
         <Link
           to={`/labs/${moduleId}`}
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-xs text-[#888888] dark:text-[#777777] hover:text-[#111111] dark:hover:text-white transition-colors mb-4 font-bold"
         >
           <ArrowLeft size={14} /> Back to {module.title} Labs
         </Link>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-700 flex items-center justify-center">
-            <ToolIcon size={20} className="text-white" />
+        <div className="flex items-center gap-3 mb-6 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
+          <div className="w-10 h-10 rounded-xl bg-[#111111] dark:bg-white flex items-center justify-center text-white dark:text-[#080808]">
+            <ToolIcon size={20} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">{tool?.name || toolId}</h1>
-            <p className="text-sm text-zinc-400 mt-0.5">{tool?.description || 'Interactive tool'}</p>
+            <h1 className="text-2xl font-bold text-[#111111] dark:text-white tracking-tight uppercase font-heading">{tool?.name || toolId}</h1>
+            <p className="text-sm text-[#555555] dark:text-[#B5B5B5] mt-0.5 font-sans">{tool?.description || 'Interactive tool'}</p>
           </div>
         </div>
       </motion.div>
