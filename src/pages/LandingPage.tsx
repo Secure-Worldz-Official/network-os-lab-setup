@@ -135,9 +135,9 @@ export function LandingPage() {
                 START LEARNING NOW →
               </button>
             </Link>
-            <Link to="/rooms" className="w-full sm:w-auto">
+            <Link to="/labs" className="w-full sm:w-auto">
               <button className="w-full sm:w-auto btn-cyber-secondary py-3.5 px-8 text-xs tracking-wider uppercase font-bold">
-                EXPLORE ROOMS & LABS ↗
+                EXPLORE LABS ↗
               </button>
             </Link>
           </div>

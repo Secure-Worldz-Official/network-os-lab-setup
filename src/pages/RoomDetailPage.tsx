@@ -1,71 +1,182 @@
-import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCyberPath } from '@/context/CyberPathContext';
 import { rooms, type RoomTask } from '@/data/cyberpathData';
 import { 
-  ArrowLeft, Terminal as TermIcon, CheckCircle, Key, Info, HelpCircle as QuizIcon,
-  Clock, Download
+  ArrowLeft, 
+  Terminal as TermIcon, 
+  CheckCircle, 
+  ChevronRight,
+  Info, 
+  HelpCircle as QuizIcon,
+  Play,
+  Square,
+  RotateCcw,
+  Eye,
+  EyeOff,
+  ChevronLeft,
+  Lock,
+  Award,
+  Sparkles
 } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { InteractiveTerminal } from '@/components/terminal/InteractiveTerminal';
 import { WebLabTarget } from '@/components/lab/WebLabTarget';
 import { TaskValidator } from '@/lib/labServices';
 
-type ActiveTab = 'intro' | 'task' | 'lab' | 'quiz' | 'complete';
-type MobileTab = 'task' | 'lab' | 'terminal' | 'connection' | 'target';
+type ActiveTab = 'intro' | 'task' | 'quiz';
 
 export function RoomDetailPage() {
   const { roomId } = useParams<{ roomId: string }>();
-  const navigate = useNavigate();
   
   const { 
     completedTasks, 
     completeTask, 
-    isTaskCompleted,
-    completeRoom,
+    completeRoom, 
     completeQuiz,
     isQuizCompleted,
     activeLab,
     startLab,
     stopLab,
     resetLab,
-    togglePauseLab,
-    vpnStatus,
-    downloadVpnConfig,
     deductXp
   } = useCyberPath();
 
   const room = rooms.find((r) => r.id === roomId);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('intro');
-  const [mobileTab, setMobileTab] = useState<MobileTab>('task');
   const [selectedTaskIndex, setSelectedTaskIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [taskFeedback, setTaskFeedback] = useState<Record<string, { success: boolean; msg: string }>>({});
-  const [hintLevel, setHintLevel] = useState<Record<string, number>>({});
+  const [showHints, setShowHints] = useState<Record<string, boolean>>({});
+  
+  // Unlock animation and locked interaction toast state
+  const [justUnlockedId, setJustUnlockedId] = useState<string | null>(null);
+  const [lockedToast, setLockedToast] = useState<string | null>(null);
+  const [successBanner, setSuccessBanner] = useState<{ title: string; subtitle: string } | null>(null);
 
+  // Quiz state
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
   const [quizSelectedAnswers, setQuizSelectedAnswers] = useState<Record<number, string>>({});
   const [quizFeedback, setQuizFeedback] = useState<string | null>(null);
 
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const bannerTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto initialize lab session if not running
+  useEffect(() => {
+    if (room && (!activeLab || activeLab.roomId !== room.id)) {
+      startLab(room.id);
+    }
+  }, [room?.id]);
+
+  // Clean up timers on unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+    };
+  }, []);
+
   if (!room) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4 font-mono select-none">
-        <h2 className="text-xl font-bold text-[#111111] dark:text-white font-heading">ROOM NOT FOUND</h2>
-        <Link to="/rooms">
-          <button className="btn-cyber-secondary text-xs">BACK TO ROOMS</button>
+        <h2 className="text-xl font-bold text-[#111111] dark:text-white font-heading">LAB NOT FOUND</h2>
+        <p className="text-xs text-[#666666] dark:text-[#999999] font-sans">
+          The requested practical lab could not be located in the training catalog.
+        </p>
+        <Link to="/labs">
+          <button className="btn-cyber-primary text-xs py-2 px-4">
+            ← BACK TO ALL LABS
+          </button>
         </Link>
       </div>
     );
   }
 
   const roomTasks = room.tasks;
-  const currentTask: RoomTask | undefined = roomTasks[selectedTaskIndex];
-  const completedCount = roomTasks.filter((t) => completedTasks.has(t.id)).length;
-  const progressPct = roomTasks.length > 0 ? Math.round((completedCount / roomTasks.length) * 100) : 0;
-  const isLabActive = activeLab && activeLab.roomId === room.id;
+  const introTaskId = `intro-${room.id}`;
+  const isIntroCompleted = completedTasks.has(introTaskId) || roomTasks.some(t => completedTasks.has(t.id));
 
-  const handleTaskSubmit = (task: RoomTask) => {
+  // ─── SEQUENTIAL UNLOCK DETERMINATION (Rule 1, 2, 19, 35) ──────────────────────────
+  // Check if a specific task index is unlocked
+  const isTaskIndexUnlocked = (index: number): boolean => {
+    if (index === 0) {
+      return isIntroCompleted || true; // Task 1 is unlocked once intro is read or from start
+    }
+    const prevTask = roomTasks[index - 1];
+    return Boolean(prevTask && completedTasks.has(prevTask.id));
+  };
+
+  // Check if final certification exam is unlocked (all room tasks complete)
+  const isQuizUnlocked = useMemo(() => {
+    return roomTasks.length > 0 && roomTasks.every(t => completedTasks.has(t.id));
+  }, [roomTasks, completedTasks]);
+
+  // Derived overall completion progress
+  const completedRoomTasksCount = roomTasks.filter((t) => completedTasks.has(t.id)).length;
+  const isExamDone = isQuizCompleted(room.id);
+  
+  // Total steps = Intro (1) + Tasks (N) + Exam (1)
+  const totalSteps = 1 + roomTasks.length + 1;
+  const completedStepsCount = (isIntroCompleted ? 1 : 0) + completedRoomTasksCount + (isExamDone ? 1 : 0);
+  const progressPct = Math.round((completedStepsCount / totalSteps) * 100);
+
+  // ─── DIRECT URL & STATE TAMPERING PROTECTION (Rule 18) ────────────────────────────
+  useEffect(() => {
+    if (activeTab === 'task') {
+      if (!isTaskIndexUnlocked(selectedTaskIndex)) {
+        // Clamp to highest available unlocked task
+        let highestUnlocked = 0;
+        for (let i = 0; i < roomTasks.length; i++) {
+          if (isTaskIndexUnlocked(i)) highestUnlocked = i;
+          else break;
+        }
+        setSelectedTaskIndex(highestUnlocked);
+      }
+    } else if (activeTab === 'quiz' && !isQuizUnlocked && !isExamDone) {
+      setActiveTab('task');
+      setSelectedTaskIndex(0);
+    }
+  }, [activeTab, selectedTaskIndex, isIntroCompleted, isQuizUnlocked, isExamDone]);
+
+  // Show non-blocking locked message toast (Rule 4 & 25)
+  const triggerLockedNotice = (requiredTaskName: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setLockedToast(`🔒 Locked: Complete ${requiredTaskName} to unlock.`);
+    toastTimerRef.current = setTimeout(() => {
+      setLockedToast(null);
+    }, 2800);
+  };
+
+  // Show task completion feedback banner (Rule 9)
+  const triggerSuccessBanner = (title: string, subtitle: string) => {
+    if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+    setSuccessBanner({ title, subtitle });
+    bannerTimerRef.current = setTimeout(() => {
+      setSuccessBanner(null);
+    }, 3200);
+  };
+
+  // Handle Completing Introduction
+  const handleCompleteIntro = () => {
+    completeTask(introTaskId);
+    triggerSuccessBanner('Task 01 Completed', 'Task 02 is now unlocked.');
+    
+    // Unlock animation on task 0
+    if (roomTasks.length > 0) {
+      setJustUnlockedId(roomTasks[0].id);
+      setTimeout(() => setJustUnlockedId(null), 1200);
+      setTimeout(() => {
+        setActiveTab('task');
+        setSelectedTaskIndex(0);
+      }, 500);
+    }
+  };
+
+  // Handle Question Submission (Rule 6, 7, 10, 11)
+  const handleTaskSubmit = (task: RoomTask, taskIdx: number) => {
     const userAns = answers[task.id] || '';
     const result = TaskValidator.validate(userAns, task.answer);
 
@@ -75,22 +186,43 @@ export function RoomDetailPage() {
     }));
 
     if (result.success) {
+      // 1. Mark current task as COMPLETED
       completeTask(task.id);
-      if (completedCount + 1 >= roomTasks.length) {
+      
+      const isLastTask = taskIdx === roomTasks.length - 1;
+      const nextTaskId = !isLastTask ? roomTasks[taskIdx + 1].id : 'quiz';
+
+      // 2. Trigger micro-animation on next task
+      setJustUnlockedId(nextTaskId);
+      setTimeout(() => setJustUnlockedId(null), 1200);
+
+      // 3. Trigger compact success banner
+      triggerSuccessBanner(
+        `✓ ${task.title} Completed (+${task.points} XP)`,
+        isLastTask ? 'Final Certification Exam Unlocked!' : `Task 0${taskIdx + 3} Unlocked.`
+      );
+
+      // 4. Auto-select next task smoothly after brief delay (Rule 10)
+      setTimeout(() => {
+        if (!isLastTask) {
+          setSelectedTaskIndex(taskIdx + 1);
+        } else {
+          setActiveTab('quiz');
+        }
+      }, 700);
+
+      // 5. Complete room if all tasks and quiz are solved
+      if (isLastTask && isExamDone) {
         setTimeout(() => completeRoom(room.id), 500);
       }
     }
   };
 
-  const handleShowHint = (taskId: string) => {
-    const currentLvl = hintLevel[taskId] || 0;
-    if (currentLvl === 0) {
-      deductXp(10, 'Revealed Hint 01');
-      setHintLevel(prev => ({ ...prev, [taskId]: 1 }));
-    } else if (currentLvl === 1) {
-      deductXp(20, 'Revealed Hint 02');
-      setHintLevel(prev => ({ ...prev, [taskId]: 2 }));
+  const toggleHint = (taskId: string) => {
+    if (!showHints[taskId]) {
+      deductXp(10, 'Revealed Task Hint');
     }
+    setShowHints(prev => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
   const formatTimer = (secs: number) => {
@@ -98,6 +230,30 @@ export function RoomDetailPage() {
     const s = secs % 60;
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   };
+
+  // Handle Final Exam Submission (Rule 20, 31)
+  const handleQuizSubmit = () => {
+    const q1 = quizSelectedAnswers[0];
+    const q2 = quizSelectedAnswers[1];
+
+    if (!q1 || !q2) {
+      setQuizFeedback('Please answer all exam questions before submitting.');
+      return;
+    }
+
+    if (q1 === 'b' && q2 === 'a') {
+      setQuizFeedback('✓ Certification Verified! You have passed the examination.');
+      setQuizSubmitted(true);
+      completeQuiz(room.id, 250);
+      completeRoom(room.id);
+      triggerSuccessBanner('Certification Verified!', `Congratulations! +${room.xp} XP awarded.`);
+    } else {
+      setQuizFeedback('✕ Some answers were incorrect. Review the module tasks and try again.');
+    }
+  };
+
+  const currentTask: RoomTask | undefined = roomTasks[selectedTaskIndex];
+  const isLabActive = activeLab && activeLab.roomId === room.id;
 
   const renderTaskWorkspace = () => {
     if (!currentTask) return null;
@@ -114,478 +270,763 @@ export function RoomDetailPage() {
     return (
       <InteractiveTerminal 
         targetIp={activeLab?.targetIp || '10.10.20.15'}
-        initialMessage={`Connected to CyberPath ${room.title} container. Run CLI tools or type 'nmap ${activeLab?.targetIp || '10.10.20.15'}' to inspect host.`}
+        initialMessage={`Connected to CyberPath ${room.title} isolated container. Run CLI commands or type 'nmap ${activeLab?.targetIp || '10.10.20.15'}' to inspect the target.`}
       />
     );
   };
 
   return (
-    <div className="flex h-[calc(100vh-60px)] lg:h-screen w-full overflow-hidden bg-white dark:bg-[#080808] text-[#111111] dark:text-white select-none font-mono">
+    <div className="flex flex-col h-full w-full select-none font-mono text-xs space-y-4 pb-4">
       
-      {/* ─── LEFT COLUMN: ROOM TASK NAVIGATION (DESKTOP) ─── */}
-      <aside className="w-64 border-r border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#F7F7F7] dark:bg-[#101010] shrink-0 flex-col justify-between hidden md:flex">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <Link to="/rooms" className="inline-flex items-center gap-1.5 text-xs text-[#666666] dark:text-[#B5B5B5] hover:text-[#111111] dark:hover:text-white transition-colors mb-1 font-bold">
-            <ArrowLeft size={13} /> BACK TO ROOMS
-          </Link>
-          
-          <div className="space-y-1.5 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
-            <span className="text-[9px] uppercase tracking-widest text-[#888888] dark:text-[#777777] font-bold">
-              ROOM CONTENT ({completedCount}/{roomTasks.length})
-            </span>
-            <h2 className="text-sm font-extrabold text-[#111111] dark:text-white leading-tight uppercase font-heading">
-              {room.title}
-            </h2>
-            <ProgressBar value={progressPct} size="sm" />
-          </div>
+      {/* ─── TOAST NOTIFICATIONS (Rule 9 & 25) ────────────────────────── */}
+      <AnimatePresence>
+        {lockedToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed top-14 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded border border-[#111111] dark:border-white bg-[#111111] dark:bg-white text-white dark:text-black font-mono text-xs shadow-xl flex items-center gap-2 font-bold"
+          >
+            <Lock size={13} />
+            <span>{lockedToast}</span>
+          </motion.div>
+        )}
 
-          <div className="space-y-1 pt-1">
-            <button
-              onClick={() => setActiveTab('intro')}
-              className={`w-full text-left px-3 py-2 rounded text-xs font-mono transition-all flex items-center gap-2 cursor-pointer border ${
-                activeTab === 'intro'
-                  ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white'
-                  : 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white'
-              }`}
-            >
-              <Info size={13} />
-              <span>01. INTRODUCTION</span>
-            </button>
+        {successBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            className="fixed top-14 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded border border-emerald-600 bg-white dark:bg-[#121212] text-[#111111] dark:text-white font-mono text-xs shadow-2xl flex items-center gap-3"
+          >
+            <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0">
+              <CheckCircle size={13} />
+            </div>
+            <div>
+              <p className="font-extrabold uppercase font-heading">{successBanner.title}</p>
+              <p className="text-[11px] text-[#666666] dark:text-[#999999] font-sans">{successBanner.subtitle}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {roomTasks.map((task, index) => {
-              const isDone = completedTasks.has(task.id);
-              const isCurrent = activeTab === 'task' && selectedTaskIndex === index;
-
-              return (
-                <button
-                  key={task.id}
-                  onClick={() => {
-                    setActiveTab('task');
-                    setSelectedTaskIndex(index);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded text-xs font-mono transition-all flex items-center justify-between cursor-pointer border ${
-                    isCurrent
-                      ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white'
-                      : 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="text-[10px] font-bold">
-                      {isDone ? '✓' : isCurrent ? '●' : '○'}
-                    </span>
-                    <span className="truncate text-[11px]">
-                      0{index + 2}. {task.title.toUpperCase()}
-                    </span>
-                  </div>
-                  {isDone && <CheckCircle size={12} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />}
-                </button>
-              );
-            })}
-
-            <button
-              onClick={() => setActiveTab('lab')}
-              className={`w-full text-left px-3 py-2 rounded text-xs font-mono transition-all flex items-center gap-2 cursor-pointer border ${
-                activeTab === 'lab'
-                  ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white'
-                  : 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white'
-              }`}
-            >
-              <TermIcon size={13} />
-              <span>PRACTICAL LAB</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('quiz')}
-              className={`w-full text-left px-3 py-2 rounded text-xs font-mono transition-all flex items-center justify-between cursor-pointer border ${
-                activeTab === 'quiz'
-                  ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white'
-                  : 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <QuizIcon size={13} />
-                <span>FINAL CERTIFICATION</span>
-              </div>
-              {isQuizCompleted(room.id) && <CheckCircle size={12} className={activeTab === 'quiz' ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />}
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* ─── CENTER COLUMN: TASK INSTRUCTIONS & WORKSPACE ─── */}
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 flex flex-col justify-between space-y-6">
+      {/* ─── 1. TOP BREADCRUMB & LAB CONTROLS BAR ────────────────────────── */}
+      <div className="p-3.5 sm:p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm shrink-0">
         
-        {/* Mobile Tab Switcher */}
-        <div className="md:hidden flex border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2 gap-1 overflow-x-auto">
-          {(['task', 'lab', 'terminal', 'connection', 'target'] as MobileTab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setMobileTab(tab)}
-              className={`px-3 py-1 text-[10px] font-bold uppercase rounded border ${
-                mobileTab === tab ? 'bg-[#111111] dark:bg-white text-white dark:text-[#080808] border-[#111111] dark:border-white' : 'bg-white dark:bg-[#141414] text-[#111111] dark:text-white border-[#E5E5E5] dark:border-[#2A2A2A]'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        {/* Left: Breadcrumbs & Lab Title */}
+        <div className="space-y-1">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[10px] text-[#888888] dark:text-[#777777]">
+            <Link to="/labs" className="hover:text-[#111111] dark:hover:text-white transition-colors font-bold uppercase">
+              LABS
+            </Link>
+            <ChevronRight size={10} />
+            <span className="font-bold text-[#111111] dark:text-white uppercase truncate max-w-[180px] sm:max-w-none">
+              {room.title}
+            </span>
+            <ChevronRight size={10} />
+            <span className="text-[#888888] dark:text-[#777777] uppercase font-bold">
+              {activeTab === 'intro' ? '01. INTRODUCTION' : activeTab === 'quiz' ? 'FINAL CERTIFICATION' : `0${selectedTaskIndex + 2}. ${currentTask?.title.toUpperCase()}`}
+            </span>
+          </nav>
 
-        {/* Task Header Bar */}
-        <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase text-[#888888] dark:text-[#777777]">
-                {activeTab === 'intro' ? 'TASK 01' : `TASK 0${selectedTaskIndex + 2}`}
-              </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[#111111] dark:text-white">
-                {room.difficulty.toUpperCase()}
-              </span>
-              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 border border-emerald-500/20 rounded">
-                +{currentTask?.points || 50} XP
-              </span>
-            </div>
-            <h1 className="text-xl font-extrabold text-[#111111] dark:text-white tracking-tight mt-1 uppercase font-heading">
-              {activeTab === 'intro' && 'INTRODUCTION & OBJECTIVES'}
-              {activeTab === 'task' && currentTask?.title}
-              {activeTab === 'lab' && 'PRACTICAL VIRTUAL LAB WORKSPACE'}
-              {activeTab === 'quiz' && 'ROOM CERTIFICATION EXAM'}
+          <div className="flex items-center gap-2">
+            <h1 className="text-base sm:text-lg font-extrabold text-[#111111] dark:text-white font-heading uppercase leading-none">
+              {room.title}
             </h1>
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[#111111] dark:text-white uppercase">
+              {room.difficulty}
+            </span>
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 space-y-6">
-          {activeTab === 'intro' && (
-            <div className="space-y-5 max-w-3xl text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
-              <p>{room.description}</p>
-              <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] space-y-2 font-mono">
-                <h4 className="font-bold text-[#111111] dark:text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <Key size={14} className="text-[#111111] dark:text-white" /> SKILLS YOU WILL MASTER
-                </h4>
-                <ul className="list-disc list-inside space-y-1 text-xs text-[#555555] dark:text-[#B5B5B5]">
-                  {room.skills.map((s) => (
-                    <li key={s}>{s}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="pt-2">
-                <button
-                  onClick={() => { setActiveTab('task'); setSelectedTaskIndex(0); }}
-                  className="btn-cyber-primary text-xs py-2.5 px-5"
-                >
-                  <span>START TASK 01 →</span>
-                </button>
-              </div>
+        {/* Right: Grouped Lab Controls (Rule 15, 22, 23) */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Target IP Badge */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[10px] font-mono">
+            <span className={`w-2 h-2 rounded-full ${isLabActive ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+            <span className="text-[#888888] dark:text-[#777777]">TARGET:</span>
+            <span className="font-bold text-[#111111] dark:text-white">{activeLab?.targetIp || '10.10.20.15'}</span>
+          </div>
+
+          {/* Session Timer Badge */}
+          {activeLab && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[10px] font-mono">
+              <span className="text-[#888888] dark:text-[#777777]">TIME:</span>
+              <span className="font-bold text-[#111111] dark:text-white">{formatTimer(activeLab.timeRemainingSeconds)}</span>
             </div>
           )}
 
-          {activeTab === 'task' && currentTask && (
-            <div className="space-y-6 max-w-4xl">
-              
-              {/* Task Objective Card */}
-              <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] font-mono text-xs space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777] block">
-                  TASK OBJECTIVE
-                </span>
-                <p className="text-[#111111] dark:text-white font-bold text-sm">
-                  {currentTask.description}
-                </p>
-                <p className="text-[#555555] dark:text-[#B5B5B5] text-xs font-sans">
-                  {currentTask.question}
-                </p>
-              </div>
-
-              {/* Lab Initialization Panel */}
-              <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-3 font-mono text-xs">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${isLabActive ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                    <span className="font-bold text-[#111111] dark:text-white uppercase">
-                      TARGET: {activeLab?.targetMachine.name || 'LAB-TARGET-03'}
-                    </span>
-                  </div>
-                  <span className="text-[#888888] dark:text-[#777777] text-[11px]">
-                    IP: {activeLab?.targetIp || '10.10.20.15'}
-                  </span>
-                </div>
-
-                {!isLabActive ? (
-                  <button
-                    onClick={() => startLab(room.id, currentTask.id)}
-                    className="btn-cyber-primary text-xs w-full py-2"
-                  >
-                    <span>START LAB ENVIRONMENT →</span>
-                  </button>
-                ) : (
-                  <div className="p-3 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] flex items-center justify-between text-xs">
-                    <span className="font-bold text-emerald-700 dark:text-emerald-400">● LAB ACTIVE — TIME REMAINING: {formatTimer(activeLab.timeRemainingSeconds)}</span>
-                    <button onClick={stopLab} className="text-xs text-rose-600 dark:text-rose-400 font-bold hover:underline">
-                      STOP LAB
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Interactive Workspace (Terminal or Web Target) */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-bold uppercase text-[#888888] dark:text-[#777777] block">
-                  SIMULATED LAB WORKSPACE
-                </span>
-                {renderTaskWorkspace()}
-              </div>
-
-              {/* Answer & Flag Submission Form */}
-              <div className="space-y-3 pt-4 border-t border-[#E5E5E5] dark:border-[#2A2A2A]">
-                <span className="text-[10px] font-bold uppercase text-[#111111] dark:text-white block tracking-wider">
-                  SUBMIT ANSWER OR CTF FLAG
-                </span>
-                <div className="flex gap-2.5 max-w-md">
-                  <input
-                    type="text"
-                    placeholder="ENTER ANSWER / CP{...}"
-                    value={answers[currentTask.id] || ''}
-                    onChange={(e) => setAnswers(prev => ({ ...prev, [currentTask.id]: e.target.value }))}
-                    disabled={isTaskCompleted(currentTask.id)}
-                    className="flex-1 bg-[#F7F7F7] dark:bg-[#101010] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded px-3 py-2 text-xs text-[#111111] dark:text-white outline-none focus:border-[#111111] dark:focus:border-white disabled:opacity-60 font-mono"
-                  />
-                  <button 
-                    onClick={() => handleTaskSubmit(currentTask)}
-                    disabled={isTaskCompleted(currentTask.id)}
-                    className={isTaskCompleted(currentTask.id) ? 'btn-cyber-secondary text-xs' : 'btn-cyber-primary text-xs'}
-                  >
-                    {isTaskCompleted(currentTask.id) ? '✓ VERIFIED' : 'SUBMIT ANSWER →'}
-                  </button>
-                </div>
-
-                {taskFeedback[currentTask.id] && (
-                  <div className={`p-3 rounded border text-xs max-w-md font-mono font-bold ${
-                    taskFeedback[currentTask.id].success 
-                      ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' 
-                      : 'border-rose-600 bg-rose-500/10 text-rose-700 dark:text-rose-400'
-                  }`}>
-                    {taskFeedback[currentTask.id].msg}
-                  </div>
-                )}
-
-                {/* Progressive Hint System */}
-                <div className="pt-2">
-                  <button 
-                    onClick={() => handleShowHint(currentTask.id)}
-                    className="text-[11px] font-bold text-[#666666] dark:text-[#B5B5B5] hover:text-[#111111] dark:hover:text-white underline cursor-pointer"
-                  >
-                    {(hintLevel[currentTask.id] || 0) === 0 ? '[ SHOW HINT (-10 XP) ]' : (hintLevel[currentTask.id] || 0) === 1 ? '[ SHOW SECOND HINT (-20 XP) ]' : '[ HINTS REVEALED ]'}
-                  </button>
-
-                  {(hintLevel[currentTask.id] || 0) >= 1 && (
-                    <div className="mt-2 p-3 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] text-xs text-[#555555] dark:text-[#B5B5B5] font-mono leading-relaxed max-w-md space-y-1">
-                      <span className="font-bold text-[#111111] dark:text-white block">HINT 01:</span>
-                      <p>{currentTask.hint}</p>
-                    </div>
-                  )}
-
-                  {(hintLevel[currentTask.id] || 0) >= 2 && (
-                    <div className="mt-2 p-3 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] text-xs text-[#555555] dark:text-[#B5B5B5] font-mono leading-relaxed max-w-md space-y-1">
-                      <span className="font-bold text-[#111111] dark:text-white block">HINT 02:</span>
-                      <p>Double-check command syntax or target IP e.g. nmap {activeLab?.targetIp || '10.10.20.15'}.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'lab' && (
-            <div className="space-y-4">
-              <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] text-xs text-[#555555] dark:text-[#B5B5B5]">
-                Full practical lab view for {room.title}. Run terminal commands or inspect web containers.
-              </div>
-              {renderTaskWorkspace()}
-            </div>
-          )}
-
-          {activeTab === 'quiz' && (
-            <div className="space-y-6 max-w-xl font-mono">
-              <p className="text-xs text-[#555555] dark:text-[#B5B5B5]">
-                Final Room Certification. Answer correctly to finalize certification for {room.title}.
-              </p>
-              <div className="p-5 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] space-y-3">
-                <p className="text-xs font-bold text-[#111111] dark:text-white">
-                  Which protocol or command allows secure terminal access to host machines on port 22?
-                </p>
-                <div className="grid grid-cols-1 gap-2">
-                  {['FTP', 'HTTP', 'SSH', 'DNS'].map((ans) => (
-                    <button
-                      key={ans}
-                      onClick={() => setQuizSelectedAnswers({ 0: ans })}
-                      className={`p-3 rounded border text-left text-xs transition-all cursor-pointer font-mono font-bold ${
-                        quizSelectedAnswers[0] === ans 
-                          ? 'bg-[#111111] dark:bg-white text-white dark:text-[#080808] border-[#111111] dark:border-white' 
-                          : 'bg-white dark:bg-[#181818] text-[#111111] dark:text-white border-[#E5E5E5] dark:border-[#2A2A2A] hover:border-[#111111] dark:hover:border-white'
-                      }`}
-                    >
-                      {ans}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <button 
-                onClick={() => {
-                  setQuizSubmitted(true);
-                  if (quizSelectedAnswers[0] === 'SSH') {
-                    setQuizFeedback('✓ CERTIFICATION VERIFIED! +100 XP');
-                    completeQuiz(room.id, 100);
-                  } else {
-                    setQuizFeedback('✕ INCORRECT ANSWER. SELECT SSH.');
-                  }
-                }}
-                className="btn-cyber-primary text-xs py-2 px-5"
+          {/* Lab Lifecycle Action Buttons */}
+          {isLabActive ? (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={resetLab}
+                title="Reset Target State"
+                className="btn-cyber-secondary text-xs py-1 px-2.5 flex items-center gap-1"
               >
-                SUBMIT CERTIFICATION →
+                <RotateCcw size={12} />
+                <span className="hidden sm:inline">RESET</span>
               </button>
-              {quizSubmitted && quizFeedback && (
-                <div className="p-3 rounded border border-[#111111] dark:border-white bg-white dark:bg-[#141414] text-[#111111] dark:text-white font-bold text-xs">
-                  {quizFeedback}
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={stopLab}
+                title="Terminate Lab Session"
+                className="btn-cyber-danger text-xs py-1 px-2.5 flex items-center gap-1"
+              >
+                <Square size={12} />
+                <span>STOP LAB</span>
+              </button>
             </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => startLab(room.id)}
+              className="btn-cyber-primary text-xs py-1.5 px-3.5 flex items-center gap-1"
+            >
+              <Play size={12} />
+              <span>START LAB</span>
+            </button>
           )}
         </div>
+      </div>
 
-        {/* Task Bottom Controls */}
-        <div className="border-t border-[#E5E5E5] dark:border-[#2A2A2A] pt-4 flex items-center justify-between text-xs font-mono text-[#888888] dark:text-[#777777]">
-          <span>{room.difficulty.toUpperCase()} LEVEL</span>
-          <div className="flex gap-2">
-            {activeTab === 'task' && selectedTaskIndex < roomTasks.length - 1 && (
+      {/* ─── 2. MAIN LAB WORKSPACE LAYOUT ────────────────────────── */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0 overflow-hidden">
+        
+        {/* Left Column: SEQUENTIAL TASK LIST (Rule 3, 4, 5, 14, 16, 34) */}
+        <div className="lg:col-span-4 xl:col-span-3 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#F7F7F7] dark:bg-[#101010] p-3 flex flex-col justify-between overflow-y-auto space-y-3">
+          
+          <div className="space-y-3">
+            {/* Progress Header */}
+            <div className="space-y-1 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2.5">
+              <div className="flex justify-between items-center text-[10px] font-bold text-[#888888] dark:text-[#777777] uppercase">
+                <span>LAB PROGRESSION</span>
+                <span>{completedStepsCount}/{totalSteps} DONE ({progressPct}%)</span>
+              </div>
+              <ProgressBar value={progressPct} size="sm" />
+            </div>
+
+            {/* Task Progression Stack */}
+            <div className="space-y-1.5">
+              
+              {/* 01. INTRODUCTION */}
+              {(() => {
+                const isCurrent = activeTab === 'intro';
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('intro')}
+                    className={`w-full text-left p-2.5 rounded-[4px] border transition-all flex items-start justify-between gap-2 cursor-pointer ${
+                      isCurrent
+                        ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm'
+                        : isIntroCompleted
+                        ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white'
+                        : 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white font-bold'
+                    }`}
+                  >
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-mono font-bold">01.</span>
+                        <span className="truncate uppercase font-heading text-[11px]">INTRODUCTION</span>
+                      </div>
+                      <span className={`text-[9px] uppercase tracking-wider block ${
+                        isCurrent 
+                          ? 'text-white/70 dark:text-black/70' 
+                          : isIntroCompleted 
+                          ? 'text-emerald-600 dark:text-emerald-400 font-bold' 
+                          : 'text-[#888888] dark:text-[#777777]'
+                      }`}>
+                        {isIntroCompleted ? '✓ COMPLETED' : isCurrent ? '● CURRENT' : '○ AVAILABLE'}
+                      </span>
+                    </div>
+
+                    <div className="shrink-0 pt-0.5">
+                      {isIntroCompleted ? (
+                        <CheckCircle size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
+                      ) : (
+                        <Info size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-[#888888]'} />
+                      )}
+                    </div>
+                  </button>
+                );
+              })()}
+
+              {/* 02..0N SEQUENTIAL ROOM TASKS */}
+              {roomTasks.map((task, index) => {
+                const isDone = completedTasks.has(task.id);
+                const isUnlocked = isTaskIndexUnlocked(index);
+                const isCurrent = activeTab === 'task' && selectedTaskIndex === index;
+                const isJustUnlocked = justUnlockedId === task.id;
+                const prevTaskTitle = index === 0 ? 'Task 01' : `Task 0${index + 1}`;
+
+                return (
+                  <div key={task.id} className="relative">
+                    <button
+                      type="button"
+                      disabled={!isUnlocked}
+                      aria-disabled={!isUnlocked}
+                      onClick={() => {
+                        if (isUnlocked) {
+                          setActiveTab('task');
+                          setSelectedTaskIndex(index);
+                        } else {
+                          triggerLockedNotice(prevTaskTitle);
+                        }
+                      }}
+                      className={`w-full text-left p-2.5 rounded-[4px] border transition-all flex items-start justify-between gap-2 ${
+                        isCurrent
+                          ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm cursor-pointer'
+                          : isDone
+                          ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white cursor-pointer'
+                          : isUnlocked
+                          ? 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white hover:bg-[#FAFAFA] dark:hover:bg-[#181818] cursor-pointer'
+                          : 'bg-[#EFEFEF]/50 dark:bg-[#0D0D0D] text-[#888888] dark:text-[#555555] border-[#E0E0E0] dark:border-[#202020] cursor-not-allowed opacity-75'
+                      } ${isJustUnlocked ? 'ring-2 ring-emerald-500 animate-pulse' : ''}`}
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono font-bold">
+                            0{index + 2}.
+                          </span>
+                          <span className="truncate uppercase font-heading text-[11px]">
+                            {task.title}
+                          </span>
+                        </div>
+
+                        {/* Status Label (Rule 16) */}
+                        <span className={`text-[9px] uppercase tracking-wider block ${
+                          isCurrent
+                            ? 'text-white/70 dark:text-black/70'
+                            : isDone
+                            ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                            : isUnlocked
+                            ? 'text-[#111111] dark:text-white font-bold'
+                            : 'text-[#888888] dark:text-[#666666]'
+                        }`}>
+                          {isDone
+                            ? '✓ COMPLETED'
+                            : isCurrent
+                            ? '● CURRENT TASK'
+                            : isUnlocked
+                            ? '→ AVAILABLE'
+                            : `🔒 COMPLETE ${prevTaskTitle.toUpperCase()} TO UNLOCK`}
+                        </span>
+                      </div>
+
+                      {/* Icon State */}
+                      <div className="shrink-0 pt-0.5">
+                        {isDone ? (
+                          <CheckCircle size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
+                        ) : isUnlocked ? (
+                          <span className={`text-[10px] font-bold ${isCurrent ? 'text-white dark:text-black' : 'text-[#111111] dark:text-white'}`}>
+                            {isCurrent ? '●' : '○'}
+                          </span>
+                        ) : (
+                          <Lock size={12} className="text-[#888888] dark:text-[#555555]" />
+                        )}
+                      </div>
+                    </button>
+                  </div>
+                );
+              })}
+
+              {/* FINAL CERTIFICATION EXAM */}
+              {(() => {
+                const isCurrent = activeTab === 'quiz';
+                const isJustUnlocked = justUnlockedId === 'quiz';
+
+                return (
+                  <button
+                    type="button"
+                    disabled={!isQuizUnlocked && !isExamDone}
+                    aria-disabled={!isQuizUnlocked && !isExamDone}
+                    onClick={() => {
+                      if (isQuizUnlocked || isExamDone) {
+                        setActiveTab('quiz');
+                      } else {
+                        triggerLockedNotice('all previous lab tasks');
+                      }
+                    }}
+                    className={`w-full text-left p-2.5 rounded-[4px] border transition-all flex items-start justify-between gap-2 ${
+                      isCurrent
+                        ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm cursor-pointer'
+                        : isExamDone
+                        ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white cursor-pointer'
+                        : isQuizUnlocked
+                        ? 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white cursor-pointer'
+                        : 'bg-[#EFEFEF]/50 dark:bg-[#0D0D0D] text-[#888888] dark:text-[#555555] border-[#E0E0E0] dark:border-[#202020] cursor-not-allowed opacity-75'
+                    } ${isJustUnlocked ? 'ring-2 ring-emerald-500 animate-pulse' : ''}`}
+                  >
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-mono font-bold">
+                          0{roomTasks.length + 2}.
+                        </span>
+                        <span className="truncate uppercase font-heading text-[11px]">
+                          FINAL CERTIFICATION
+                        </span>
+                      </div>
+                      <span className={`text-[9px] uppercase tracking-wider block ${
+                        isCurrent
+                          ? 'text-white/70 dark:text-black/70'
+                          : isExamDone
+                          ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                          : isQuizUnlocked
+                          ? 'text-[#111111] dark:text-white font-bold'
+                          : 'text-[#888888] dark:text-[#666666]'
+                      }`}>
+                        {isExamDone
+                          ? '✓ CERTIFIED'
+                          : isCurrent
+                          ? '● ACTIVE EXAM'
+                          : isQuizUnlocked
+                          ? '→ UNLOCKED'
+                          : '🔒 COMPLETE ALL TASKS'}
+                      </span>
+                    </div>
+
+                    <div className="shrink-0 pt-0.5">
+                      {isExamDone ? (
+                        <CheckCircle size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
+                      ) : isQuizUnlocked ? (
+                        <QuizIcon size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-[#111111] dark:text-white'} />
+                      ) : (
+                        <Lock size={12} className="text-[#888888] dark:text-[#555555]" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })()}
+
+            </div>
+          </div>
+
+          {/* Return link */}
+          <Link
+            to="/labs"
+            className="w-full text-center py-2 text-[11px] text-[#666666] dark:text-[#999999] hover:text-[#111111] dark:hover:text-white font-bold uppercase border-t border-[#E5E5E5] dark:border-[#2A2A2A] pt-3 flex items-center justify-center gap-1.5"
+          >
+            <ArrowLeft size={12} />
+            <span>BACK TO ALL LABS</span>
+          </Link>
+        </div>
+
+        {/* Right Column: ACTIVE TASK WORKSPACE (Rule 12, 14, 21, 31) */}
+        <div className="lg:col-span-8 xl:col-span-9 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 sm:p-6 flex flex-col justify-between overflow-y-auto space-y-6 shadow-sm">
+          
+          {/* Main Dynamic Content Area */}
+          <div className="space-y-6 flex-1">
+            
+            {/* ─── TAB 01: INTRODUCTION ─── */}
+            {activeTab === 'intro' && (
+              <div className="space-y-5">
+                <div className="space-y-1.5 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest">
+                      TASK 01 // OVERVIEW & LEARNING OBJECTIVES
+                    </span>
+                    {isIntroCompleted && (
+                      <span className="text-[9px] font-bold px-2 py-0.2 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 uppercase">
+                        ✓ COMPLETED
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-extrabold text-[#111111] dark:text-white uppercase font-heading">
+                    {room.title}
+                  </h2>
+                </div>
+
+                <div className="space-y-4 text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
+                  <p>{room.description}</p>
+                  
+                  <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-2 font-mono text-xs text-[#111111] dark:text-white">
+                    <span className="font-bold uppercase tracking-wider block">KEY OBJECTIVES COVERED:</span>
+                    <ul className="list-disc pl-5 space-y-1 text-[#555555] dark:text-[#B5B5B5] font-sans text-xs">
+                      <li>Understand target architecture and network interface topology.</li>
+                      <li>Utilize interactive terminal tools to query ports, services, and vulnerabilities.</li>
+                      <li>Analyze findings and submit specific challenge flags to sequentially unlock subsequent tasks.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleCompleteIntro}
+                    className="btn-cyber-primary text-xs py-2.5 px-6"
+                  >
+                    <span>{isIntroCompleted ? 'PROCEED TO TASK 02 →' : 'COMPLETE INTRODUCTION & START TASK 02 →'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ─── TAB 02..N: SEQUENTIAL TASK WORKSPACE ─── */}
+            {activeTab === 'task' && currentTask && (
+              <div className="space-y-6">
+                {/* Task Header */}
+                <div className="space-y-1 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777]">
+                      TASK 0{selectedTaskIndex + 2} OF 0{totalSteps}
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 border border-emerald-500/20 rounded">
+                      +{currentTask.points} XP
+                    </span>
+                    {completedTasks.has(currentTask.id) && (
+                      <span className="text-[9px] font-bold px-2 py-0.2 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 uppercase">
+                        ✓ TASK VERIFIED
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-extrabold text-[#111111] dark:text-white uppercase font-heading">
+                    {currentTask.title}
+                  </h2>
+                </div>
+
+                {/* Instructions */}
+                <div className="space-y-3 text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
+                  <p>{currentTask.description}</p>
+                </div>
+
+                {/* Live Target Container / Interactive Terminal Workspace (Rule 14 & 22) */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-[10px] text-[#888888] dark:text-[#777777] font-bold uppercase">
+                    <span className="flex items-center gap-1.5">
+                      <TermIcon size={12} className="text-[#111111] dark:text-white" />
+                      LIVE TARGET WORKSPACE (TARGET: {activeLab?.targetIp || '10.10.20.15'})
+                    </span>
+                  </div>
+                  <div className="min-h-[220px] rounded border border-[#111111] dark:border-[#333] overflow-hidden">
+                    {renderTaskWorkspace()}
+                  </div>
+                </div>
+
+                {/* Question & Answer Submission Area (Rule 6, 11, 21) */}
+                <div className="p-4 sm:p-5 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">
+                      TASK OBJECTIVE // ANSWER SUBMISSION
+                    </span>
+                    <p className="text-xs sm:text-sm font-bold text-[#111111] dark:text-white font-sans">
+                      {currentTask.question}
+                    </p>
+                  </div>
+
+                  {/* Progressive Hint Reveal */}
+                  {currentTask.hint && (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => toggleHint(currentTask.id)}
+                        className="text-[10px] text-[#888888] dark:text-[#777777] hover:text-[#111111] dark:hover:text-white font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        {showHints[currentTask.id] ? <EyeOff size={11} /> : <Eye size={11} />}
+                        <span>{showHints[currentTask.id] ? '[ HIDE HINT ]' : '[ VIEW HINT (-10 XP) ]'}</span>
+                      </button>
+                      {showHints[currentTask.id] && (
+                        <div className="mt-2 p-3 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#121212] text-xs text-[#555555] dark:text-[#B5B5B5] font-mono">
+                          {currentTask.hint}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Submission Form */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="text"
+                      placeholder={completedTasks.has(currentTask.id) ? "Task completed (Verified)" : "Enter answer / flag..."}
+                      value={answers[currentTask.id] || ''}
+                      onChange={(e) => setAnswers(prev => ({ ...prev, [currentTask.id]: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleTaskSubmit(currentTask, selectedTaskIndex);
+                      }}
+                      className="flex-1 bg-white dark:bg-[#121212] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded px-3 py-2 text-xs text-[#111111] dark:text-white outline-none focus:border-[#111111] dark:focus:border-white font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleTaskSubmit(currentTask, selectedTaskIndex)}
+                      className="btn-cyber-primary text-xs py-2 px-6 shrink-0"
+                    >
+                      <span>{completedTasks.has(currentTask.id) ? 'RE-SUBMIT →' : 'SUBMIT ANSWER →'}</span>
+                    </button>
+                  </div>
+
+                  {/* Feedback Message */}
+                  {taskFeedback[currentTask.id] && (
+                    <div className={`p-3 rounded border text-xs font-mono font-bold ${
+                      taskFeedback[currentTask.id].success
+                        ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                        : 'border-rose-600 bg-rose-500/10 text-rose-700 dark:text-rose-400'
+                    }`}>
+                      {taskFeedback[currentTask.id].msg}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ─── TAB: FINAL CERTIFICATION & COMPLETION (Rule 20, 31) ─── */}
+            {activeTab === 'quiz' && (
+              <div className="space-y-6">
+                {isExamDone ? (
+                  /* ─── PROFESSIONAL LAB COMPLETION SCREEN (Rule 31) ─── */
+                  <div className="p-8 rounded-md border border-[#111111] dark:border-white bg-[#FAFAFA] dark:bg-[#141414] text-center space-y-6">
+                    <div className="w-16 h-16 rounded-full bg-[#111111] dark:bg-white text-white dark:text-black flex items-center justify-center mx-auto shadow-md">
+                      <Award size={32} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">
+                        // CLEARANCE CERTIFICATION ACHIEVED
+                      </span>
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white font-heading uppercase tracking-tight">
+                        LAB COMPLETED: {room.title}
+                      </h2>
+                      <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans max-w-lg mx-auto leading-relaxed">
+                        You have successfully audited the target infrastructure, verified all technical tasks, and passed the final certification exam.
+                      </p>
+                    </div>
+
+                    {/* Verification Checklist */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto text-left font-mono text-xs">
+                      <div className="p-3 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#181818] space-y-1">
+                        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                          <CheckCircle size={14} />
+                          <span>ALL TASKS DONE</span>
+                        </div>
+                        <span className="text-[10px] text-[#888888] dark:text-[#777777] block">{roomTasks.length}/{roomTasks.length} Solved</span>
+                      </div>
+
+                      <div className="p-3 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#181818] space-y-1">
+                        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                          <CheckCircle size={14} />
+                          <span>CERTIFICATION</span>
+                        </div>
+                        <span className="text-[10px] text-[#888888] dark:text-[#777777] block">Exam Passed</span>
+                      </div>
+
+                      <div className="p-3 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#181818] space-y-1">
+                        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                          <Sparkles size={14} />
+                          <span>XP REWARD</span>
+                        </div>
+                        <span className="text-[10px] text-[#888888] dark:text-[#777777] block">+{room.xp} XP Earned</span>
+                      </div>
+                    </div>
+
+                    {/* Completion Action Hierarchy */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-[#E5E5E5] dark:border-[#2A2A2A]">
+                      <Link to="/labs">
+                        <button className="btn-cyber-primary text-xs py-2.5 px-6">
+                          <span>RETURN TO ALL LABS →</span>
+                        </button>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab('task');
+                          setSelectedTaskIndex(0);
+                        }}
+                        className="btn-cyber-secondary text-xs py-2.5 px-5"
+                      >
+                        <span>REVIEW LAB TASKS</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* ─── ACTIVE CERTIFICATION EXAM FORM ─── */
+                  <div className="space-y-6">
+                    <div className="space-y-1 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
+                      <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">
+                        FINAL EVALUATION // CERTIFICATION
+                      </span>
+                      <h2 className="text-xl font-extrabold text-[#111111] dark:text-white uppercase font-heading">
+                        {room.title} CERTIFICATION EXAM
+                      </h2>
+                    </div>
+
+                    <div className="space-y-5 text-xs text-[#111111] dark:text-white">
+                      <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-3">
+                        <p className="font-bold text-sm">
+                          Question 01: What is the primary purpose of reconnaissance in a security evaluation?
+                        </p>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="q1"
+                              value="a"
+                              onChange={(e) => setQuizSelectedAnswers(prev => ({ ...prev, 0: e.target.value }))}
+                            />
+                            <span>A) Directly deploying exploit payloads against services</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="q1"
+                              value="b"
+                              onChange={(e) => setQuizSelectedAnswers(prev => ({ ...prev, 0: e.target.value }))}
+                            />
+                            <span>B) Gathering active host, port, and service metadata without triggering alerts</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-3">
+                        <p className="font-bold text-sm">
+                          Question 02: Which mechanism provides the strongest defense against SQL Injection?
+                        </p>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="q2"
+                              value="a"
+                              onChange={(e) => setQuizSelectedAnswers(prev => ({ ...prev, 1: e.target.value }))}
+                            />
+                            <span>A) Parameterized queries and prepared statements</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="q2"
+                              value="b"
+                              onChange={(e) => setQuizSelectedAnswers(prev => ({ ...prev, 1: e.target.value }))}
+                            />
+                            <span>B) Client-side HTML input length restrictions</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {quizFeedback && (
+                        <div className={`p-3 rounded border text-xs font-mono font-bold ${
+                          quizSubmitted 
+                            ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' 
+                            : 'border-rose-600 bg-rose-500/10 text-rose-700 dark:text-rose-400'
+                        }`}>
+                          {quizFeedback}
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={handleQuizSubmit}
+                        className="btn-cyber-primary text-xs py-2.5 px-6"
+                      >
+                        <span>SUBMIT FINAL EXAM →</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+          </div>
+
+          {/* ─── 3. BOTTOM STEPPER CONTROLS (Rule 12, 13, 37 - No Dead Ends) ─── */}
+          <div className="flex items-center justify-between border-t border-[#E5E5E5] dark:border-[#2A2A2A] pt-4 shrink-0">
+            
+            {/* Previous Button (Rule 13) */}
+            {activeTab === 'task' && selectedTaskIndex > 0 ? (
               <button
-                onClick={() => setSelectedTaskIndex(prev => prev + 1)}
-                className="btn-cyber-primary text-xs"
+                type="button"
+                onClick={() => setSelectedTaskIndex(prev => prev - 1)}
+                className="btn-cyber-secondary text-xs py-1.5 px-3 flex items-center gap-1"
               >
-                NEXT TASK →
+                <ChevronLeft size={13} />
+                <span>PREVIOUS TASK</span>
               </button>
+            ) : activeTab === 'task' ? (
+              <button
+                type="button"
+                onClick={() => setActiveTab('intro')}
+                className="btn-cyber-secondary text-xs py-1.5 px-3 flex items-center gap-1"
+              >
+                <ChevronLeft size={13} />
+                <span>01. INTRODUCTION</span>
+              </button>
+            ) : activeTab === 'quiz' && !isExamDone ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('task');
+                  setSelectedTaskIndex(roomTasks.length - 1);
+                }}
+                className="btn-cyber-secondary text-xs py-1.5 px-3 flex items-center gap-1"
+              >
+                <ChevronLeft size={13} />
+                <span>TASK 0{roomTasks.length + 1}</span>
+              </button>
+            ) : (
+              <div />
+            )}
+
+            {/* Next Button (Strictly Locked / Guarded by Sequential Rules 1, 6, 12) */}
+            {activeTab === 'intro' ? (
+              <button
+                type="button"
+                onClick={handleCompleteIntro}
+                className="btn-cyber-primary text-xs py-1.5 px-4 flex items-center gap-1"
+              >
+                <span>TASK 02 →</span>
+                <ChevronRight size={13} />
+              </button>
+            ) : activeTab === 'task' && selectedTaskIndex < roomTasks.length - 1 ? (
+              isTaskIndexUnlocked(selectedTaskIndex + 1) ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedTaskIndex(prev => prev + 1)}
+                  className="btn-cyber-primary text-xs py-1.5 px-4 flex items-center gap-1"
+                >
+                  <span>NEXT TASK →</span>
+                  <ChevronRight size={13} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => triggerLockedNotice(`Task 0${selectedTaskIndex + 2}`)}
+                  className="btn-cyber-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 opacity-60 cursor-not-allowed"
+                >
+                  <Lock size={11} />
+                  <span>COMPLETE CURRENT TASK TO ADVANCE</span>
+                </button>
+              )
+            ) : activeTab === 'task' ? (
+              isQuizUnlocked ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('quiz')}
+                  className="btn-cyber-primary text-xs py-1.5 px-4 flex items-center gap-1"
+                >
+                  <span>CERTIFICATION EXAM →</span>
+                  <ChevronRight size={13} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => triggerLockedNotice(`Task 0${roomTasks.length + 1}`)}
+                  className="btn-cyber-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 opacity-60 cursor-not-allowed"
+                >
+                  <Lock size={11} />
+                  <span>COMPLETE ALL TASKS TO UNLOCK EXAM</span>
+                </button>
+              )
+            ) : (
+              <Link
+                to="/labs"
+                className="btn-cyber-primary text-xs py-1.5 px-4 flex items-center gap-1"
+              >
+                <span>RETURN TO ALL LABS →</span>
+              </Link>
             )}
           </div>
+
         </div>
 
-      </main>
-
-      {/* ─── RIGHT COLUMN: LAB STATUS & TARGET CONTROL PANEL (DESKTOP) ─── */}
-      <aside className="w-72 border-l border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#F7F7F7] dark:bg-[#101010] p-4 shrink-0 flex-col justify-between hidden xl:flex select-none font-mono space-y-5">
-        <div className="space-y-5 overflow-y-auto">
-          
-          {/* Lab Status Panel */}
-          <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-3 shadow-sm">
-            <span className="text-[9px] font-bold uppercase text-[#888888] dark:text-[#777777] tracking-widest block border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2">
-              LAB CONNECTION STATUS
-            </span>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center">
-                <span>STATUS:</span>
-                <span className={`font-bold ${isLabActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                  {isLabActive ? '● ONLINE' : 'OFFLINE'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-[#555555] dark:text-[#B5B5B5]">
-                <span>NETWORK:</span>
-                <span className="font-bold text-[#111111] dark:text-white">CYBERPATH-LAB</span>
-              </div>
-              <div className="flex justify-between items-center text-[#555555] dark:text-[#B5B5B5]">
-                <span>TARGET IP:</span>
-                <span className="font-bold text-[#111111] dark:text-white">{activeLab?.targetIp || '10.10.20.15'}</span>
-              </div>
-              <div className="flex justify-between items-center text-[#555555] dark:text-[#B5B5B5]">
-                <span>VPN STATUS:</span>
-                <span className={`font-bold ${vpnStatus.connected ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                  {vpnStatus.connected ? 'CONNECTED' : 'DISCONNECTED'}
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-2 space-y-1.5">
-              <button 
-                onClick={downloadVpnConfig}
-                className="w-full btn-cyber-secondary text-[11px] py-1.5 justify-center"
-              >
-                <Download size={12} />
-                <span>DOWNLOAD VPN CONFIG</span>
-              </button>
-              <Link 
-                to="/vpn"
-                className="block text-center w-full btn-cyber-bracket text-[11px] py-1.5 justify-center"
-              >
-                CONNECTION GUIDE
-              </Link>
-            </div>
-          </div>
-
-          {/* Target Machine Control Card */}
-          <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-3 shadow-sm">
-            <span className="text-[9px] font-bold uppercase text-[#888888] dark:text-[#777777] tracking-widest block border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2">
-              TARGET MACHINE CONTROL
-            </span>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center">
-                <span>NAME:</span>
-                <span className="font-bold text-[#111111] dark:text-white">{activeLab?.targetMachine.name || 'WEB-BOX-01'}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>OS:</span>
-                <span className="font-bold text-[#111111] dark:text-white">{activeLab?.targetMachine.os || 'Linux'}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>STATUS:</span>
-                <span className={`font-bold ${isLabActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                  {isLabActive ? '● RUNNING' : 'STOPPED'}
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-2 grid grid-cols-2 gap-1.5 text-[11px]">
-              <button onClick={resetLab} disabled={!isLabActive} className="btn-cyber-secondary py-1 px-2 text-[10px]">
-                RESET
-              </button>
-              <button onClick={stopLab} disabled={!isLabActive} className="btn-cyber-secondary py-1 px-2 text-[10px]">
-                STOP
-              </button>
-            </div>
-          </div>
-
-          {/* Lab Session Countdown Timer Card */}
-          {isLabActive && (
-            <div className="p-4 rounded border border-[#111111] dark:border-white bg-[#FAFAFA] dark:bg-[#181818] space-y-3">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="flex items-center gap-1.5 text-[#111111] dark:text-white">
-                  <Clock size={14} /> TIME REMAINING
-                </span>
-                <span className="text-lg font-mono font-extrabold text-[#111111] dark:text-white">
-                  {formatTimer(activeLab.timeRemainingSeconds)}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5 text-[10px]">
-                <button onClick={togglePauseLab} className="btn-cyber-secondary py-1">
-                  {activeLab.status === 'PAUSED' ? 'RESUME' : 'PAUSE'}
-                </button>
-                <button onClick={stopLab} className="btn-cyber-secondary py-1">
-                  END SESSION
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {completedCount === roomTasks.length && (
-          <button
-            onClick={() => {
-              completeRoom(room.id);
-              navigate('/rooms');
-            }}
-            className="w-full btn-cyber-primary py-2.5 text-xs tracking-wider uppercase font-bold"
-          >
-            [ COMPLETE ROOM → ]
-          </button>
-        )}
-      </aside>
+      </div>
 
     </div>
   );

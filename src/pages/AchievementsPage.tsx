@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useCyberPath } from '@/context/CyberPathContext';
 import { badges } from '@/data/cyberpathData';
 import { Trophy, Globe, Terminal, Flame, Sparkles, CheckCircle, Bug, Lock } from 'lucide-react';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 
 const iconMap: Record<string, any> = {
   Trophy,
@@ -12,28 +14,68 @@ const iconMap: Record<string, any> = {
   Bug
 };
 
+type BadgeFilter = 'All' | 'Unlocked' | 'Locked';
+
 export function AchievementsPage() {
   const { unlockedBadges } = useCyberPath();
+  const [filter, setFilter] = useState<BadgeFilter>('All');
+
+  const unlockedCount = unlockedBadges.length;
+  const totalCount = badges.length;
+  const progressPct = totalCount > 0 ? Math.round((unlockedCount / totalCount) * 100) : 0;
+
+  const filteredBadges = badges.filter((b) => {
+    const isUnlocked = unlockedBadges.includes(b.id);
+    if (filter === 'Unlocked') return isUnlocked;
+    if (filter === 'Locked') return !isUnlocked;
+    return true;
+  });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 select-none font-mono">
-      {/* Header */}
-      <div className="border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-6 space-y-1">
+    <div className="max-w-6xl mx-auto space-y-8 select-none font-mono pb-8">
+      {/* Header (Rule 18, 25) */}
+      <div className="border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-6 space-y-2">
         <div className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest flex items-center gap-1.5">
-          <Trophy size={14} className="text-[#111111] dark:text-white" />
+          <Trophy size={13} className="text-[#111111] dark:text-white" />
           <span>CLEARANCE CREDENTIALS & BADGES</span>
         </div>
         <h1 className="text-2xl sm:text-4xl font-extrabold text-[#111111] dark:text-white font-heading tracking-tight uppercase">
           ACHIEVEMENTS
         </h1>
         <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] max-w-2xl leading-relaxed font-sans">
-          Unlock collectible cybersecurity credentials by completing practical rooms, CTF tasks, daily missions, and advancing ranks.
+          Unlock collectible cybersecurity credentials by completing practical labs, solving tactical CTF challenges, maintaining streaks, and mastering security domains.
         </p>
+
+        {/* Global Achievements Progress Bar */}
+        <div className="pt-3 max-w-md space-y-1.5">
+          <div className="flex justify-between items-center text-xs font-bold text-[#111111] dark:text-white">
+            <span className="text-[10px] uppercase text-[#888888] dark:text-[#777777]">UNLOCKED CREDENTIALS</span>
+            <span>{unlockedCount} / {totalCount} ({progressPct}%)</span>
+          </div>
+          <ProgressBar value={progressPct} size="sm" />
+        </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-1.5 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
+        {(['All', 'Unlocked', 'Locked'] as BadgeFilter[]).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-1 rounded text-xs font-mono transition-all cursor-pointer border uppercase tracking-wider font-bold ${
+              filter === f
+                ? 'bg-[#111111] dark:bg-white text-white dark:text-[#080808] border-[#111111] dark:border-white'
+                : 'bg-white dark:bg-[#141414] border-[#E5E5E5] dark:border-[#2A2A2A] text-[#666666] dark:text-[#999999] hover:border-[#111111] dark:hover:border-white hover:text-[#111111] dark:hover:text-white'
+            }`}
+          >
+            {f === 'All' ? `ALL BADGES (${badges.length})` : f.toUpperCase()}
+          </button>
+        ))}
       </div>
 
       {/* Badges Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {badges.map((badge) => {
+        {filteredBadges.map((badge) => {
           const isUnlocked = unlockedBadges.includes(badge.id);
           const IconComp = iconMap[badge.icon] || Trophy;
 
@@ -60,7 +102,7 @@ export function AchievementsPage() {
                 <h3 className="text-sm font-extrabold tracking-wide uppercase font-heading text-[#111111] dark:text-white">
                   {badge.title}
                 </h3>
-                <p className="text-xs text-[#555555] dark:text-[#B5B5B5] leading-relaxed font-sans max-w-[200px] mx-auto">
+                <p className="text-xs text-[#555555] dark:text-[#B5B5B5] leading-relaxed font-sans max-w-[220px] mx-auto">
                   {badge.description}
                 </p>
               </div>
@@ -73,7 +115,7 @@ export function AchievementsPage() {
                   </span>
                 ) : (
                   <span className="text-[#888888] dark:text-[#777777] tracking-widest uppercase font-bold">
-                    LOCKED
+                    LOCKED (+{badge.xpReward} XP)
                   </span>
                 )}
               </div>
