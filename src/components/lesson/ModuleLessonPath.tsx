@@ -45,19 +45,17 @@ export function ModuleLessonPath({ module, isComplete }: ModuleLessonPathProps) 
                 <div
                   className={cn(
                     'w-[40px] h-[40px] rounded-full border-2 flex items-center justify-center font-mono text-xs font-bold transition-all duration-200',
-                    completed && 'bg-[#111111] dark:bg-white border-[#111111] dark:border-white text-white dark:text-[#080808]',
-                    current && 'bg-white dark:bg-[#141414] border-[#111111] dark:border-white text-[#111111] dark:text-white shadow-[0_0_0_4px_rgba(0,0,0,0.06)] dark:shadow-[0_0_0_4px_rgba(255,255,255,0.1)] animate-pulse',
-                    locked && 'bg-[#FAFAFA] dark:bg-[#101010] border-[#E5E5E5] dark:border-[#2A2A2A] text-[#888888] dark:text-[#666666]'
+                    completed && 'bg-emerald-600 dark:bg-white border-emerald-600 dark:border-white text-white dark:text-[#080808]',
+                    current && 'bg-emerald-600 dark:bg-emerald-500 border-emerald-600 dark:border-emerald-500 text-white shadow-[0_0_0_4px_rgba(16,185,129,0.2)] animate-pulse',
+                    !completed && !current && 'bg-[#FAFAFA] dark:bg-[#101010] border-[#E5E5E5] dark:border-[#2A2A2A] text-[#888888] dark:text-[#666666]'
                   )}
                 >
                   {completed ? (
                     <Check size={16} strokeWidth={2.5} />
                   ) : current ? (
-                    <Play size={14} className="fill-current ml-0.5" />
-                  ) : locked ? (
-                    <Lock size={14} />
+                    <Play size={14} className="fill-current text-white ml-0.5" />
                   ) : (
-                    <span>{day.id < 10 ? `0${day.id}` : day.id}</span>
+                    <Lock size={14} />
                   )}
                 </div>
               </div>

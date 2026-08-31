@@ -39,12 +39,14 @@ export function InteractiveTerminal({
   const [copied, setCopied] = useState(false);
   const [isFocused, setIsFocused] = useState(true);
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [history, inputVal]);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, [history]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -179,7 +181,7 @@ export function InteractiveTerminal({
       </div>
 
       {/* Terminal Output Stream */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#050505] text-[#00FF66] font-mono text-xs leading-relaxed select-text">
+      <div ref={scrollContainerRef} className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#050505] text-[#00FF66] font-mono text-xs leading-relaxed select-text">
         {history.map((item) => (
           <div key={item.id} className="space-y-1">
             {item.command && (
@@ -190,7 +192,7 @@ export function InteractiveTerminal({
             )}
             {item.output && (
               <pre className={`whitespace-pre-wrap font-mono text-[11px] leading-relaxed ${
-                item.isError ? 'text-rose-400' : 'text-zinc-300'
+                item.isError ? 'text-rose-400' : 'text-zinc-[#D4D4D4]'
               }`}>
                 {item.output}
               </pre>
@@ -208,7 +210,6 @@ export function InteractiveTerminal({
             }`}
           />
         </div>
-        <div ref={bottomRef} />
       </div>
     </div>
   );

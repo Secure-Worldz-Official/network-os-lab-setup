@@ -152,18 +152,18 @@ export function CandyCrushPath({ isComplete }: CandyCrushPathProps) {
                       className={cn(
                         'relative w-14 h-14 sm:w-20 sm:h-20 rounded-full border-4 flex items-center justify-center font-mono text-xs sm:text-base font-extrabold transition-all duration-300 shadow-md card-lift cursor-pointer shrink-0',
                         node.completed
-                          ? 'bg-[#111111] dark:bg-white border-[#111111] dark:border-white text-white dark:text-[#080808] shadow-emerald-500/20'
+                          ? 'bg-emerald-600 dark:bg-white border-emerald-600 dark:border-white text-white dark:text-[#080808] shadow-emerald-500/20'
                           : node.current
-                          ? 'bg-white dark:bg-[#141414] border-[#111111] dark:border-white text-[#111111] dark:text-white ring-4 ring-[#111111]/20 dark:ring-white/20 animate-pulse scale-105'
-                          : 'bg-white dark:bg-[#101010] border-[#E5E5E5] dark:border-[#2A2A2A] text-[#111111] dark:text-white'
+                          ? 'bg-emerald-600 dark:bg-emerald-500 border-emerald-600 dark:border-emerald-500 text-white shadow-lg ring-4 ring-emerald-500/30 animate-pulse scale-105'
+                          : 'bg-[#FAFAFA] dark:bg-[#101010] border-[#E5E5E5] dark:border-[#2A2A2A] text-[#888888] dark:text-[#666666]'
                       )}
                     >
                       {node.completed ? (
                         <Check size={22} strokeWidth={3} />
                       ) : node.current ? (
-                        <Play size={20} className="fill-current ml-0.5" />
+                        <Play size={20} className="fill-current text-white ml-0.5" />
                       ) : (
-                        <span>0{node.day.id}</span>
+                        <Lock size={18} />
                       )}
 
                       {/* Active Indicator Badge */}
@@ -216,13 +216,13 @@ export function CandyCrushPath({ isComplete }: CandyCrushPathProps) {
                         className={cn(
                           'block w-full py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider transition-all mt-2 text-center',
                           node.completed
-                            ? 'bg-[#F0F0F0] dark:bg-[#1E1E1E] text-[#111111] dark:text-white hover:bg-[#111111] hover:text-white dark:hover:bg-white dark:hover:text-[#080808]'
-                            : 'bg-[#111111] text-white dark:bg-white dark:text-[#080808] font-extrabold shadow-sm hover:scale-[1.02]'
+                            ? 'bg-[#F0F0F0] dark:bg-[#1E1E1E] text-[#111111] dark:text-white hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500'
+                            : 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-extrabold shadow-sm hover:scale-[1.02]'
                         )}
                       >
                         <span className={cn(
                           "inline-block font-extrabold",
-                          node.completed ? "text-[#111111] dark:text-white" : "text-white dark:text-[#080808]"
+                          node.completed ? "text-[#111111] dark:text-white" : "text-white"
                         )}>
                           {node.completed ? 'REVIEW LESSON' : 'START LESSON →'}
                         </span>
