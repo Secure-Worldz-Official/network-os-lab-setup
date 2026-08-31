@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, ChevronRight, BookOpen } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronRight, BookOpen, Lock } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import type { Day } from '@/data/roadmap';
 import { cn } from '@/lib/utils';
@@ -9,11 +9,55 @@ interface DayCardProps {
   day: Day;
   moduleId: string;
   isComplete: boolean;
+  isLocked?: boolean;
   index: number;
 }
 
-export function DayCard({ day, moduleId, isComplete, index }: DayCardProps) {
+export function DayCard({ day, moduleId, isComplete, isLocked = false, index }: DayCardProps) {
   const to = `/roadmap/${moduleId}/${day.slug}`;
+
+  if (isLocked) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: index * 0.03 }}
+      >
+        <div
+          className="flex items-center justify-between gap-3.5 sm:gap-4 p-3.5 sm:p-4 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#0D0D0D] opacity-60 cursor-not-allowed font-mono select-none"
+          title={`Complete Day ${day.id - 1} to unlock this lesson`}
+        >
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+            <div className="shrink-0">
+              <Lock size={18} className="text-[#888888] dark:text-[#666666]" />
+            </div>
+
+            <div className="shrink-0 w-8 h-8 rounded-lg bg-[#F0F0F0] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] flex items-center justify-center text-xs font-mono font-bold text-[#888888] dark:text-[#666666]">
+              {day.id < 10 ? `0${day.id}` : day.id}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm font-semibold text-[#888888] dark:text-[#666666] truncate">
+                  {day.title}
+                </span>
+                <Badge variant="locked" size="sm">
+                  Locked
+                </Badge>
+              </div>
+              <p className="text-[11px] sm:text-xs text-[#888888] dark:text-[#666666] mt-0.5 line-clamp-1 font-sans">
+                {day.learn[0]}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 text-[#888888] dark:text-[#666666]">
+            <Lock size={14} />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -25,7 +69,7 @@ export function DayCard({ day, moduleId, isComplete, index }: DayCardProps) {
         to={to}
         id={`day-card-${moduleId}-${day.id}`}
         className={cn(
-          'group flex items-center justify-between gap-3.5 sm:gap-4 p-3.5 sm:p-4 rounded-xl border transition-all duration-150 font-mono',
+          'group flex items-center justify-between gap-3.5 sm:gap-4 p-3.5 sm:p-4 rounded-xl border transition-all duration-150 font-mono card-lift',
           isComplete
             ? 'bg-[#F7F7F7] dark:bg-[#181818] border-[#111111] dark:border-white shadow-xs'
             : 'bg-white dark:bg-[#141414] border-[#E5E5E5] dark:border-[#2A2A2A] hover:bg-[#FAFAFA] dark:hover:bg-[#181818] hover:border-[#111111] dark:hover:border-zinc-500 shadow-xs'

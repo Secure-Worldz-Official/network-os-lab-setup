@@ -1,371 +1,229 @@
 import { Link } from 'react-router-dom';
 import { useCyberPath } from '@/context/CyberPathContext';
-import { rooms, learningPaths, badges } from '@/data/cyberpathData';
-import { 
-  Shield, 
-  Terminal, 
-  Activity, 
-  ArrowRight,
-  Trophy
-} from 'lucide-react';
+import { useProgress } from '@/hooks/useProgress';
+import { rooms } from '@/data/cyberpathData';
+import { roadmap } from '@/data/roadmap';
+import { Compass, Terminal, Shield, ArrowRight, Play, CheckCircle2 } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 
 export function DashboardPage() {
-  const { 
-    username, 
-    xp, 
-    level, 
-    levelName, 
-    streak, 
-    completedRooms, 
-    completedTasks,
-    completedChallenges,
-    unlockedBadges,
-    activeLab,
-    recentActivity
-  } = useCyberPath();
+  const { username, xp, level, levelName, completedRooms, activeLab } = useCyberPath();
+  const progress = useProgress();
+  const overall = progress.overallProgress();
+  const overallPct = overall.total > 0 ? Math.round((overall.done / overall.total) * 100) : 0;
 
-  // Find user's active/current path and current room/task
-  const currentPath = learningPaths[0];
-  const activeRoomId = activeLab?.roomId || 'nmap-fundamentals';
-  const currentRoom = rooms.find(r => r.id === activeRoomId) || rooms[0];
-  const currentTasksDone = currentRoom.tasks.filter(t => completedTasks.has(t.id)).length;
-  const currentTaskProgressPct = currentRoom.tasks.length > 0 
-    ? Math.round((currentTasksDone / currentRoom.tasks.length) * 100) 
-    : 0;
+  // Find the user's next incomplete lesson from Learning Lab
+  let pendingLesson: { module: typeof roadmap[0]; day: typeof roadmap[0]['days'][0] } | null = null;
+  for (const mod of roadmap) {
+    for (const d of mod.days) {
+      if (!progress.isComplete(mod.id, d.id)) {
+        pendingLesson = { module: mod, day: d };
+        break;
+      }
+    }
+    if (pendingLesson) break;
+  }
+
+  // Find user's pending / next experiment from Experiment Lab
+  const activeRoom = activeLab ? rooms.find((r) => r.id === activeLab.roomId) : null;
+  const pendingExperiment = activeRoom || rooms.find((r) => !completedRooms.includes(r.id)) || rooms[0];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 select-none font-mono pb-8">
-      
-      {/* 1. Command Center Header (Rule 7, 9, 25) */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-6">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-bold text-[#888888] dark:text-[#777777] uppercase tracking-widest mb-1.5">
-            <Shield size={13} className="text-[#111111] dark:text-white" />
-            <span>CYBERPATH COMMAND CENTER</span>
+    <div className="max-w-5xl mx-auto space-y-10 select-none font-mono pb-16">
+      {/* ─── SECTION 1: PERSONALIZED WELCOME & PROGRESS SUMMARY ─── */}
+      <div className="p-6 sm:p-8 rounded-2xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#101010] space-y-6 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-[10px] font-bold text-[#888888] dark:text-[#777777] uppercase tracking-widest">
+              <Shield size={14} className="text-[#111111] dark:text-white" />
+              <span>OPERATIVE OVERVIEW // COMMAND DASHBOARD</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#111111] dark:text-white font-heading tracking-tight uppercase leading-tight">
+              WELCOME BACK, {username.toUpperCase()}.
+            </h1>
+            <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans max-w-2xl leading-relaxed">
+              Clearance Level {level} — {levelName}. Review your active learning path and launch practical experiment targets.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-[#111111] dark:text-white font-heading tracking-tight uppercase leading-none">
-            WELCOME BACK, {username.toUpperCase()}.
-          </h1>
-          <p className="text-xs text-[#666666] dark:text-[#999999] font-sans mt-1.5">
-            Track your training progress, resume your active virtual labs, and complete tactical CTF missions.
-          </p>
+
+          <div className="flex items-center gap-4 shrink-0 font-mono text-xs">
+            <div className="p-3.5 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] text-right space-y-0.5">
+              <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] block">ACCUMULATED XP</span>
+              <span className="text-lg font-extrabold text-[#111111] dark:text-white font-heading">{xp.toLocaleString()} XP</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <Link to="/labs" className="btn-cyber-secondary text-xs py-2 px-4">
-            <Terminal size={14} />
-            <span>EXPLORE LABS</span>
+        {/* Real Overall Progress Summary Bar */}
+        <div className="space-y-2 pt-1">
+          <div className="flex justify-between items-center text-xs font-bold text-[#111111] dark:text-white">
+            <span className="text-[10px] uppercase text-[#888888] dark:text-[#777777] font-mono">
+              CURRICULUM OVERALL COMPLETION
+            </span>
+            <span>{overall.done} / {overall.total} LESSONS COMPLETED ({overallPct}%)</span>
+          </div>
+          <ProgressBar value={overallPct} size="md" />
+        </div>
+      </div>
+
+      {/* ─── SECTION 2: PENDING FROM LEARNING LAB ─── */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
+          <div className="flex items-center gap-2.5">
+            <Compass size={18} className="text-[#111111] dark:text-white" />
+            <h2 className="text-base font-extrabold text-[#111111] dark:text-white font-heading uppercase tracking-wide">
+              PENDING FROM LEARNING LAB
+            </h2>
+          </div>
+          <Link
+            to="/learn"
+            className="text-xs font-bold text-[#111111] dark:text-white hover:underline flex items-center gap-1.5 font-mono"
+          >
+            <span>VIEW ALL LESSONS</span>
+            <ArrowRight size={13} />
           </Link>
         </div>
-      </div>
 
-      {/* 2. Current Learning Hero (Rule 7, 8, 9, 10, 11) - Clear Primary Action Hierarchy */}
-      <div className="p-6 sm:p-7 rounded-md border border-[#111111] dark:border-white bg-white dark:bg-[#141414] space-y-5 shadow-sm relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-[#888888] dark:text-[#777777] uppercase tracking-widest block">
-              // CURRENT LEARNING PATH: {currentPath.title.toUpperCase()}
-            </span>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#111111] dark:text-white font-heading uppercase tracking-tight">
-              CURRENT LEARNING
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              to="/learn"
-              className="btn-cyber-ghost text-xs py-2 px-3 hidden sm:inline-flex"
-            >
-              VIEW ALL PATHS
-            </Link>
-            {/* ONE OBVIOUS PRIMARY CTA (Rule 2 & 8) */}
-            <Link
-              to={`/labs/${currentRoom.id}`}
-              className="btn-cyber-primary text-xs py-2.5 px-6 shrink-0"
-              id="dashboard-continue-learning-cta"
-            >
-              <span>CONTINUE LEARNING →</span>
-            </Link>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
-          <div className="space-y-3 col-span-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-bold text-[#888888] dark:text-[#777777]">ACTIVE MODULE:</span>
-              <span className="text-xs font-bold text-[#111111] dark:text-white font-heading uppercase">{currentRoom.title}</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[#111111] dark:text-white uppercase">
-                {currentRoom.difficulty}
-              </span>
-            </div>
-
-            <p className="text-xs text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
-              {currentRoom.description}
-            </p>
-
-            <div className="space-y-1.5 pt-2">
-              <div className="flex justify-between text-xs font-bold text-[#111111] dark:text-white">
-                <span className="text-[10px] uppercase text-[#888888] dark:text-[#777777]">TASK COMPLETION</span>
-                <span>0{currentTasksDone} / 0{currentRoom.tasks.length} TASKS ({currentTaskProgressPct}%)</span>
+        {pendingLesson ? (
+          <div className="p-6 sm:p-7 rounded-2xl border border-[#111111] dark:border-white bg-white dark:bg-[#141414] space-y-5 shadow-xs transition-all card-lift">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[#111111] dark:text-white uppercase font-mono">
+                    MODULE 0{pendingLesson.module.number}
+                  </span>
+                  <span className="text-[10px] font-bold text-[#888888] dark:text-[#777777] font-mono uppercase">
+                    DAY 0{pendingLesson.day.id}
+                  </span>
+                </div>
+                <h3 className="text-xl font-extrabold text-[#111111] dark:text-white font-heading uppercase tracking-tight">
+                  {pendingLesson.day.title}
+                </h3>
               </div>
-              <ProgressBar value={currentTaskProgressPct} size="md" />
-            </div>
-          </div>
 
-          <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-3 flex flex-col justify-between">
-            <div className="space-y-1">
-              <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] block">TARGET LAB ENVIRONMENT</span>
-              <p className="font-bold text-[#111111] dark:text-white text-sm">10.10.20.15</p>
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">
-                ● VPN PRIVATE ACCESS READY
-              </span>
-            </div>
-
-            <div className="text-[11px] text-[#555555] dark:text-[#B5B5B5] space-y-1 pt-2 border-t border-[#E5E5E5] dark:border-[#2A2A2A]">
-              <div className="flex justify-between">
-                <span>ESTIMATED TIME:</span>
-                <span className="font-bold text-[#111111] dark:text-white">{currentRoom.duration.toUpperCase()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>TASK REWARD:</span>
-                <span className="font-bold text-[#111111] dark:text-white">+{currentRoom.xp} XP</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Active Lab Status or Empty State (Rule 9 & 29) */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2">
-          <div className="flex items-center gap-2">
-            <Terminal size={14} className="text-[#111111] dark:text-white" />
-            <h2 className="text-xs font-bold text-[#111111] dark:text-white font-heading uppercase tracking-wide">
-              ACTIVE VIRTUAL LAB SESSION
-            </h2>
-          </div>
-        </div>
-
-        {activeLab ? (
-          <div className="p-5 rounded-md border border-[#111111] dark:border-white bg-[#FAFAFA] dark:bg-[#141414] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-extrabold text-[#111111] dark:text-white font-heading uppercase">
-                  {activeLab.roomTitle}
-                </span>
-                <span className="text-[10px] text-[#888888] dark:text-[#777777] font-mono">
-                  ({activeLab.targetIp})
-                </span>
-              </div>
-              <p className="text-xs text-[#555555] dark:text-[#B5B5B5] font-sans">
-                Target instance is running. You can execute commands, query open ports, or analyze live web traffic.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3 shrink-0">
               <Link
-                to={`/labs/${activeLab.roomId}`}
-                className="btn-cyber-primary text-xs py-2 px-5"
+                to={`/roadmap/${pendingLesson.module.id}/${pendingLesson.day.slug}`}
+                className="btn-cyber-primary text-xs py-3 px-6 shrink-0 flex items-center gap-2"
+                id="dashboard-resume-learning-cta"
               >
-                <span>RESUME LAB →</span>
+                <Play size={14} className="fill-current" />
+                <span>RESUME LESSON →</span>
               </Link>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
+                {pendingLesson.day.learn[0]}
+              </p>
+
+              <div className="p-4 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-2 font-mono text-xs">
+                <span className="text-[10px] font-bold uppercase text-[#888888] dark:text-[#777777] block">
+                  KEY OBJECTIVE:
+                </span>
+                <p className="text-[#111111] dark:text-white font-sans text-xs">
+                  {pendingLesson.day.doLab[0] || 'Complete interactive visual demonstration and confirm technical concepts.'}
+                </p>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="p-6 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] text-center space-y-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#EFEFEF] dark:bg-[#1E1E1E] flex items-center justify-center mx-auto text-[#666666] dark:text-[#999999]">
-              <Terminal size={16} />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-xs font-bold text-[#111111] dark:text-white uppercase font-heading">
-                NO ACTIVE LAB RUNNING
-              </h3>
-              <p className="text-xs text-[#666666] dark:text-[#999999] font-sans max-w-sm mx-auto">
-                You don't have an active lab instance right now. Choose a practical room to initialize a target machine.
-              </p>
-            </div>
-            <Link to="/labs" className="inline-block pt-1">
-              <button className="btn-cyber-secondary text-xs py-1.5 px-4">
-                <span>EXPLORE ALL LABS →</span>
-              </button>
-            </Link>
+          <div className="p-6 rounded-2xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] text-center space-y-3">
+            <CheckCircle2 size={24} className="text-emerald-600 dark:text-emerald-400 mx-auto" />
+            <h3 className="text-sm font-bold text-[#111111] dark:text-white uppercase font-heading">
+              ALL LEARNING LAB LESSONS COMPLETED
+            </h3>
+            <p className="text-xs text-[#555555] dark:text-[#B5B5B5] font-sans">
+              You have completed all current curriculum modules!
+            </p>
           </div>
         )}
       </div>
 
-      {/* 4. Overall Progress Summary Grid (Rule 9 & 17 - Summary on Dashboard, Detail on /progress) */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2">
-          <div className="flex items-center gap-2">
-            <Activity size={14} className="text-[#111111] dark:text-white" />
-            <h2 className="text-xs font-bold text-[#111111] dark:text-white font-heading uppercase tracking-wide">
-              TRAINING PROGRESS OVERVIEW
-            </h2>
-          </div>
-          <Link to="/progress" className="text-[11px] font-bold text-[#111111] dark:text-white hover:underline flex items-center gap-1">
-            <span>VIEW FULL PROGRESS</span>
-            <ArrowRight size={12} />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
-          <div className="p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-1">
-            <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">OPERATIVE LEVEL</span>
-            <p className="text-lg font-extrabold text-[#111111] dark:text-white font-heading">LVL {level}</p>
-            <span className="text-[10px] text-[#666666] dark:text-[#B5B5B5] truncate block">{levelName}</span>
-          </div>
-
-          <div className="p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-1">
-            <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">TOTAL XP SCORE</span>
-            <p className="text-lg font-extrabold text-[#111111] dark:text-white font-heading">{xp.toLocaleString()}</p>
-            <span className="text-[10px] text-[#666666] dark:text-[#B5B5B5] block">Clearance Rank #1</span>
-          </div>
-
-          <div className="p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-1">
-            <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">DAILY STREAK</span>
-            <p className="text-lg font-extrabold text-[#111111] dark:text-white font-heading">{streak} DAYS</p>
-            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">● Daily Active</span>
-          </div>
-
-          <div className="p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-1">
-            <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">LABS SOLVED</span>
-            <p className="text-lg font-extrabold text-[#111111] dark:text-white font-heading">{completedRooms.length} / {rooms.length}</p>
-            <span className="text-[10px] text-[#666666] dark:text-[#B5B5B5] block">{Math.round((completedRooms.length / rooms.length) * 100)}% Complete</span>
-          </div>
-
-          <div className="p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-1 col-span-2 sm:col-span-1">
-            <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] tracking-widest block">CTF CHALLENGES</span>
-            <p className="text-lg font-extrabold text-[#111111] dark:text-white font-heading">{completedChallenges.length} SOLVED</p>
-            <span className="text-[10px] text-[#666666] dark:text-[#B5B5B5] block">{unlockedBadges.length} Badges Earned</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 5. Featured Practical Labs (Rule 9 & 13) */}
+      {/* ─── SECTION 3: PENDING FROM EXPERIMENT LAB ─── */}
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
-          <div className="flex items-center gap-2">
-            <Terminal size={14} className="text-[#111111] dark:text-white" />
-            <h2 className="text-sm font-bold text-[#111111] dark:text-white font-heading uppercase tracking-wide">
-              FEATURED PRACTICAL LABS
+          <div className="flex items-center gap-2.5">
+            <Terminal size={18} className="text-[#111111] dark:text-white" />
+            <h2 className="text-base font-extrabold text-[#111111] dark:text-white font-heading uppercase tracking-wide">
+              PENDING FROM EXPERIMENT LAB
             </h2>
           </div>
-          <Link to="/labs" className="text-xs font-bold text-[#111111] dark:text-white hover:underline flex items-center gap-1">
-            <span>VIEW ALL LABS ({rooms.length})</span>
-            <ArrowRight size={12} />
+          <Link
+            to="/labs"
+            className="text-xs font-bold text-[#111111] dark:text-white hover:underline flex items-center gap-1.5 font-mono"
+          >
+            <span>EXPLORE ALL EXPERIMENTS</span>
+            <ArrowRight size={13} />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
-          {rooms.slice(0, 3).map((room) => {
-            const isDone = completedRooms.includes(room.id);
-            const doneTasksCount = room.tasks.filter(t => completedTasks.has(t.id)).length;
-
-            return (
-              <div key={room.id} className="cyber-card p-5 space-y-3 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-[#888888] dark:text-[#777777] uppercase">{room.category}</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[#111111] dark:text-white uppercase">
-                      {room.difficulty}
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-sm text-[#111111] dark:text-white font-heading uppercase leading-tight">
-                    {room.title}
-                  </h3>
-
-                  <p className="text-xs text-[#555555] dark:text-[#B5B5B5] font-sans line-clamp-2 leading-relaxed">
-                    {room.description}
-                  </p>
+        {pendingExperiment ? (
+          <div className="p-6 sm:p-7 rounded-2xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-5 shadow-xs transition-all card-lift">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 uppercase font-mono">
+                    {activeLab ? '● ACTIVE SESSION' : 'READY TO START'}
+                  </span>
+                  <span className="text-[10px] font-bold text-[#888888] dark:text-[#777777] font-mono uppercase">
+                    {pendingExperiment.category}
+                  </span>
                 </div>
+                <h3 className="text-xl font-extrabold text-[#111111] dark:text-white font-heading uppercase tracking-tight">
+                  {pendingExperiment.title}
+                </h3>
+              </div>
 
-                <div className="space-y-3 pt-3 border-t border-[#E5E5E5] dark:border-[#2A2A2A]">
-                  <div className="flex justify-between text-[11px] text-[#666666] dark:text-[#B5B5B5]">
-                    <span>TASKS: {doneTasksCount}/{room.tasks.length}</span>
-                    <span className="font-bold text-[#111111] dark:text-white">+{room.xp} XP</span>
-                  </div>
+              <Link
+                to={`/labs/${pendingExperiment.id}`}
+                className="btn-cyber-primary text-xs py-3 px-6 shrink-0 flex items-center gap-2"
+                id="dashboard-resume-experiment-cta"
+              >
+                <Terminal size={14} />
+                <span>{activeLab ? 'RESUME EXPERIMENT →' : 'LAUNCH EXPERIMENT →'}</span>
+              </Link>
+            </div>
 
-                  <Link
-                    to={`/labs/${room.id}`}
-                    className={isDone ? "block w-full text-center btn-cyber-secondary text-xs py-2" : "block w-full text-center btn-cyber-primary text-xs py-2"}
-                  >
-                    {isDone ? 'RE-VISIT LAB →' : 'START LAB →'}
-                  </Link>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs font-mono">
+              <div className="col-span-2 space-y-2">
+                <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
+                  {pendingExperiment.description}
+                </p>
+                <div className="flex items-center gap-3 pt-2 text-[11px] text-[#888888] dark:text-[#777777]">
+                  <span>DIFFICULTY: <strong className="text-[#111111] dark:text-white">{pendingExperiment.difficulty.toUpperCase()}</strong></span>
+                  <span>·</span>
+                  <span>ESTIMATED: <strong className="text-[#111111] dark:text-white">{pendingExperiment.duration.toUpperCase()}</strong></span>
+                  <span>·</span>
+                  <span>REWARD: <strong className="text-[#111111] dark:text-white">+{pendingExperiment.xp} XP</strong></span>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* 6. Recent Security Activity & Achievements Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Activity Feed */}
-        <div className="p-5 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-4 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2">
-            <h3 className="text-xs font-bold text-[#111111] dark:text-white font-heading uppercase tracking-wide flex items-center gap-2">
-              <Activity size={13} />
-              RECENT AUDITOR ACTIVITIES
-            </h3>
-            <Link to="/progress" className="text-[10px] text-[#888888] dark:text-[#777777] hover:text-[#111111] dark:hover:text-white">
-              ALL ACTIVITIES →
-            </Link>
-          </div>
-
-          <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
-            {recentActivity.slice(0, 4).map((act) => (
-              <div key={act.id} className="text-xs border-b border-[#F0F0F0] dark:border-[#1E1E1E] pb-2 space-y-0.5">
-                <p className="font-sans text-[#111111] dark:text-white font-medium truncate">{act.text}</p>
-                <span className="text-[9px] text-[#888888] dark:text-[#777777] font-mono">
-                  {new Date(act.timestamp).toLocaleDateString()} AT {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Clearance Credentials */}
-        <div className="p-5 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-4 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2">
-            <h3 className="text-xs font-bold text-[#111111] dark:text-white font-heading uppercase tracking-wide flex items-center gap-2">
-              <Trophy size={13} />
-              CLEARANCE ACHIEVEMENTS ({unlockedBadges.length}/{badges.length})
-            </h3>
-            <Link to="/achievements" className="text-[10px] text-[#888888] dark:text-[#777777] hover:text-[#111111] dark:hover:text-white">
-              VIEW BADGES →
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            {badges.slice(0, 3).map((badge) => {
-              const unlocked = unlockedBadges.includes(badge.id);
-              return (
-                <div 
-                  key={badge.id} 
-                  className={`p-3 rounded border text-center space-y-1.5 ${
-                    unlocked 
-                      ? 'bg-[#FAFAFA] dark:bg-[#181818] border-[#111111] dark:border-white' 
-                      : 'bg-[#F7F7F7] dark:bg-[#101010] border-[#E5E5E5] dark:border-[#2A2A2A] opacity-60'
-                  }`}
-                >
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center mx-auto text-xs ${
-                    unlocked ? 'bg-[#111111] dark:bg-white text-white dark:text-black' : 'bg-[#E5E5E5] dark:bg-[#202020] text-[#888888]'
-                  }`}>
-                    <Trophy size={12} />
-                  </div>
-                  <p className="text-[9px] font-bold text-[#111111] dark:text-white truncate uppercase">{badge.title}</p>
+              <div className="p-4 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-2 flex flex-col justify-between">
+                <div className="space-y-1">
+                  <span className="text-[9px] uppercase font-bold text-[#888888] dark:text-[#777777] block">TARGET ENVIRONMENT</span>
+                  <p className="font-extrabold text-[#111111] dark:text-white text-sm">10.10.20.15</p>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">
+                    ● PRIVATE SUBNET READY
+                  </span>
                 </div>
-              );
-            })}
+                <div className="text-[10px] text-[#888888] dark:text-[#777777] pt-2 border-t border-[#E5E5E5] dark:border-[#2A2A2A]">
+                  Tasks: {pendingExperiment.tasks.filter(() => completedRooms.includes(pendingExperiment.id)).length} / {pendingExperiment.tasks.length} Completed
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
+        ) : (
+          <div className="p-6 rounded-2xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#141414] text-center space-y-3">
+            <CheckCircle2 size={24} className="text-emerald-600 dark:text-emerald-400 mx-auto" />
+            <h3 className="text-sm font-bold text-[#111111] dark:text-white uppercase font-heading">
+              ALL EXPERIMENTS SOLVED
+            </h3>
+            <p className="text-xs text-[#555555] dark:text-[#B5B5B5] font-sans">
+              You have completed all available practical lab experiments!
+            </p>
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

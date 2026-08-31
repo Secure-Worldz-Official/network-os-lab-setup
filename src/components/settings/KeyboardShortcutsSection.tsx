@@ -1,18 +1,13 @@
 import { useState } from 'react';
-import { Keyboard, Search } from 'lucide-react';
+import { Keyboard } from 'lucide-react';
 import { PLATFORM_SHORTCUTS } from '@/hooks/useKeyboardShortcuts';
 
 export function KeyboardShortcutsSection() {
-  const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState<'All' | 'Navigation' | 'Actions' | 'Terminal'>('All');
 
   const filtered = PLATFORM_SHORTCUTS.filter((s) => {
     const matchesCat = selectedCat === 'All' || s.category === selectedCat;
-    const matchesSearch =
-      s.combo.toLowerCase().includes(search.toLowerCase()) ||
-      s.label.toLowerCase().includes(search.toLowerCase()) ||
-      s.description.toLowerCase().includes(search.toLowerCase());
-    return matchesCat && matchesSearch;
+    return matchesCat;
   });
 
   return (
@@ -26,21 +21,8 @@ export function KeyboardShortcutsSection() {
               COMMAND HOTKEYS & KEYBOARD SHORTCUTS
             </h3>
             <p className="text-xs text-[#666666] dark:text-[#B5B5B5] font-sans">
-              Navigate throughout CyberPath rapidly using multi-key navigation chords and terminal shortcuts.
+              Navigate throughout Networking OS Lab rapidly using multi-key navigation chords and terminal shortcuts.
             </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search size={13} className="absolute left-2.5 top-2.5 text-[#888888] dark:text-[#777777]" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search shortcuts..."
-                className="bg-[#FAFAFA] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded pl-8 pr-3 py-1.5 text-xs text-[#111111] dark:text-white outline-none focus:border-[#111111] dark:focus:border-white font-mono w-44"
-              />
-            </div>
           </div>
         </div>
 

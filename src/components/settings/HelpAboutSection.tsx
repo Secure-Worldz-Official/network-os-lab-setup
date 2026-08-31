@@ -163,7 +163,7 @@ export function HelpAboutSection() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="font-extrabold text-base text-[#111111] dark:text-white font-heading uppercase tracking-wider">
-                  CYBERPATH TRAINING PLATFORM
+                  NETWORKING OS LAB PLATFORM
                 </h2>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-[#F7F7F7] dark:bg-[#202020] border border-[#E5E5E5] dark:border-[#2A2A2A] text-[#111111] dark:text-white font-bold">
                   v1.0.0
@@ -182,7 +182,7 @@ export function HelpAboutSection() {
         </div>
 
         <p className="text-xs text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
-          CyberPath is a next-generation cybersecurity learning and tactical simulation platform. Designed for security researchers, ethical hackers, SOC analysts, and network defenders to master offensive operations and blue-team defense in isolated container environments.
+          Networking OS Lab is a next-generation cybersecurity learning and tactical simulation platform. Designed for security researchers, ethical hackers, SOC analysts, and network defenders to master offensive operations and blue-team defense in isolated container environments.
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-xs">

@@ -38,11 +38,11 @@ const secondaryNavItems = [
 
 export function Sidebar({ mobile, onClose }: SidebarProps) {
   const location = useLocation();
-  const { 
-    xp, 
-    level, 
-    levelName, 
-    streak, 
+  const {
+    xp,
+    level,
+    levelName,
+    streak,
     completedRooms,
     activeLab
   } = useCyberPath();
@@ -52,7 +52,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       return location.pathname === '/dashboard' || location.pathname === '/';
     }
     if (location.pathname.startsWith(to)) return true;
-    return aliases.some(alias => location.pathname.startsWith(alias));
+    return aliases.some((alias) => location.pathname.startsWith(alias));
   };
 
   return (
@@ -70,7 +70,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
           className="flex items-center gap-3 group"
           onClick={onClose}
         >
-          <div className="w-8 h-8 rounded bg-[#111111] dark:bg-white flex items-center justify-center text-white dark:text-[#080808] font-bold group-hover:bg-[#333333] dark:group-hover:bg-[#E5E5E5] transition-all">
+          <div className="w-8 h-8 rounded-lg bg-[#111111] dark:bg-white flex items-center justify-center text-white dark:text-[#080808] font-bold group-hover:scale-105 transition-all">
             <Shield size={16} strokeWidth={2.5} />
           </div>
           <div className="flex flex-col">
@@ -86,7 +86,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded text-[#666666] dark:text-[#999999] hover:text-[#111111] dark:hover:text-white hover:bg-[#E5E5E5] dark:hover:bg-[#202020] transition-colors"
+            className="p-1.5 rounded-lg text-[#666666] dark:text-[#999999] hover:text-[#111111] dark:hover:text-white hover:bg-[#E5E5E5] dark:hover:bg-[#202020] transition-colors"
             aria-label="Close navigation"
           >
             <X size={18} />
@@ -98,7 +98,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
         <div>
           <p className="px-3 mb-2 text-[9px] uppercase tracking-widest text-[#888888] dark:text-[#777777] font-bold">
-            // MAIN DESTINATIONS
+            MAIN DESTINATIONS
           </p>
           <nav className="space-y-1">
             {primaryNavItems.map(({ num, to, label, icon: Icon, aliases }) => {
@@ -110,7 +110,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                   to={to}
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 px-3.5 py-2.5 text-xs font-mono transition-all duration-150 rounded-[4px] border',
+                    'relative flex items-center gap-3 px-3.5 py-2.5 text-xs font-mono transition-all duration-150 rounded-lg border',
                     isActive
                       ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm'
                       : 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] hover:bg-[#FAFAFA] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white dark:hover:bg-[#181818]'
@@ -130,7 +130,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
         {/* Secondary Account / Preferences Navigation */}
         <div>
           <p className="px-3 mb-2 text-[9px] uppercase tracking-widest text-[#888888] dark:text-[#777777] font-bold">
-            // OPERATIVE SYSTEM
+            OPERATIVE SYSTEM
           </p>
           <nav className="space-y-1">
             {secondaryNavItems.map(({ to, label, icon: Icon }) => {
@@ -142,7 +142,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                   to={to}
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 px-3.5 py-2 text-xs font-mono transition-all duration-150 rounded-[4px] border',
+                    'flex items-center gap-3 px-3.5 py-2 text-xs font-mono transition-all duration-150 rounded-lg border',
                     isActive
                       ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm'
                       : 'bg-transparent text-[#666666] border-transparent hover:border-[#E5E5E5] hover:bg-white dark:text-[#999999] dark:border-transparent dark:hover:border-[#2A2A2A] dark:hover:bg-[#141414] dark:hover:text-white'
@@ -156,9 +156,9 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
           </nav>
         </div>
 
-        {/* Active Lab Quick Widget (Contextual Action, NOT a top destination) */}
+        {/* Active Lab Quick Widget */}
         {activeLab && (
-          <div className="p-3 rounded-md bg-white dark:bg-[#141414] border border-[#111111] dark:border-white space-y-2.5 shadow-sm">
+          <div className="p-3.5 rounded-lg bg-white dark:bg-[#141414] border border-[#111111] dark:border-white space-y-2.5 shadow-xs">
             <div className="flex items-center justify-between text-[10px] font-bold text-[#111111] dark:text-white">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -172,7 +172,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
             <Link
               to={`/labs/${activeLab.roomId}`}
               onClick={onClose}
-              className="block w-full text-center py-1.5 bg-[#111111] dark:bg-white text-white dark:text-black text-[10px] rounded font-bold hover:bg-[#333333] dark:hover:bg-[#E5E5E5] transition-colors uppercase tracking-wider"
+              className="block w-full text-center py-1.5 bg-[#111111] dark:bg-white text-white dark:text-black text-[10px] rounded-md font-bold hover:bg-[#333333] dark:hover:bg-[#E5E5E5] transition-colors uppercase tracking-wider"
             >
               RESUME LAB →
             </Link>
@@ -182,16 +182,16 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
 
       {/* Gamification Stats Footer */}
       <div className="px-4 py-3.5 border-t border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] flex flex-col gap-2.5 shrink-0">
-        <div className="grid grid-cols-3 gap-1 text-center font-mono text-[10px]">
-          <div className="p-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
+        <div className="grid grid-cols-3 gap-1.5 text-center font-mono text-[10px]">
+          <div className="p-1.5 rounded-md bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
             <div className="text-[#888888] dark:text-[#777777] text-[8px] uppercase">LEVEL</div>
             <div className="font-bold text-[#111111] dark:text-white">LVL {level}</div>
           </div>
-          <div className="p-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
+          <div className="p-1.5 rounded-md bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
             <div className="text-[#888888] dark:text-[#777777] text-[8px] uppercase">XP</div>
             <div className="font-bold text-[#111111] dark:text-white">{xp}</div>
           </div>
-          <div className="p-1 rounded bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
+          <div className="p-1.5 rounded-md bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A]">
             <div className="text-[#888888] dark:text-[#777777] text-[8px] uppercase">STREAK</div>
             <div className="font-bold text-[#111111] dark:text-white">{streak}D</div>
           </div>

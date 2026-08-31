@@ -3,13 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCyberPath } from '@/context/CyberPathContext';
 import { rooms, type RoomTask } from '@/data/cyberpathData';
-import { 
-  ArrowLeft, 
-  Terminal as TermIcon, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Terminal as TermIcon,
+  CheckCircle,
   ChevronRight,
-  Info, 
-  HelpCircle as QuizIcon,
+  Info,
   Play,
   Square,
   RotateCcw,
@@ -24,16 +23,18 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { InteractiveTerminal } from '@/components/terminal/InteractiveTerminal';
 import { WebLabTarget } from '@/components/lab/WebLabTarget';
 import { TaskValidator } from '@/lib/labServices';
+import { TechnicalVisual } from '@/components/roadmap/TechnicalVisual';
+import { cn } from '@/lib/utils';
 
 type ActiveTab = 'intro' | 'task' | 'quiz';
 
 export function RoomDetailPage() {
   const { roomId } = useParams<{ roomId: string }>();
-  
-  const { 
-    completedTasks, 
-    completeTask, 
-    completeRoom, 
+
+  const {
+    completedTasks,
+    completeTask,
+    completeRoom,
     completeQuiz,
     isQuizCompleted,
     activeLab,
@@ -50,7 +51,7 @@ export function RoomDetailPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [taskFeedback, setTaskFeedback] = useState<Record<string, { success: boolean; msg: string }>>({});
   const [showHints, setShowHints] = useState<Record<string, boolean>>({});
-  
+
   // Unlock animation and locked interaction toast state
   const [justUnlockedId, setJustUnlockedId] = useState<string | null>(null);
   const [lockedToast, setLockedToast] = useState<string | null>(null);
@@ -117,7 +118,7 @@ export function RoomDetailPage() {
   // Derived overall completion progress
   const completedRoomTasksCount = roomTasks.filter((t) => completedTasks.has(t.id)).length;
   const isExamDone = isQuizCompleted(room.id);
-  
+
   // Total steps = Intro (1) + Tasks (N) + Exam (1)
   const totalSteps = 1 + roomTasks.length + 1;
   const completedStepsCount = (isIntroCompleted ? 1 : 0) + completedRoomTasksCount + (isExamDone ? 1 : 0);
@@ -163,7 +164,7 @@ export function RoomDetailPage() {
   const handleCompleteIntro = () => {
     completeTask(introTaskId);
     triggerSuccessBanner('Task 01 Completed', 'Task 02 is now unlocked.');
-    
+
     // Unlock animation on task 0
     if (roomTasks.length > 0) {
       setJustUnlockedId(roomTasks[0].id);
@@ -188,7 +189,7 @@ export function RoomDetailPage() {
     if (result.success) {
       // 1. Mark current task as COMPLETED
       completeTask(task.id);
-      
+
       const isLastTask = taskIdx === roomTasks.length - 1;
       const nextTaskId = !isLastTask ? roomTasks[taskIdx + 1].id : 'quiz';
 
@@ -260,24 +261,26 @@ export function RoomDetailPage() {
 
     if (currentTask.isWebLab || room.isWebLab) {
       return (
-        <WebLabTarget 
-          targetIp={activeLab?.targetIp || '10.10.20.15'} 
-          onFlagSubmit={(flag) => setAnswers(prev => ({ ...prev, [currentTask.id]: flag }))} 
+        <WebLabTarget
+          targetIp={activeLab?.targetIp || '10.10.20.15'}
+          onFlagSubmit={(flag) => setAnswers(prev => ({ ...prev, [currentTask.id]: flag }))}
         />
       );
     }
 
     return (
-      <InteractiveTerminal 
+      <InteractiveTerminal
         targetIp={activeLab?.targetIp || '10.10.20.15'}
-        initialMessage={`Connected to CyberPath ${room.title} isolated container. Run CLI commands or type 'nmap ${activeLab?.targetIp || '10.10.20.15'}' to inspect the target.`}
+        roomId={room.id}
+        roomTitle={room.title}
+        initialMessage={`Connected to CyberPath ${room.title} isolated container. Run CLI commands or type 'help' to inspect target ${activeLab?.targetIp || '10.10.20.15'}.`}
       />
     );
   };
 
   return (
     <div className="flex flex-col h-full w-full select-none font-mono text-xs space-y-4 pb-4">
-      
+
       {/* ─── TOAST NOTIFICATIONS (Rule 9 & 25) ────────────────────────── */}
       <AnimatePresence>
         {lockedToast && (
@@ -312,23 +315,9 @@ export function RoomDetailPage() {
 
       {/* ─── 1. TOP BREADCRUMB & LAB CONTROLS BAR ────────────────────────── */}
       <div className="p-3.5 sm:p-4 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm shrink-0">
-        
-        {/* Left: Breadcrumbs & Lab Title */}
-        <div className="space-y-1">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[10px] text-[#888888] dark:text-[#777777]">
-            <Link to="/labs" className="hover:text-[#111111] dark:hover:text-white transition-colors font-bold uppercase">
-              LABS
-            </Link>
-            <ChevronRight size={10} />
-            <span className="font-bold text-[#111111] dark:text-white uppercase truncate max-w-[180px] sm:max-w-none">
-              {room.title}
-            </span>
-            <ChevronRight size={10} />
-            <span className="text-[#888888] dark:text-[#777777] uppercase font-bold">
-              {activeTab === 'intro' ? '01. INTRODUCTION' : activeTab === 'quiz' ? 'FINAL CERTIFICATION' : `0${selectedTaskIndex + 2}. ${currentTask?.title.toUpperCase()}`}
-            </span>
-          </nav>
 
+        {/* Left: Lab Title */}
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h1 className="text-base sm:text-lg font-extrabold text-[#111111] dark:text-white font-heading uppercase leading-none">
               {room.title}
@@ -393,10 +382,10 @@ export function RoomDetailPage() {
 
       {/* ─── 2. MAIN LAB WORKSPACE LAYOUT ────────────────────────── */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0 overflow-hidden">
-        
+
         {/* Left Column: SEQUENTIAL TASK LIST (Rule 3, 4, 5, 14, 16, 34) */}
         <div className="lg:col-span-4 xl:col-span-3 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#F7F7F7] dark:bg-[#101010] p-3 flex flex-col justify-between overflow-y-auto space-y-3">
-          
+
           <div className="space-y-3">
             {/* Progress Header */}
             <div className="space-y-1 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-2.5">
@@ -407,48 +396,52 @@ export function RoomDetailPage() {
               <ProgressBar value={progressPct} size="sm" />
             </div>
 
-            {/* Task Progression Stack */}
-            <div className="space-y-1.5">
-              
+            {/* Task Progression Stack (Vertical Timeline) */}
+            <div className="relative pl-1 space-y-2">
+
               {/* 01. INTRODUCTION */}
               {(() => {
                 const isCurrent = activeTab === 'intro';
                 return (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('intro')}
-                    className={`w-full text-left p-2.5 rounded-[4px] border transition-all flex items-start justify-between gap-2 cursor-pointer ${
-                      isCurrent
-                        ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm'
-                        : isIntroCompleted
-                        ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white'
-                        : 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white font-bold'
-                    }`}
-                  >
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-mono font-bold">01.</span>
-                        <span className="truncate uppercase font-heading text-[11px]">INTRODUCTION</span>
+                  <div className="relative">
+                    <div className={cn(
+                      "absolute left-[15px] top-[32px] bottom-[-12px] w-[2px] z-0",
+                      isIntroCompleted ? "bg-[#111111] dark:bg-white" : "bg-[#E5E5E5] dark:bg-[#2A2A2A]"
+                    )} />
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('intro')}
+                      className={`relative z-10 w-full text-left p-3 rounded-lg border transition-all flex items-start justify-between gap-2.5 cursor-pointer font-mono ${isCurrent
+                          ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-xs'
+                          : isIntroCompleted
+                            ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white'
+                            : 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white font-bold'
+                        }`}
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono font-bold">01.</span>
+                          <span className="truncate uppercase font-heading text-[11px]">INTRODUCTION</span>
+                        </div>
+                        <span className={`text-[9px] uppercase tracking-wider block ${isCurrent
+                            ? 'text-white/70 dark:text-black/70'
+                            : isIntroCompleted
+                              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                              : 'text-[#888888] dark:text-[#777777]'
+                          }`}>
+                          {isIntroCompleted ? '✓ COMPLETED' : isCurrent ? '● CURRENT' : '○ AVAILABLE'}
+                        </span>
                       </div>
-                      <span className={`text-[9px] uppercase tracking-wider block ${
-                        isCurrent 
-                          ? 'text-white/70 dark:text-black/70' 
-                          : isIntroCompleted 
-                          ? 'text-emerald-600 dark:text-emerald-400 font-bold' 
-                          : 'text-[#888888] dark:text-[#777777]'
-                      }`}>
-                        {isIntroCompleted ? '✓ COMPLETED' : isCurrent ? '● CURRENT' : '○ AVAILABLE'}
-                      </span>
-                    </div>
 
-                    <div className="shrink-0 pt-0.5">
-                      {isIntroCompleted ? (
-                        <CheckCircle size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
-                      ) : (
-                        <Info size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-[#888888]'} />
-                      )}
-                    </div>
-                  </button>
+                      <div className="shrink-0 pt-0.5">
+                        {isIntroCompleted ? (
+                          <CheckCircle size={14} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
+                        ) : (
+                          <Info size={14} className={isCurrent ? 'text-white dark:text-black' : 'text-[#888888]'} />
+                        )}
+                      </div>
+                    </button>
+                  </div>
                 );
               })()}
 
@@ -459,9 +452,16 @@ export function RoomDetailPage() {
                 const isCurrent = activeTab === 'task' && selectedTaskIndex === index;
                 const isJustUnlocked = justUnlockedId === task.id;
                 const prevTaskTitle = index === 0 ? 'Task 01' : `Task 0${index + 1}`;
+                const isLastStep = index === roomTasks.length - 1;
 
                 return (
                   <div key={task.id} className="relative">
+                    {!isLastStep && (
+                      <div className={cn(
+                        "absolute left-[15px] top-[32px] bottom-[-12px] w-[2px] z-0",
+                        isDone ? "bg-[#111111] dark:bg-white" : "bg-[#E5E5E5] dark:bg-[#2A2A2A]"
+                      )} />
+                    )}
                     <button
                       type="button"
                       disabled={!isUnlocked}
@@ -474,15 +474,14 @@ export function RoomDetailPage() {
                           triggerLockedNotice(prevTaskTitle);
                         }
                       }}
-                      className={`w-full text-left p-2.5 rounded-[4px] border transition-all flex items-start justify-between gap-2 ${
-                        isCurrent
-                          ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm cursor-pointer'
+                      className={`relative z-10 w-full text-left p-3 rounded-lg border transition-all flex items-start justify-between gap-2.5 font-mono ${isCurrent
+                          ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-xs cursor-pointer'
                           : isDone
-                          ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white cursor-pointer'
-                          : isUnlocked
-                          ? 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white hover:bg-[#FAFAFA] dark:hover:bg-[#181818] cursor-pointer'
-                          : 'bg-[#EFEFEF]/50 dark:bg-[#0D0D0D] text-[#888888] dark:text-[#555555] border-[#E0E0E0] dark:border-[#202020] cursor-not-allowed opacity-75'
-                      } ${isJustUnlocked ? 'ring-2 ring-emerald-500 animate-pulse' : ''}`}
+                            ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white cursor-pointer'
+                            : isUnlocked
+                              ? 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white hover:bg-[#FAFAFA] dark:hover:bg-[#181818] cursor-pointer'
+                              : 'bg-[#FAFAFA] dark:bg-[#0D0D0D] text-[#888888] dark:text-[#555555] border-[#E5E5E5] dark:border-[#202020] cursor-not-allowed opacity-75'
+                        } ${isJustUnlocked ? 'ring-2 ring-emerald-500 animate-pulse' : ''}`}
                     >
                       <div className="space-y-0.5 min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -494,36 +493,33 @@ export function RoomDetailPage() {
                           </span>
                         </div>
 
-                        {/* Status Label (Rule 16) */}
-                        <span className={`text-[9px] uppercase tracking-wider block ${
-                          isCurrent
-                            ? 'text-white/70 dark:text-black/70'
+                        <span className={`text-[9px] uppercase tracking-wider block ${isCurrent
+                            ? 'text-white/80 dark:text-[#080808]/80 font-bold'
                             : isDone
-                            ? 'text-emerald-600 dark:text-emerald-400 font-bold'
-                            : isUnlocked
-                            ? 'text-[#111111] dark:text-white font-bold'
-                            : 'text-[#888888] dark:text-[#666666]'
-                        }`}>
+                              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                              : isUnlocked
+                                ? 'text-[#111111] dark:text-white font-bold'
+                                : 'text-[#888888] dark:text-[#666666]'
+                          }`}>
                           {isDone
                             ? '✓ COMPLETED'
                             : isCurrent
-                            ? '● CURRENT TASK'
-                            : isUnlocked
-                            ? '→ AVAILABLE'
-                            : `🔒 COMPLETE ${prevTaskTitle.toUpperCase()} TO UNLOCK`}
+                              ? '● CURRENT TASK'
+                              : isUnlocked
+                                ? '→ AVAILABLE'
+                                : `🔒 COMPLETE ${prevTaskTitle.toUpperCase()}`}
                         </span>
                       </div>
 
-                      {/* Icon State */}
                       <div className="shrink-0 pt-0.5">
                         {isDone ? (
-                          <CheckCircle size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
+                          <CheckCircle size={14} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
                         ) : isUnlocked ? (
                           <span className={`text-[10px] font-bold ${isCurrent ? 'text-white dark:text-black' : 'text-[#111111] dark:text-white'}`}>
                             {isCurrent ? '●' : '○'}
                           </span>
                         ) : (
-                          <Lock size={12} className="text-[#888888] dark:text-[#555555]" />
+                          <Lock size={13} className="text-[#888888] dark:text-[#555555]" />
                         )}
                       </div>
                     </button>
@@ -537,65 +533,55 @@ export function RoomDetailPage() {
                 const isJustUnlocked = justUnlockedId === 'quiz';
 
                 return (
-                  <button
-                    type="button"
-                    disabled={!isQuizUnlocked && !isExamDone}
-                    aria-disabled={!isQuizUnlocked && !isExamDone}
-                    onClick={() => {
-                      if (isQuizUnlocked || isExamDone) {
-                        setActiveTab('quiz');
-                      } else {
-                        triggerLockedNotice('all previous lab tasks');
-                      }
-                    }}
-                    className={`w-full text-left p-2.5 rounded-[4px] border transition-all flex items-start justify-between gap-2 ${
-                      isCurrent
-                        ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-sm cursor-pointer'
-                        : isExamDone
-                        ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white cursor-pointer'
-                        : isQuizUnlocked
-                        ? 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white cursor-pointer'
-                        : 'bg-[#EFEFEF]/50 dark:bg-[#0D0D0D] text-[#888888] dark:text-[#555555] border-[#E0E0E0] dark:border-[#202020] cursor-not-allowed opacity-75'
-                    } ${isJustUnlocked ? 'ring-2 ring-emerald-500 animate-pulse' : ''}`}
-                  >
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-mono font-bold">
-                          0{roomTasks.length + 2}.
-                        </span>
-                        <span className="truncate uppercase font-heading text-[11px]">
-                          FINAL CERTIFICATION
+                  <div className="relative">
+                    <button
+                      type="button"
+                      disabled={!isQuizUnlocked && !isExamDone}
+                      aria-disabled={!isQuizUnlocked && !isExamDone}
+                      onClick={() => {
+                        if (isQuizUnlocked || isExamDone) {
+                          setActiveTab('quiz');
+                        } else {
+                          triggerLockedNotice(`Task 0${roomTasks.length + 1}`);
+                        }
+                      }}
+                      className={`relative z-10 w-full text-left p-3 rounded-lg border transition-all flex items-start justify-between gap-2.5 font-mono ${isCurrent
+                          ? 'bg-[#111111] text-white font-bold border-[#111111] dark:bg-white dark:text-[#080808] dark:border-white shadow-xs cursor-pointer'
+                          : isExamDone
+                            ? 'bg-white text-[#111111] border-[#E5E5E5] hover:border-[#111111] dark:bg-[#141414] dark:text-white dark:border-[#2A2A2A] dark:hover:border-white cursor-pointer'
+                            : isQuizUnlocked
+                              ? 'bg-white text-[#111111] border-[#111111] dark:bg-[#141414] dark:text-white dark:border-white cursor-pointer'
+                              : 'bg-[#FAFAFA] dark:bg-[#0D0D0D] text-[#888888] dark:text-[#555555] border-[#E5E5E5] dark:border-[#202020] cursor-not-allowed opacity-75'
+                        } ${isJustUnlocked ? 'ring-2 ring-emerald-500 animate-pulse' : ''}`}
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono font-bold">0{totalSteps}.</span>
+                          <span className="truncate uppercase font-heading text-[11px]">CERTIFICATION EXAM</span>
+                        </div>
+                        <span className={`text-[9px] uppercase tracking-wider block ${isCurrent
+                            ? 'text-white/70 dark:text-black/70'
+                            : isExamDone
+                              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                              : isQuizUnlocked
+                                ? 'text-[#111111] dark:text-white font-bold'
+                                : 'text-[#888888] dark:text-[#666666]'
+                          }`}>
+                          {isExamDone ? '✓ VERIFIED' : isCurrent ? '● IN PROGRESS' : isQuizUnlocked ? '→ UNLOCKED' : '🔒 LOCKED'}
                         </span>
                       </div>
-                      <span className={`text-[9px] uppercase tracking-wider block ${
-                        isCurrent
-                          ? 'text-white/70 dark:text-black/70'
-                          : isExamDone
-                          ? 'text-emerald-600 dark:text-emerald-400 font-bold'
-                          : isQuizUnlocked
-                          ? 'text-[#111111] dark:text-white font-bold'
-                          : 'text-[#888888] dark:text-[#666666]'
-                      }`}>
-                        {isExamDone
-                          ? '✓ CERTIFIED'
-                          : isCurrent
-                          ? '● ACTIVE EXAM'
-                          : isQuizUnlocked
-                          ? '→ UNLOCKED'
-                          : '🔒 COMPLETE ALL TASKS'}
-                      </span>
-                    </div>
 
-                    <div className="shrink-0 pt-0.5">
-                      {isExamDone ? (
-                        <CheckCircle size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
-                      ) : isQuizUnlocked ? (
-                        <QuizIcon size={13} className={isCurrent ? 'text-white dark:text-black' : 'text-[#111111] dark:text-white'} />
-                      ) : (
-                        <Lock size={12} className="text-[#888888] dark:text-[#555555]" />
-                      )}
-                    </div>
-                  </button>
+                      <div className="shrink-0 pt-0.5">
+                        {isExamDone ? (
+                          <Award size={14} className={isCurrent ? 'text-white dark:text-black' : 'text-emerald-600 dark:text-emerald-400'} />
+                        ) : isQuizUnlocked ? (
+                          <Award size={14} className={isCurrent ? 'text-white dark:text-black' : 'text-[#111111] dark:text-white'} />
+                        ) : (
+                          <Lock size={13} className="text-[#888888] dark:text-[#555555]" />
+                        )}
+                      </div>
+                    </button>
+                  </div>
                 );
               })()}
 
@@ -614,10 +600,10 @@ export function RoomDetailPage() {
 
         {/* Right Column: ACTIVE TASK WORKSPACE (Rule 12, 14, 21, 31) */}
         <div className="lg:col-span-8 xl:col-span-9 rounded-md border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 sm:p-6 flex flex-col justify-between overflow-y-auto space-y-6 shadow-sm">
-          
+
           {/* Main Dynamic Content Area */}
           <div className="space-y-6 flex-1">
-            
+
             {/* ─── TAB 01: INTRODUCTION ─── */}
             {activeTab === 'intro' && (
               <div className="space-y-5">
@@ -639,7 +625,21 @@ export function RoomDetailPage() {
 
                 <div className="space-y-4 text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans leading-relaxed">
                   <p>{room.description}</p>
-                  
+
+                  {/* Interactive Technical Demo */}
+                  <div className="my-3">
+                    <span className="text-[10px] font-bold text-[#888888] dark:text-[#777777] uppercase font-mono mb-1 block">
+                      INTERACTIVE TECHNICAL ARCHITECTURE DEMO:
+                    </span>
+                    <TechnicalVisual
+                      topic={
+                        room.category === 'Web Security' ? 'sqli' :
+                        room.category === 'Forensics' ? 'soc' :
+                        room.category === 'Networking' ? 'nmap' : 'cia'
+                      }
+                    />
+                  </div>
+
                   <div className="p-4 rounded border border-[#E5E5E5] dark:border-[#2A2A2A] bg-[#FAFAFA] dark:bg-[#181818] space-y-2 font-mono text-xs text-[#111111] dark:text-white">
                     <span className="font-bold uppercase tracking-wider block">KEY OBJECTIVES COVERED:</span>
                     <ul className="list-disc pl-5 space-y-1 text-[#555555] dark:text-[#B5B5B5] font-sans text-xs">
@@ -756,11 +756,10 @@ export function RoomDetailPage() {
 
                   {/* Feedback Message */}
                   {taskFeedback[currentTask.id] && (
-                    <div className={`p-3 rounded border text-xs font-mono font-bold ${
-                      taskFeedback[currentTask.id].success
+                    <div className={`p-3 rounded border text-xs font-mono font-bold ${taskFeedback[currentTask.id].success
                         ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
                         : 'border-rose-600 bg-rose-500/10 text-rose-700 dark:text-rose-400'
-                    }`}>
+                      }`}>
                       {taskFeedback[currentTask.id].msg}
                     </div>
                   )}
@@ -902,11 +901,10 @@ export function RoomDetailPage() {
                       </div>
 
                       {quizFeedback && (
-                        <div className={`p-3 rounded border text-xs font-mono font-bold ${
-                          quizSubmitted 
-                            ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' 
+                        <div className={`p-3 rounded border text-xs font-mono font-bold ${quizSubmitted
+                            ? 'border-emerald-600 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
                             : 'border-rose-600 bg-rose-500/10 text-rose-700 dark:text-rose-400'
-                        }`}>
+                          }`}>
                           {quizFeedback}
                         </div>
                       )}
@@ -928,7 +926,7 @@ export function RoomDetailPage() {
 
           {/* ─── 3. BOTTOM STEPPER CONTROLS (Rule 12, 13, 37 - No Dead Ends) ─── */}
           <div className="flex items-center justify-between border-t border-[#E5E5E5] dark:border-[#2A2A2A] pt-4 shrink-0">
-            
+
             {/* Previous Button (Rule 13) */}
             {activeTab === 'task' && selectedTaskIndex > 0 ? (
               <button

@@ -133,7 +133,7 @@ export const MOCK_TARGET_MACHINES: Record<string, TargetMachine> = {
 
 // ─── VPN & CONNECTIVITY SYSTEM ───
 export class VPNProvider {
-  private static isConnected: boolean = true; // Default simulated connection for seamless user experience
+  private static isConnected: boolean = true;
   private static vpnNetwork: string = 'CYBERPATH-LAB-VPN';
   private static userIp: string = '10.8.0.14';
 
@@ -203,7 +203,7 @@ export class TaskValidator {
       };
     }
 
-    // Support comma-separated port lists or multi-part answers (e.g. "22, 80, 443" vs "22,80,443")
+    // Support comma-separated port lists
     const normalizeCommaList = (str: string) => str.split(',').map(s => s.trim()).sort().join(',');
     if (normalizeCommaList(cleanedUser) === normalizeCommaList(cleanedExpected)) {
       return {
@@ -220,11 +220,32 @@ export class TaskValidator {
   }
 }
 
-// ─── SIMULATED TERMINAL ENGINE ───
+// ─── PROFESSIONAL DYNAMIC EXPERIMENT LAB TERMINAL ENGINE ───
 export class TerminalProvider {
   private static currentDirectory: string = '/home/cyberpath';
 
-  static executeCommand(commandStr: string, targetIp: string = '10.10.20.15'): { output: string; error?: boolean } {
+  static getPromptForRoom(roomId?: string): string {
+    switch (roomId) {
+      case 'nmap-fundamentals':
+        return 'root@nmap-kali:~#';
+      case 'web-fundamentals':
+        return 'analyst@web-kali:~#';
+      case 'sqli-tester':
+        return 'sqli@web-container:~$';
+      case 'xss-playground':
+        return 'analyst@xss-sandbox:~$';
+      case 'hash-cracking':
+        return 'cracker@hash-box:~#';
+      case 'priv-esc':
+        return 'www-data@target-system:~$';
+      case 'soc-firewall':
+        return 'analyst@soc-workstation:~$';
+      default:
+        return 'user@cyberpath:~$';
+    }
+  }
+
+  static executeCommand(commandStr: string, targetIp: string = '10.10.20.15', roomId?: string): { output: string; error?: boolean } {
     const trimmed = commandStr.trim();
     if (!trimmed) return { output: '' };
 
@@ -232,39 +253,53 @@ export class TerminalProvider {
     const cmd = parts[0].toLowerCase();
     const args = parts.slice(1);
 
+    // Universal CLI Commands
     switch (cmd) {
       case 'clear':
         return { output: '__CLEAR__' };
 
       case 'help':
         return {
-          output: `CyberPath Educational CLI v2.4
-Available commands:
-  pwd               - Print working directory
-  ls [-la]          - List directory contents
-  cd <dir>          - Change directory
+          output: `CyberPath Professional CLI Terminal Environment (Room: ${roomId || 'General'})
+Available CLI utilities:
+  pwd               - Display working directory
+  ls [-la]          - List files in active directory
+  cd <dir>          - Navigate directories
   cat <file>        - Print file content
-  whoami            - Display active shell user
-  ip [addr]         - Show network interfaces
-  ping <ip>         - Ping remote target host
-  curl <url>        - Fetch HTTP response body
-  nmap <target>     - Execute network port scan
-  clear             - Clear terminal screen`
+  whoami            - Display active shell account
+  ip / ifconfig     - Display network interfaces
+  ping <ip>         - ICMP echo ping probe
+  curl <url>        - Query HTTP web targets
+  nmap <target>     - Execute network port scanner
+  gobuster / dirb   - Directory brute-force tools
+  sqlmap            - Automated SQL injection auditing tool
+  john / hashcat    - Cryptographic password cracking suites
+  tcpdump / tshark  - Packet capture inspection tools
+  find / sudo -l    - Privilege escalation enumeration
+  clear             - Clear terminal display buffer`
         };
 
       case 'pwd':
         return { output: this.currentDirectory };
 
       case 'whoami':
+        if (roomId === 'priv-esc') return { output: 'www-data (UID 1001)' };
+        if (roomId === 'nmap-fundamentals' || roomId === 'hash-cracking') return { output: 'root (UID 0)' };
         return { output: 'cyberpath_explorer' };
 
       case 'ls':
-        if (this.currentDirectory === '/home/cyberpath') {
-          return { output: 'flag.txt   credentials.txt   notes.txt   scans/' };
-        } else if (this.currentDirectory === '/home/cyberpath/scans') {
-          return { output: 'nmap_10.10.20.15.txt   target_recon.log' };
+        if (roomId === 'nmap-fundamentals') {
+          return { output: 'nmap_quick_scan.txt   target_hosts.lst   recon_notes.md' };
+        } else if (roomId === 'sqli-tester') {
+          return { output: 'db_dump.sql   sqli_payloads.txt   admin_hash.txt' };
+        } else if (roomId === 'hash-cracking') {
+          return { output: 'hashes.txt   rockyou.txt   hashcat.hcstat' };
+        } else if (roomId === 'priv-esc') {
+          return { output: 'user.txt   suid_audit.sh   notes.txt' };
+        } else if (roomId === 'soc-firewall') {
+          return { output: 'firewall.log   capture.pcap   rules.conf' };
         }
-        return { output: 'flag.txt' };
+        return { output: 'flag.txt   credentials.txt   notes.txt   scans/' };
 
       case 'cd':
         const targetDir = args[0] || '~';
@@ -283,14 +318,16 @@ Available commands:
         const file = args[0];
         if (!file) return { output: 'cat: missing file operand', error: true };
 
-        if (file === 'flag.txt' || file === './flag.txt') {
+        if (file === 'flag.txt' || file === './flag.txt' || file === 'user.txt') {
+          if (roomId === 'priv-esc') return { output: 'CP{LINUX_PRIV_ESC_ROOT_MASTERED_2026}' };
+          if (roomId === 'sqli-tester') return { output: 'CP{SQLI_UNION_BYPASS_COMPLETE}' };
           return { output: 'FLAG{CYBERPATH_LINUX_CHAMP}' };
-        } else if (file === 'credentials.txt' || file === 'scans/credentials.txt') {
-          return { output: 'target_admin:cyberpath123' };
+        } else if (file === 'credentials.txt') {
+          return { output: 'admin:cyberpath123\nuser:password123' };
+        } else if (file === 'hashes.txt') {
+          return { output: 'admin:$2b$12$e8./P7ZqW1Wk7gXQk...\nuser:ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f' };
         } else if (file === 'notes.txt') {
-          return { output: 'Target machine is at 10.10.20.15. Open SSH port 22 and Web port 80.' };
-        } else if (file === 'nmap_10.10.20.15.txt') {
-          return { output: 'Nmap scan report for 10.10.20.15\nPORT 22/tcp open ssh\nPORT 80/tcp open http\nPORT 443/tcp open https\nPORT 3306/tcp open mysql' };
+          return { output: `Target host IP: ${targetIp}\nPorts 22 (SSH), 80 (HTTP), 443 (HTTPS), 3306 (MySQL) active.` };
         }
         return { output: `cat: ${file}: No such file or directory`, error: true };
 
@@ -322,11 +359,11 @@ Available commands:
           output: `<!DOCTYPE html>
 <html>
 <!-- Target URL: http://${url} -->
-<head><title>CyberPath Simulated Web Target</title></head>
+<head><title>CyberPath Target Container</title></head>
 <body>
-  <h1>Welcome to Web Box Target</h1>
-  <p>Status: Active Security Laboratory</p>
-  <!-- HIDDEN FLAG: FLAG{NMAP_WEB_RECON_SUCCESS} -->
+  <h1>Welcome to CyberPath Simulated Web Environment</h1>
+  <p>Server: Apache/2.4.52 (Ubuntu)</p>
+  <!-- SECRET HEADER FLAG: CP{HTTP_HEADER_ANALYSIS_PRO} -->
 </body>
 </html>`
         };
@@ -334,22 +371,86 @@ Available commands:
       case 'nmap':
         const nmapTarget = args.find(a => !a.startsWith('-')) || targetIp;
         return {
-          output: `Starting Nmap 7.94 ( https://nmap.org )
+          output: `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toISOString().slice(0, 19).replace('T', ' ')}
 Nmap scan report for ${nmapTarget}
-Host is up (0.012s latency).
+Host is up (0.0094s latency).
 Not shown: 996 closed tcp ports (reset)
 
 PORT     STATE SERVICE VERSION
 22/tcp   open  ssh     OpenSSH 8.9p1 Ubuntu
 80/tcp   open  http    nginx/1.18.0
 443/tcp  open  https   nginx/1.18.0 TLSv1.3
-3306/tcp open  mysql   MySQL 8.0.32
+3306/tcp open  mysql   MySQL 8.0.32 (Ubuntu)
 
-Nmap done: 1 IP address (1 host up) scanned in 2.14 seconds`
+Nmap done: 1 IP address (1 host up) scanned in 1.84 seconds`
+        };
+
+      case 'sqlmap':
+        return {
+          output: `[+] Automated SQL Injection Audit Engine v1.7.2
+[+] Testing connection to target ${targetIp}...
+[+] GET parameter 'id' is vulnerable to SQL injection!
+[+] Type: UNION query-based / Error-based
+[+] Backend DBMS: MySQL >= 8.0
+[+] Database: cyberpath_db
+[+] Retrieved Flag: CP{SQLI_UNION_BYPASS_COMPLETE}`
+        };
+
+      case 'john':
+      case 'hashcat':
+        return {
+          output: `[+] Cryptographic Hash Cracking Engine initialized.
+[+] Loaded 1 hash digest (SHA-256)
+[+] Using dictionary wordlist: /usr/share/wordlists/rockyou.txt
+[+] Status: CRACKED!
+[+] Hash: ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f -> 'password123'`
+        };
+
+      case 'sudo':
+        if (args.includes('-l')) {
+          return {
+            output: `Matching Defaults entries for www-data on target-system:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\\:/usr/local/bin\\:/usr/sbin\\:/usr/bin
+
+User www-data may run the following commands on target-system:
+    (root) NOPASSWD: /usr/bin/python3`
+          };
+        }
+        return { output: 'sudo: a password is required', error: true };
+
+      case 'find':
+        if (args.includes('-perm') || args.includes('-4000')) {
+          return {
+            output: `/usr/bin/python3 [SUID BIT SET - ROOT OWNED]
+/usr/bin/sudo
+/usr/bin/passwd`
+          };
+        }
+        return { output: './flag.txt\n./credentials.txt' };
+
+      case 'tcpdump':
+      case 'tshark':
+        return {
+          output: `14:22:01.104201 IP 10.8.0.14.48204 > ${targetIp}.80: Flags [P.], seq 1:120, ack 1, win 502, length 119
+14:22:01.109842 IP ${targetIp}.80 > 10.8.0.14.48204: Flags [.], ack 120, win 501, length 0
+14:22:01.110200 IP ${targetIp}.80 > 10.8.0.14.48204: Flags [P.], seq 1:340, ack 120, win 501, length 339 [HTTP GET /index.html 200 OK]`
+        };
+
+      case 'gobuster':
+      case 'dirb':
+        return {
+          output: `===============================================================
+Gobuster v3.5 - Directory & File Enumeration
+Target: http://${targetIp}
+===============================================================
+/admin                (Status: 301) [Size: 178]
+/login                (Status: 200) [Size: 2450]
+/uploads              (Status: 403) [Size: 278]
+/api                  (Status: 200) [Size: 840]`
         };
 
       default:
-        return { output: `bash: ${cmd}: command not found. Type 'help' for available commands.`, error: true };
+        return { output: `bash: ${cmd}: command not found. Type 'help' for available CLI commands.`, error: true };
     }
   }
 }

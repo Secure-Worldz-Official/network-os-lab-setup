@@ -168,7 +168,7 @@ export function PrivacySecuritySection() {
                   <div
                     className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ease-in-out cursor-pointer ${
                       isChecked
-                        ? 'bg-[#111111] dark:bg-white'
+                        ? 'bg-[#111111] text-white dark:bg-white dark:text-[#080808]'
                         : 'bg-[#E5E5E5] dark:bg-[#2A2A2A]'
                     }`}
                   >

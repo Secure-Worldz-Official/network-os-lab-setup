@@ -32,7 +32,7 @@ export function VpnPage() {
           LAB CONNECTIVITY & VPN GUIDE
         </h1>
         <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] mt-1 font-sans">
-          Connect your device to the CyberPath isolated virtual laboratory network to safely interact with target machines.
+          Connect your device to the Networking OS Lab isolated virtual laboratory network to safely interact with target machines.
         </p>
       </div>
 

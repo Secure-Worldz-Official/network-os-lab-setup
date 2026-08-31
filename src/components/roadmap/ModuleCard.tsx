@@ -135,15 +135,19 @@ export function ModuleCard({
             className="overflow-hidden border-t border-[#E5E5E5] dark:border-[#2A2A2A]"
           >
             <div className="p-3.5 sm:p-5 space-y-2 bg-[#FAFAFA] dark:bg-[#0A0A0A]">
-              {module.days.map((day, i) => (
-                <DayCard
-                  key={day.id}
-                  day={day}
-                  moduleId={module.id}
-                  isComplete={isComplete(day.id)}
-                  index={i}
-                />
-              ))}
+              {module.days.map((day, i) => {
+                const isLocked = i > 0 && !isComplete(module.days[i - 1].id);
+                return (
+                  <DayCard
+                    key={day.id}
+                    day={day}
+                    moduleId={module.id}
+                    isComplete={isComplete(day.id)}
+                    isLocked={isLocked}
+                    index={i}
+                  />
+                );
+              })}
             </div>
           </motion.div>
         )}

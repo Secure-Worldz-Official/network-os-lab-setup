@@ -2,57 +2,37 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCyberPath } from '@/context/CyberPathContext';
 import { rooms } from '@/data/cyberpathData';
-import { Search, Award, Clock, BookOpen, Terminal } from 'lucide-react';
+import { Award, Clock, BookOpen, Terminal } from 'lucide-react';
 
 type CategoryFilter = 'All' | 'Linux' | 'Networking' | 'Web Security' | 'Threat & Defense' | 'Forensics';
 
 export function RoomsPage() {
   const navigate = useNavigate();
   const { completedRooms, completedTasks } = useCyberPath();
-  const [searchTerm, setSearchTerm] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('All');
 
   const filteredRooms = rooms.filter((room) => {
-    const matchesSearch = 
-      room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      room.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      room.skills.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
-      
     const matchesCategory = 
       categoryFilter === 'All' || 
       room.category === categoryFilter;
 
-    return matchesSearch && matchesCategory;
+    return matchesCategory;
   });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 select-none font-mono">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-6">
-        <div className="space-y-1">
-          <div className="text-[10px] text-[#888888] dark:text-[#777777] font-bold uppercase tracking-widest flex items-center gap-1.5">
-            <Terminal size={14} className="text-[#111111] dark:text-white" />
-            <span>PRACTICAL CYBERSECURITY LABS ({rooms.length})</span>
-          </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-[#111111] dark:text-white font-heading tracking-tight uppercase">
-            PRACTICAL ROOMS & VIRTUAL LABS
-          </h1>
-          <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans max-w-xl leading-relaxed">
-            Hands-on cybersecurity laboratories. Learn techniques, start target instances, run terminal commands, and capture flags.
-          </p>
+      <div className="border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-6 space-y-2">
+        <div className="text-[10px] text-[#888888] dark:text-[#777777] font-bold uppercase tracking-widest flex items-center gap-1.5">
+          <Terminal size={14} className="text-[#111111] dark:text-white" />
+          <span>PRACTICAL CYBERSECURITY LABS ({rooms.length})</span>
         </div>
-
-        {/* Global Search Input */}
-        <div className="relative w-full sm:w-80">
-          <Search size={14} className="absolute left-3 top-3 text-[#888888] dark:text-[#777777]" />
-          <input
-            type="text"
-            placeholder="SEARCH ROOMS, SKILLS..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#F7F7F7] dark:bg-[#141414] border border-[#E5E5E5] dark:border-[#2A2A2A] rounded px-9 py-2 text-xs text-[#111111] dark:text-white outline-none focus:border-[#111111] dark:focus:border-white placeholder-[#888888] dark:placeholder-[#666666] font-mono"
-          />
-        </div>
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-[#111111] dark:text-white font-heading tracking-tight uppercase">
+          PRACTICAL ROOMS & VIRTUAL LABS
+        </h1>
+        <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] font-sans max-w-xl leading-relaxed">
+          Hands-on cybersecurity laboratories. Learn techniques, start target instances, run terminal commands, and capture flags.
+        </p>
       </div>
 
       {/* Category Filter Tabs */}
@@ -60,6 +40,7 @@ export function RoomsPage() {
         {(['All', 'Linux', 'Networking', 'Web Security', 'Threat & Defense', 'Forensics'] as CategoryFilter[]).map((cat) => (
           <button
             key={cat}
+            type="button"
             onClick={() => setCategoryFilter(cat)}
             className={`px-3 py-1.5 rounded text-xs font-mono transition-all cursor-pointer border uppercase tracking-wider ${
               categoryFilter === cat
@@ -82,7 +63,7 @@ export function RoomsPage() {
           return (
             <div
               key={room.id}
-              className="cyber-card p-6 flex flex-col justify-between"
+              className="cyber-card p-6 flex flex-col justify-between card-lift"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3 border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
@@ -134,7 +115,8 @@ export function RoomsPage() {
                   </div>
 
                   <button
-                    onClick={() => navigate(`/rooms/${room.id}`)}
+                    type="button"
+                    onClick={() => navigate(`/labs/${room.id}`)}
                     className="btn-cyber-primary text-xs py-2 px-3"
                   >
                     <span>START ROOM →</span>

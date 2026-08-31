@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
@@ -481,7 +482,361 @@ pre, code {
 .text-cyber-muted { color: var(--text-muted); }
 .text-cyber-dim { color: var(--text-dim); }
 
+
 .border-cyber { border-color: var(--border); }
 .border-cyber-subtle { border-color: var(--border-subtle); }
 .border-cyber-bright { border-color: var(--border-bright); }
 .border-cyber-focus { border-color: var(--border-focus); }
+
+/* ─── Reference Visual (TechnicalVisual.tsx) ──────────────────────────────── */
+.reference-visual {
+  width: 100%;
+  background: transparent;
+  padding: 1.5rem 0;
+}
+
+.reference-visual-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.reference-visual-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--text-secondary);
+}
+
+.reference-visual figcaption {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
+
+/* SVG element styles — used inside TechnicalVisual SVGs */
+.reference-visual-node rect,
+.reference-visual-node circle {
+  fill: var(--bg-card);
+  stroke: var(--border-bright);
+  stroke-width: 1.5;
+  transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.reference-visual-node text {
+  fill: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reference-visual-arrow {
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 4 3;
+}
+
+.reference-visual-note {
+  fill: var(--text-muted) !important;
+  font-size: 10px !important;
+  font-family: var(--font-mono);
+}
+
+.reference-visual-panel {
+  fill: var(--bg-surface);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.reference-visual-row {
+  fill: var(--bg-hover);
+  stroke: none;
+}
+
+.reference-visual-check {
+  fill: var(--bg-subtle);
+  stroke: var(--border-bright);
+  stroke-width: 1.5;
+}
+
+.reference-visual-checkmark {
+  stroke: var(--text-primary);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ─── Micro-Animation Keyframes ───────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes drawLine {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes nodePulse {
+  0%, 100% { r: 10; opacity: 1; }
+  50%       { r: 13; opacity: 0.7; }
+}
+
+@keyframes nodeRingPulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.15); opacity: 0.5; }
+}
+
+@keyframes packetTravel {
+  from { offset-distance: 0%;   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  to   { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes cascadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes strokeDraw {
+  from { stroke-dashoffset: 300; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes fillProgress {
+  from { stroke-dashoffset: 200; }
+  to   { stroke-dashoffset: var(--progress-end); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200px 0; }
+  to   { background-position: 200px 0; }
+}
+
+@keyframes unlockPop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.05); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes connectorDraw {
+  from { height: 0; opacity: 0; }
+  to   { height: 100%; opacity: 1; }
+}
+
+/* ─── Animation Utility Classes ──────────────────────────────────────────── */
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+
+.animate-fade-slide-in {
+  animation: fadeSlideIn 0.3s ease forwards;
+}
+
+.animate-unlock-pop {
+  animation: unlockPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-count-up {
+  animation: countUp 0.5s ease forwards;
+}
+
+/* ─── Viz Canvas Container ────────────────────────────────────────────────── */
+.viz-canvas {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+}
+
+.viz-canvas svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.viz-node {
+  transition: all 0.3s ease;
+}
+
+.viz-node:hover rect,
+.viz-node:hover circle {
+  stroke: var(--text-primary);
+  filter: brightness(1.1);
+}
+
+/* ─── Lesson Path (HackTheBox-style vertical roadmap) ───────────────────── */
+.lesson-path {
+  position: relative;
+}
+
+.lesson-path-connector {
+  position: absolute;
+  left: 19px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.lesson-path-connector-filled {
+  background: var(--text-primary);
+  animation: connectorDraw 0.5s ease forwards;
+}
+
+.lesson-path-node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.625rem 0;
+}
+
+.lesson-path-node-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--border-bright);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.lesson-path-node-circle.completed {
+  background: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+.lesson-path-node-circle.current {
+  border-color: var(--text-primary);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 4px var(--bg-hover);
+  animation: nodeRingPulse 2s ease-in-out infinite;
+}
+
+.lesson-path-node-circle.locked {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+.lesson-path-node-content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0.5rem;
+}
+
+/* ─── Nav Active State Enhancements ──────────────────────────────────────── */
+.nav-item-active-bar {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--text-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+/* ─── Card Hover Micro-interactions ──────────────────────────────────────── */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  border-color: var(--border-bright);
+}
+
+/* ─── Difficulty Indicator Dots ──────────────────────────────────────────── */
+.diff-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: background 0.2s ease;
+}
+
+.diff-dot.active {
+  background: var(--text-primary);
+}
+
+/* ─── Page Transition Wrapper ─────────────────────────────────────────────── */
+.page-enter {
+  animation: fadeSlideUp 0.25s ease forwards;
+}
+
+/* ─── Stagger Children ────────────────────────────────────────────────────── */
+.stagger-children > * {
+  animation: fadeSlideUp 0.35s ease forwards;
+  opacity: 0;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.20s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.30s; }
+
+/* ─── Progress Ring ───────────────────────────────────────────────────────── */
+.progress-ring-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 3;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
