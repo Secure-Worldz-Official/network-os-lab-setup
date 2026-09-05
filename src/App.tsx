@@ -5,6 +5,7 @@ import { RoadmapPage } from '@/pages/RoadmapPage';
 import { DayPage } from '@/pages/DayPage';
 import { ExperimentLabPage } from '@/pages/ExperimentLabPage';
 import { ExperimentToolPage } from '@/pages/ExperimentToolPage';
+import { FoundationLabPage } from '@/pages/FoundationLabPage';
 import { TaskProvider } from '@/components/task/TaskContext';
 import { SettingsProvider } from '@/context/SettingsContext';
 import { CelebrationPopup } from '@/components/task/CelebrationPopup';
@@ -64,8 +65,10 @@ export default function App() {
               {/* Curriculum & Interactive Tools Sub-routes */}
               <Route path="/roadmap" element={<RoadmapPage />} />
               <Route path="/roadmap/:moduleId/:daySlug" element={<DayPage />} />
-              <Route path="/labs/module/:moduleId" element={<ExperimentLabPage />} />
-              <Route path="/labs/module/:moduleId/:toolId" element={<ExperimentToolPage />} />
+               <Route path="/labs/module/:moduleId" element={<ExperimentLabPage />} />
+               <Route path="/labs/module/:moduleId/:toolId" element={<ExperimentToolPage />} />
+               <Route path="/labs/foundation" element={<FoundationLabPage />} />
+               <Route path="/labs/foundation/:labId" element={<FoundationLabPage />} />
 
               {/* Catch-all fallback to dashboard */}
               <Route path="*" element={<Navigate to="/dashboard" replace />} />

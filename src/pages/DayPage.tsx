@@ -4,14 +4,14 @@ import { ChevronLeft, ChevronRight, AlertCircle, ArrowLeft, Lock } from 'lucide-
 import { DayDetail } from '@/components/roadmap/DayDetail';
 import { Button } from '@/components/ui/Button';
 import { useProgress } from '@/hooks/useProgress';
-import { roadmap } from '@/data/roadmap';
+import { curriculumRoadmap } from '@/data/curriculum';
 
 export function DayPage() {
   const { moduleId, daySlug } = useParams<{ moduleId: string; daySlug: string }>();
   const navigate   = useNavigate();
   const progress   = useProgress();
 
-  const module = roadmap.find((m) => m.id === moduleId);
+  const module = curriculumRoadmap.find((m) => m.id === moduleId);
   const day    = module?.days.find((d) => d.slug === daySlug);
 
   if (!module || !day) {

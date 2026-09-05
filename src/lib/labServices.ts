@@ -333,6 +333,8 @@ Available CLI utilities:
 
       case 'ip':
       case 'ifconfig':
+        if (args[0] === 'route') return { output: `default via 10.10.10.1 dev eth0\n10.10.10.0/24 dev eth0 proto kernel scope link src 10.10.10.5\n10.10.20.0/24 via 10.10.10.1 dev eth0` };
+        if (args[0] === 'addr' && args[1] === 'add') return { output: 'RTNETLINK answers: address added to eth0' };
         return {
           output: `1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536
     inet 127.0.0.1/8 scope host lo
@@ -341,6 +343,29 @@ Available CLI utilities:
 3: tun0 (CYBERPATH-VPN):
     inet 10.8.0.14/24 scope global tun0`
         };
+
+      case 'ipcalc': return { output: `Address:   ${args[0] || '192.168.1.0/24'}\nNetwork:   192.168.1.0/24\nBroadcast: 192.168.1.255\nHostmask:  0.0.0.255\nHosts/Net: 254` };
+      case 'traceroute': return { output: `traceroute to ${args[0] || targetIp}\n 1  10.10.10.1  0.9 ms\n 2  ${args[0] || targetIp}  4.2 ms` };
+      case 'dig':
+      case 'nslookup': return { output: `;; ANSWER SECTION:\ntraining.local. 300 IN A ${targetIp}\ntraining.local. 300 IN MX 10 mail.training.local.\ntraining.local. 300 IN TXT "lab-verification"` };
+      case 'netstat':
+      case 'ss': return { output: `Proto Local Address           Foreign Address         State\ntcp   0.0.0.0:22              0.0.0.0:*               LISTEN\ntcp   10.10.10.5:49312        ${targetIp}:443         ESTABLISHED` };
+      case 'iptables':
+      case 'ufw': return { output: `Chain INPUT (policy ACCEPT)\nACCEPT tcp -- 0.0.0.0/0 0.0.0.0/0 tcp dpt:443\nDROP   tcp -- 0.0.0.0/0 0.0.0.0/0 tcp dpt:80` };
+      case 'ps': return { output: `USER PID %CPU %MEM COMMAND\nroot 1 0.0 0.1 /sbin/init\nanalyst 4242 82.3 14.8 /usr/local/bin/lab-worker` };
+      case 'top':
+      case 'htop': return { output: `Tasks: 112 total, 1 running\nMem: 4194304 total, 313704 free\nPID 4242 analyst 82.3% lab-worker` };
+      case 'systemctl': return { output: `ssh.service enabled\ntelnet.service disabled\nOperation completed.` };
+      case 'groups': return { output: 'analyst : analyst adm sudo' };
+      case 'chmod': case 'chown': case 'useradd': case 'usermod': case 'kill': case 'sed': case 'rm': case 'cp': case 'mv': case 'touch': case 'bash': return { output: `${cmd}: operation completed in isolated lab filesystem` };
+      case 'apt':
+      case 'yum':
+      case 'dnf': return { output: `${cmd}: package operation completed successfully` };
+      case 'df': return { output: `Filesystem Size Used Avail Use% Mounted on\n/dev/vda1 40G 34G 4.2G 89% /` };
+      case 'du': return { output: '3.8G /var/log\n5.0G /var' };
+      case 'free': return { output: 'Mem: 4194304 3780600 313704\nSwap: 2097148 218400 1878748' };
+      case 'grep': return { output: 'Sep 05 14:20:11 kali sshd[1884]: Failed password for invalid user backup from 203.0.113.77 port 51214 ssh2' };
+      case 'tail': return { output: 'Sep 05 14:20:18 kali sshd[1884]: Failed password for invalid user backup from 203.0.113.77 port 51219 ssh2' };
 
       case 'ping':
         const pingHost = args[0] || targetIp;

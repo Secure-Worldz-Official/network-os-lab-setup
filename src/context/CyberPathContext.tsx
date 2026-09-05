@@ -8,7 +8,7 @@ import {
 } from '@/data/cyberpathData';
 import { MOCK_TARGET_MACHINES, VPNProvider, TaskValidator, type TargetMachine } from '@/lib/labServices';
 import { parseProgress, formatDayId } from '@/lib/utils';
-import { roadmap } from '@/data/roadmap';
+import { curriculumRoadmap } from '@/data/curriculum';
 
 export interface Activity {
   id: string;
@@ -496,14 +496,14 @@ export function useProgress() {
   const { completedDays, toggleDay, isDayCompleted } = useCyberPath();
   
   const moduleProgress = useCallback((moduleId: string) => {
-    const module = roadmap.find((m) => m.id === moduleId);
+    const module = curriculumRoadmap.find((m) => m.id === moduleId);
     if (!module || module.days.length === 0) return { done: 0, total: 0 };
     const done = module.days.filter((d) => completedDays.has(formatDayId(moduleId, d.id))).length;
     return { done, total: module.days.length };
   }, [completedDays]);
 
   const overallProgress = useCallback(() => {
-    const allDays = roadmap.flatMap((m) => m.days.map((d) => formatDayId(m.id, d.id)));
+    const allDays = curriculumRoadmap.flatMap((m) => m.days.map((d) => formatDayId(m.id, d.id)));
     const done = allDays.filter((id) => completedDays.has(id)).length;
     return { done, total: allDays.length };
   }, [completedDays]);

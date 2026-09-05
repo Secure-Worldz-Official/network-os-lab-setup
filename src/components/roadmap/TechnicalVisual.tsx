@@ -27,9 +27,9 @@ const CAPTIONS: Record<number, string> = {
 };
 
 const LAB_NODES_DAY8 = [
-  { label: 'KALI VM', sublabel: '192.168.56.101', x: 40, y: 90 },
-  { label: 'HOST-ONLY', sublabel: 'vboxnet0', x: 230, y: 90 },
-  { label: 'TARGET VM', sublabel: '192.168.56.102', x: 420, y: 90 },
+  { label: 'KALI VM', sublabel: '192.168.56.101', x: 40, y: 90, type: 'host' as const },
+  { label: 'HOST-ONLY', sublabel: 'vboxnet0', x: 230, y: 90, type: 'router' as const },
+  { label: 'TARGET VM', sublabel: '192.168.56.102', x: 420, y: 90, type: 'host' as const },
 ];
 
 export interface TechnicalVisualProps {

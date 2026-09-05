@@ -136,6 +136,14 @@
   box-sizing: border-box;
 }
 
+img, svg, video, canvas {
+  max-width: 100%;
+}
+
+pre, code, p, span, a, button, input, textarea, select {
+  overflow-wrap: anywhere;
+}
+
 html, body, #root {
   height: 100%;
   width: 100%;
@@ -173,6 +181,7 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   line-height: 1.6;
   overflow: hidden;
+  min-width: 320px;
   letter-spacing: -0.005em;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
@@ -219,6 +228,16 @@ a {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-hover);
+}
+
+/* Explicit scroll regions preserve console alignment while keeping long runbooks reachable. */
+.lab-scroll-region {
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.lab-scroll-region::-webkit-scrollbar {
+  width: 8px;
 }
 
 /* ─── Code & Monospace Formatting ───────────────────────────────────────── */
@@ -840,3 +859,21 @@ pre, code {
   transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@keyframes learning-active-node {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.12); }
+  50% { box-shadow: 0 0 0 7px rgba(0, 0, 0, 0); }
+}
+
+.learning-active-node { animation: learning-active-node 2s ease-in-out infinite; }
+.dark .learning-active-node, [data-theme="dark"] .learning-active-node { animation-name: learning-active-node-dark; }
+@keyframes learning-active-node-dark {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.16); }
+  50% { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); }
+}
+
+@keyframes cia-concept-flow {
+  0% { opacity: .35; transform: translateX(-5px); }
+  50% { opacity: 1; transform: translateX(5px); }
+  100% { opacity: .35; transform: translateX(-5px); }
+}
+.cia-concept-flow { animation: cia-concept-flow 1.6s ease-in-out infinite; }

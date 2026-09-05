@@ -1,0 +1,50 @@
+import type { Module } from '@/data/roadmap';
+
+type Topic = [string, string, string[]];
+const topics: Topic[] = [
+  ['What is a Computer?', 'Computing Foundations', ['Identify CPU, RAM, storage, motherboard, and I/O roles.', 'Trace how hardware components exchange data.', 'Compare volatile memory with persistent storage.', 'Relate hardware limits to operating-system behavior.']],
+  ['How a Computer Boots', 'Computing Foundations', ['Trace POST, BIOS/UEFI, bootloader, kernel, and login stages.', 'Compare legacy BIOS with UEFI boot paths.', 'Identify common boot failures from their stage.', 'Inspect a practical boot sequence.']],
+  ['What is an Operating System?', 'Computing Foundations', ['Separate kernel responsibilities from user-space applications.', 'Explain process, memory, device, and filesystem management.', 'Compare command shells with the kernel.', 'Identify OS services used by an application.']],
+  ['Binary, Number Systems & Data Representation', 'Computing Foundations', ['Convert binary, decimal, hexadecimal, and ASCII values.', 'Represent IP addresses and permission bits in binary.', 'Explain bytes, words, and encoding.', 'Use hexadecimal when inspecting systems and packets.']],
+  ['What is Software?', 'Computing Foundations', ['Classify firmware, system software, and applications.', 'Compare compiled and interpreted execution.', 'Follow source code through build and runtime.', 'Identify dependencies and runtime environments.']],
+  ['Introduction to Cybersecurity & CIA Triad', 'Computing Foundations', ['Apply confidentiality controls to protected data.', 'Detect integrity failures using checksums and signatures.', 'Plan availability with redundancy and failover.', 'Evaluate a system decision against all three CIA properties.']],
+  ['Career Paths in Cybersecurity', 'Computing Foundations', ['Compare SOC, Pentest, AppSec, and GRC responsibilities.', 'Map operational evidence to each role.', 'Identify foundational skills shared across roles.', 'Create a role-focused technical learning plan.']],
+  ['OS Architecture', 'Operating Systems', ['Separate kernel, shell, system calls, processes, and threads.', 'Trace an application request into the kernel.', 'Compare privileged and unprivileged execution.', 'Inspect process boundaries and scheduling.']],
+  ['Linux Fundamentals — Filesystem & Navigation', 'Operating Systems', ['Navigate the Linux hierarchy with pwd, cd, and ls.', 'Identify regular files, directories, links, and devices.', 'Locate configuration and log paths.', 'Perform terminal-only filesystem operations.']],
+  ['Linux File Permissions & Ownership', 'Operating Systems', ['Read rwx permission bits and ownership.', 'Apply chmod and chown safely.', 'Audit SUID, SGID, and sticky-bit use.', 'Diagnose access-denied conditions.']],
+  ['Linux Users & Groups Management', 'Operating Systems', ['Create and modify users and groups.', 'Inspect memberships and sudo authorization.', 'Apply least-privilege group access.', 'Audit local account configuration.']],
+  ['Process Management', 'Operating Systems', ['Inspect process state, parentage, and resource use.', 'Use ps, top, jobs, and kill safely.', 'Differentiate foreground, background, and daemon processes.', 'Diagnose a runaway process.']],
+  ['Linux Services & systemd', 'Operating Systems', ['Inspect service state and logs.', 'Start, stop, enable, and disable services.', 'Audit startup units.', 'Identify unnecessary exposed services.']],
+  ['Package Management', 'Operating Systems', ['Update package metadata safely.', 'Install, remove, and upgrade packages.', 'Compare apt, yum, and dnf workflows.', 'Resolve a controlled dependency issue.']],
+  ['Linux Shell Scripting Basics', 'Operating Systems', ['Build scripts with variables and exit codes.', 'Use conditionals, loops, and positional arguments.', 'Automate a repeatable administration task.', 'Test script output and error handling.']],
+  ['Windows OS Fundamentals', 'Operating Systems', ['Identify Windows architecture and core services.', 'Inspect Registry and Task Manager evidence.', 'Compare Windows services with Linux units.', 'Locate Windows operational logs.']],
+  ['Windows Command Line & PowerShell Basics', 'Operating Systems', ['Compare cmd and PowerShell execution models.', 'Navigate files and inspect processes.', 'Use objects and pipelines in PowerShell.', 'Run basic administrative checks.']],
+  ['File Systems Explained', 'Operating Systems', ['Compare NTFS, ext4, and FAT32 structures.', 'Relate inodes, metadata, and allocation to files.', 'Inspect mounts and free space.', 'Choose filesystems for operational requirements.']],
+  ['System Logs & Log Analysis', 'Operating Systems', ['Locate Linux and Windows event sources.', 'Filter authentication and service events.', 'Extract timestamps, users, hosts, and IP indicators.', 'Build an incident timeline from logs.']],
+  ['OS Hardening Fundamentals', 'Operating Systems', ['Apply patching, least privilege, and secure defaults.', 'Disable unnecessary services.', 'Harden SSH and local authentication.', 'Verify each control with operational evidence.']],
+  ['Virtualization Concepts', 'Operating Systems', ['Compare Type 1 and Type 2 hypervisors.', 'Explain VM resources, snapshots, and isolation.', 'Identify host and guest boundaries.', 'Plan safe lab segmentation.']],
+  ['Lab Setup — VirtualBox & Kali Linux', 'Operating Systems', ['Create a Kali VM with safe resource settings.', 'Configure controlled NAT access.', 'Verify guest networking and updates.', 'Prepare a host-only practice environment.']],
+  ['Operating Systems Review & Recap', 'Operating Systems', ['Rehearse filesystem, permissions, services, logs, and hardening.', 'Trace a process from user request to service.', 'Audit a host baseline.', 'Document remediation evidence.']],
+  ['What is a Network? IP Basics', 'Networking', ['Identify hosts, IP addresses, gateways, switches, and routers.', 'Separate public and private address space.', 'Trace local and remote packet delivery.', 'Inspect a workstation address and route.']],
+  ['OSI & TCP/IP Model', 'Networking', ['Map real protocols to OSI and TCP/IP layers.', 'Trace encapsulation and decapsulation.', 'Identify layer-specific failures.', 'Follow an HTTPS request through the stack.']],
+  ['Subnetting Basics: CIDR & VLSM', 'Networking', ['Calculate network, broadcast, and usable ranges.', 'Split a /24 into /26 subnets.', 'Apply CIDR notation and VLSM planning.', 'Validate an address against its subnet.']],
+  ['Ports & Protocols', 'Networking', ['Identify well-known, registered, and ephemeral ports.', 'Compare TCP and UDP behavior.', 'Map services to port evidence.', 'Inspect sockets and service banners.']],
+  ['MAC Addresses & ARP', 'Networking', ['Read MAC addressing and ARP cache entries.', 'Trace IP-to-MAC resolution.', 'Identify ARP spoofing symptoms.', 'Distinguish local frame delivery from routing.']],
+  ['Switches vs Routers vs Hubs', 'Networking', ['Compare forwarding behavior at each device.', 'Map devices to OSI layers.', 'Trace broadcast and collision domains.', 'Select the correct device for a network requirement.']],
+  ['DNS Explained', 'Networking', ['Query A, AAAA, MX, CNAME, and TXT records.', 'Trace recursive and authoritative resolution.', 'Diagnose resolver failure.', 'Validate DNS evidence against application behavior.']],
+  ['DHCP Explained', 'Networking', ['Trace discover, offer, request, and acknowledgement.', 'Inspect leases and options.', 'Diagnose assignment failure.', 'Compare static and dynamic addressing.']],
+  ['HTTP/HTTPS & Web Traffic', 'Networking', ['Trace requests, responses, headers, and status codes.', 'Inspect TLS handshake goals.', 'Differentiate HTTP from HTTPS visibility.', 'Capture application traffic safely.']],
+  ['Firewalls & Network Security Basics', 'Networking', ['Compare stateless and stateful controls.', 'Read ACL and firewall rule order.', 'Allow and block ports deliberately.', 'Verify rules with connection tests.']],
+  ['VPNs & Tunneling Basics', 'Networking', ['Explain tunneling and encrypted transport.', 'Compare remote-access and site-to-site VPNs.', 'Inspect routes created by a tunnel.', 'Validate protected traffic paths.']],
+  ['Wireshark Introduction', 'Networking', ['Capture traffic on a chosen interface.', 'Filter DNS, TCP, HTTP, and ICMP evidence.', 'Inspect packet headers and payloads.', 'Follow a protocol conversation.']],
+  ['Network Scanning Fundamentals', 'Networking', ['Define authorized scanning scope.', 'Use service discovery responsibly.', 'Interpret port state and version evidence.', 'Record findings for remediation.']],
+  ['Wireless Networking Basics', 'Networking', ['Identify SSID, BSSID, channels, and standards.', 'Compare WPA2 and WPA3 controls.', 'Recognize wireless authentication flows.', 'Apply safe wireless assessment boundaries.']],
+  ['NAT vs Host-only Networking / Isolated Labs', 'Networking', ['Compare NAT, bridged, and host-only adapters.', 'Validate VM-to-VM isolation.', 'Trace NAT address translation.', 'Troubleshoot a lab network boundary.']],
+  ['Network Troubleshooting Methodology', 'Networking', ['Diagnose from physical layer through application layer.', 'Test address, route, DNS, and service hypotheses.', 'Record evidence before changing configuration.', 'Verify recovery with repeatable tests.']],
+  ['Networking Review & Recap', 'Networking', ['Rehearse addressing, routes, DNS, ports, capture, and isolation.', 'Perform a structured network incident triage.', 'Validate a secure network baseline.', 'Document findings and verification.']],
+];
+
+export const curriculumRoadmap: Module[] = topics.map(([title, subtitle, learn], index) => {
+  const id = `curriculum-${String(index + 1).padStart(2, '0')}`;
+  return { id, number: index + 1, title, subtitle, description: learn.join(' '), dayRange: `Module ${index + 1}`, comingSoon: false, days: [{ id: 1, slug: 'lesson', title, learn, doLab: [], example: { title: `${title} operational walkthrough`, prose: learn.map((item) => `**${item}**`).join('\n\n') }, resources: [] }] };
+});

@@ -8,6 +8,7 @@ interface InteractiveTerminalProps {
   roomTitle?: string;
   onCommandRun?: (cmd: string, output: string) => void;
   initialMessage?: string;
+  className?: string;
 }
 
 interface HistoryItem {
@@ -22,7 +23,8 @@ export function InteractiveTerminal({
   roomId = 'general',
   roomTitle,
   onCommandRun,
-  initialMessage
+  initialMessage,
+  className
 }: InteractiveTerminalProps) {
   const promptUser = TerminalProvider.getPromptForRoom(roomId);
 
@@ -121,7 +123,7 @@ export function InteractiveTerminal({
 
   return (
     <div 
-      className="w-full rounded-md border border-[#222222] bg-[#050505] font-mono text-xs shadow-2xl overflow-hidden flex flex-col h-[380px] sm:h-[440px] relative cursor-text select-text"
+      className={`w-full rounded-md border border-[#222222] bg-[#050505] font-mono text-xs shadow-2xl overflow-hidden flex flex-col relative cursor-text select-text ${className ? 'h-full' : 'h-[380px] sm:h-[440px]'}`}
       onClick={() => inputRef.current?.focus()}
     >
       {/* Hidden HTML Input for focus and typing */}

@@ -28,11 +28,11 @@ export function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between px-3 sm:px-6 lg:px-8 py-2.5 bg-white/95 dark:bg-[#080808]/95 backdrop-blur-md border-b border-[#E5E5E5] dark:border-[#2A2A2A] shrink-0 select-none font-mono transition-colors duration-200 gap-2">
+    <header className="sticky top-0 z-30 flex items-center justify-between px-2 sm:px-6 lg:px-8 py-2.5 bg-white/95 dark:bg-[#080808]/95 backdrop-blur-md border-b border-[#E5E5E5] dark:border-[#2A2A2A] shrink-0 select-none font-mono transition-colors duration-200 gap-1 sm:gap-2">
       {/* Brand / Logo */}
       <div className="flex items-center gap-2 shrink-0">
         <Link to="/dashboard" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-[#111111] dark:bg-white text-white dark:text-black flex items-center justify-center font-extrabold text-xs tracking-tighter shadow-sm group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#111111] dark:bg-white text-white dark:text-black flex items-center justify-center font-extrabold text-xs tracking-tighter shadow-sm group-hover:scale-105 transition-transform shrink-0">
             <Cpu size={16} strokeWidth={2.5} />
           </div>
           <div className="flex flex-col hidden md:flex">
@@ -58,7 +58,7 @@ export function TopBar() {
                 to={item.to}
                 id={`nav-item-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                 className={cn(
-                  'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all duration-200 ease-out select-none shrink-0 cursor-pointer',
+                  'flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all duration-200 ease-out select-none shrink-0 cursor-pointer',
                   active
                     ? 'bg-[#111111] text-white dark:bg-white dark:text-[#080808] font-extrabold shadow-xs'
                     : 'text-[#666666] dark:text-[#999999] hover:text-[#111111] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
@@ -73,7 +73,7 @@ export function TopBar() {
                 />
                 <span
                   className={cn(
-                    'font-heading tracking-wide uppercase text-[10px] sm:text-xs whitespace-nowrap',
+                    'hidden sm:inline font-heading tracking-wide uppercase text-[10px] sm:text-xs whitespace-nowrap',
                     active ? 'text-white dark:text-[#080808] font-extrabold' : 'text-current'
                   )}
                 >

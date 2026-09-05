@@ -100,13 +100,6 @@ export function ModulePreview({ progress }: ModulePreviewProps) {
                     {!module.comingSoon ? (
                       <>
                         <ProgressBar value={pct} size="sm" className="w-28 md:w-36" />
-                        <Link
-                          to="/roadmap"
-                          className="inline-flex items-center gap-1 text-xs font-mono font-medium text-white hover:text-zinc-300 transition-colors"
-                        >
-                          <span>Open Module</span>
-                          <ArrowRight size={13} />
-                        </Link>
                       </>
                     ) : (
                       <span className="text-xs font-mono text-zinc-500">

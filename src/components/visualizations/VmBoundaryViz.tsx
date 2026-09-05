@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Cpu, ShieldCheck, Globe, Wifi, WifiOff } from 'lucide-react';
 
 type NetMode = 'NAT' | 'HOST_ONLY' | 'BRIDGED';
@@ -47,13 +48,29 @@ const NET_MODES: Record<NetMode, ModeDetail> = {
   }
 };
 
+const easeOut: [number, number, number, number] = [0.4, 0, 0.2, 1];
+const trans = { duration: 0.4, ease: easeOut };
+
 export function VmBoundaryViz() {
   const [activeMode, setActiveMode] = useState<NetMode>('HOST_ONLY');
+  const [_animProgress, setAnimProgress] = useState(0);
   const mode = NET_MODES[activeMode];
+
+  const handleModeChange = (m: NetMode) => {
+    setActiveMode(m);
+    setAnimProgress(0);
+    const startTime = performance.now();
+    const duration = 800;
+    const tick = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      setAnimProgress(t);
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
 
   return (
     <div className="space-y-5 font-mono select-none w-full">
-      {/* Network Mode Selection Bar */}
       <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#F7F7F7] dark:bg-[#141414] border border-[#E5E5E5] dark:border-[#2A2A2A]">
         <div className="flex items-center gap-2 overflow-x-auto">
           <span className="text-xs font-bold text-[#888888] dark:text-[#777777] uppercase shrink-0">
@@ -67,8 +84,8 @@ export function VmBoundaryViz() {
                 key={m}
                 id={`vm-mode-${m.toLowerCase()}`}
                 type="button"
-                onClick={() => setActiveMode(m)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer border shrink-0 ${
+                onClick={() => handleModeChange(m)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all duration-300 cursor-pointer border shrink-0 ${
                   isActive
                     ? 'bg-[#111111] dark:bg-white text-white dark:text-black border-[#111111] dark:border-white shadow-sm'
                     : 'bg-white dark:bg-[#1C1C1C] text-[#666666] dark:text-[#999999] border-[#E5E5E5] dark:border-[#2A2A2A] hover:border-[#111111] dark:hover:border-white'
@@ -81,44 +98,125 @@ export function VmBoundaryViz() {
         </div>
       </div>
 
-      {/* Interactive Boundary SVG Canvas */}
       <div className="relative rounded-2xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#101010] p-6 flex justify-center items-center overflow-hidden min-h-[300px] shadow-sm">
         <svg viewBox="0 0 540 280" aria-label="Host OS to VirtualBox to Kali VM boundary" className="w-full max-h-[300px]">
-          {/* Host OS Container */}
-          <rect x="15" y="30" width="180" height="220" rx="12" fill="var(--bg-surface)" stroke="var(--border)" strokeWidth="2" />
+          <motion.rect
+            x="15" y="30" width="180" height="220" rx="12"
+            fill="var(--bg-surface)"
+            stroke="var(--border)"
+            strokeWidth="2"
+            animate={{ stroke: 'var(--border)', strokeWidth: 2 }}
+            transition={trans}
+          />
           <text x="105" y="58" textAnchor="middle" fontSize="11" fontFamily="monospace" fill="var(--text-muted)" fontWeight="900">HOST OS</text>
           <text x="105" y="74" textAnchor="middle" fontSize="9" fontFamily="monospace" fill="var(--text-muted)">Windows / macOS / Linux</text>
-          <rect x="30" y="96" width="150" height="32" rx="6" fill="var(--bg-card)" stroke="var(--border)" strokeWidth="1" />
+          <motion.rect
+            x="30" y="96" width="150" height="32" rx="6"
+            fill="var(--bg-card)"
+            stroke={mode.internetAccess ? 'var(--text-primary)' : 'var(--border)'}
+            strokeWidth="1.5"
+            animate={{ stroke: mode.internetAccess ? 'var(--text-primary)' : 'var(--border)', strokeWidth: 1.5 }}
+            transition={trans}
+          />
           <text x="105" y="116" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-secondary)">PHYSICAL ADAPTER</text>
 
-          {/* Hypervisor Boundary */}
-          <rect x="210" y="20" width="315" height="240" rx="12" fill="none" stroke="var(--border-bright)" strokeWidth="2.5" strokeDasharray="8 5" />
+          <motion.rect
+            x="210" y="20" width="315" height="240" rx="12"
+            fill="none"
+            stroke="var(--border-bright)"
+            strokeWidth="2.5"
+            animate={{ stroke: 'var(--border-bright)', strokeWidth: 2.5 }}
+            transition={trans}
+            strokeDasharray="8 5"
+          />
           <text x="367" y="42" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-muted)" fontWeight="900">VIRTUALBOX HYPERVISOR</text>
 
-          {/* Kali Linux VM */}
-          <rect x="228" y="55" width="280" height="190" rx="10" fill="var(--bg-card)" stroke="var(--border-bright)" strokeWidth="2" />
+          <motion.rect
+            x="228" y="55" width="280" height="190" rx="10"
+            fill="var(--bg-card)"
+            stroke="var(--border-bright)"
+            strokeWidth="2"
+            animate={{ stroke: 'var(--border-bright)', strokeWidth: 2 }}
+            transition={trans}
+          />
           <text x="368" y="82" textAnchor="middle" fontSize="13" fontFamily="monospace" fill="var(--text-primary)" fontWeight="900">KALI LINUX VM</text>
-          <text x="368" y="100" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-muted)">{mode.ipRange}</text>
+          <motion.text
+            x="368" y="100" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-muted)"
+            key={`ip-${activeMode}`}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={trans}
+          >
+            {mode.ipRange}
+          </motion.text>
 
-          {/* VM Apps */}
-          <rect x="248" y="118" width="240" height="34" rx="6" fill="var(--bg-surface)" stroke="var(--border)" strokeWidth="1" />
-          <text x="368" y="139" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-secondary)">
+          <motion.rect
+            x="248" y="118" width="240" height="34" rx="6"
+            fill="var(--bg-surface)"
+            stroke="var(--border)"
+            strokeWidth="1"
+            animate={{ fill: 'var(--bg-surface)' }}
+            transition={trans}
+          />
+          <motion.text
+            x="368" y="139" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-secondary)"
+            key={`apps-${activeMode}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={trans}
+          >
             {activeMode === 'HOST_ONLY' ? 'ISOLATED LAB TOOLS (NMAP/BURP)' : 'INTERNET PROBES (CURL/APT)'}
-          </text>
+          </motion.text>
 
-          {/* Traffic Status Indicator */}
-          <rect x="248" y="165" width="240" height="42" rx="6" fill="var(--bg-surface)" stroke={mode.internetAccess ? 'var(--text-primary)' : 'var(--border)'} strokeWidth="1.5" />
-          <text x="368" y="184" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-primary)" fontWeight="900">
-            {mode.internetAccess ? '🌐 WAN INTERNET ACCESS: ENABLED' : '🔒 INTERNET ACCESS: BLOCKED (ISOLATED)'}
-          </text>
-          <text x="368" y="198" textAnchor="middle" fontSize="9" fontFamily="monospace" fill="var(--text-muted)">
-            {mode.vmToVm ? '✓ VM-to-VM Traffic Allowed' : '✗ Isolated from Other VMs'}
-          </text>
+          <motion.rect
+            x="248" y="165" width="240" height="42" rx="6"
+            fill="var(--bg-surface)"
+            stroke={mode.internetAccess ? 'var(--text-primary)' : 'var(--border)'}
+            strokeWidth="1.5"
+            animate={{ stroke: mode.internetAccess ? 'var(--text-primary)' : 'var(--border)', strokeWidth: 1.5 }}
+            transition={trans}
+          />
+          <motion.text
+            x="368" y="184" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--text-primary)" fontWeight="900"
+            key={`access-${activeMode}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={trans}
+          >
+            {mode.internetAccess ? 'WAN INTERNET ACCESS: ENABLED' : 'INTERNET ACCESS: BLOCKED (ISOLATED)'}
+          </motion.text>
+          <motion.text
+            x="368" y="198" textAnchor="middle" fontSize="9" fontFamily="monospace" fill="var(--text-muted)"
+            key={`vm-${activeMode}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ ...trans, delay: 0.1 }}
+          >
+            {mode.vmToVm ? 'VM-to-VM Traffic Allowed' : 'Isolated from Other VMs'}
+          </motion.text>
+
+          {mode.isolationLevel === 'High' && (
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ ...trans, delay: 0.3 }}
+            >
+              <rect x="228" y="55" width="280" height="190" rx="10" fill="none" stroke="var(--text-primary)" strokeWidth="3" opacity="0.5" />
+              <text x="368" y="250" textAnchor="middle" fontSize="9" fontFamily="monospace" fill="var(--text-primary)" fontWeight="700" opacity="0.7">
+                ISOLATION BARRIER ACTIVE
+              </text>
+            </motion.g>
+          )}
         </svg>
       </div>
 
-      {/* Mode Characteristics Inspector */}
-      <div className="p-5 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-4 shadow-xs font-mono">
+      <motion.div
+        key={activeMode}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={trans}
+        className="p-5 rounded-xl border border-[#E5E5E5] dark:border-[#2A2A2A] bg-white dark:bg-[#141414] space-y-4 shadow-xs font-mono"
+      >
         <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#2A2A2A] pb-3">
           <div className="flex items-center gap-2.5">
             <Cpu size={16} />
@@ -128,8 +226,10 @@ export function VmBoundaryViz() {
           </div>
           <span className={`text-xs font-bold px-2.5 py-1 rounded-md border uppercase ${
             mode.isolationLevel === 'High'
-              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300'
-              : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-300'
+              ? 'bg-[#F0F0F0] text-[#333333] border-[#CCCCCC] dark:bg-[#1E1E1E] dark:text-[#B5B5B5] dark:border-[#3E3E3E]'
+              : mode.isolationLevel === 'Medium'
+              ? 'bg-[#F5F5F5] text-[#555555] border-[#CCCCCC] dark:bg-[#1E1E1E] dark:text-[#999999] dark:border-[#3E3E3E]'
+              : 'bg-[#FAFAFA] text-[#666666] border-[#CCCCCC] dark:bg-[#1E1E1E] dark:text-[#888888] dark:border-[#3E3E3E]'
           }`}>
             ISOLATION: {mode.isolationLevel}
           </span>
@@ -143,7 +243,7 @@ export function VmBoundaryViz() {
           <div className="p-3 rounded-lg bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-center space-y-1">
             <span className="text-[#888888] dark:text-[#777777] block font-bold text-[10px]">INTERNET ROUTING</span>
             <span className="font-extrabold flex items-center justify-center gap-1.5 text-[#111111] dark:text-white text-xs">
-              {mode.internetAccess ? <Wifi size={14} className="text-emerald-500" /> : <WifiOff size={14} className="text-rose-500" />}
+              {mode.internetAccess ? <Wifi size={14} /> : <WifiOff size={14} />}
               {mode.internetAccess ? 'ACTIVE' : 'BLOCKED'}
             </span>
           </div>
@@ -151,7 +251,7 @@ export function VmBoundaryViz() {
           <div className="p-3 rounded-lg bg-[#F7F7F7] dark:bg-[#181818] border border-[#E5E5E5] dark:border-[#2A2A2A] text-center space-y-1">
             <span className="text-[#888888] dark:text-[#777777] block font-bold text-[10px]">LAN VISIBILITY</span>
             <span className="font-extrabold flex items-center justify-center gap-1.5 text-[#111111] dark:text-white text-xs">
-              {mode.lanVisibility ? <Globe size={14} className="text-emerald-500" /> : <ShieldCheck size={14} className="text-emerald-500" />}
+              {mode.lanVisibility ? <Globe size={14} /> : <ShieldCheck size={14} />}
               {mode.lanVisibility ? 'VISIBLE' : 'HIDDEN'}
             </span>
           </div>
@@ -163,7 +263,7 @@ export function VmBoundaryViz() {
             </span>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
