@@ -62,8 +62,8 @@ export function RoomDetailPage() {
   const [quizSelectedAnswers, setQuizSelectedAnswers] = useState<Record<number, string>>({});
   const [quizFeedback, setQuizFeedback] = useState<string | null>(null);
 
-  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const bannerTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto initialize lab session if not running
   useEffect(() => {
